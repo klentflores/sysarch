@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CCS Sit-in Monitoring System</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+<body>
+    <nav class="navbar">
+        <div class="logo=text"><b>College of Computer Studies Sit-in Monitoring System</b></div>
+        <ul class="nav-links">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="#">Community</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="index.html">Login</a></li>
+            <li><a href="register.html">Register</a></li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <div class="left-logo-section">
+            <img src="images/ccs.png" alt="CCS Logo">
+        </div>
+
+        <div class="right-form-section">
+            <div class="login-card">
+            <h4>Have an account?</h4>
+            <h1>Sign In</h1>
+            <form action="#" method="POST">
+                <div class="input-group">
+                    <input type="text" id="loginID" placeholder="🪪 Enter a Valid ID Number or Email" required>
+                </div>
+
+                <div class="input-group">
+                    <input type="password" id="passwordField" placeholder="🔏 Enter Password" required>
+                    <span class="password-toggle" onclick="toggleVisibility()">🧿</span>
+                </div>
+                
+                <div class="form-options">
+                    <label class="remember-me"><input type="checkbox"> Remember me </label>
+
+                    <a href="#" class="forgot-pass">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="login-button">Log in</button>
+                
+                <p class="register-text">Don't have an account? <a href="register.html" class="register-link">Sign Up</a></p>
+            </form>
+        </div>
+    </div>
+
+</body>
+<script>
+function toggleVisibility() {
+    const passwordInput = document.getElementById("passwordField");
+    const toggleIcon = document.querySelector(".password-toggle");
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleIcon.textContent = "🚫";
+    } else {
+        passwordInput.type = "password";
+        toggleIcon.textContent = "🧿";
+    }
+}
+document.querySelector('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const loginInput = document.getElementById('loginID').value;
+    const password = document.getElementById('passwordField').value;
+
+    try {
+        const response = await fetch('http://localhost:3000/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ loginInput, password }) 
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem("userName", data.user.firstName);
+            window.location.href = "home.html";
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Connection failed. Is server.js running?");
+    }
+});
+</script>
+</html>

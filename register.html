@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - CCS Sit-in Monitoring</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="register-wrapper">
+        <div class="register-container">
+
+            <div class="register-content">
+                <div class="form-column">
+
+                    <div class="reg-header">
+                        <img src="images/register.png" alt="Register Icon">
+                        <h1 class="align-left">Registration</h1>
+                    </div>
+
+                    <h2>Get started on CCS</h2>
+                    <h4>Create your CCS student account to access academic services, course information, and campus resources.</h4>
+
+                    <form id="registerForm">
+
+                        <div class="reg-input-group">
+                            <input type="text" name="idNumber" placeholder="🪪 ID Number" required>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="text" name="lastName" placeholder="👤 Last Name" required>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="text" name="firstName" placeholder="👤 First Name" required>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="text" name="middleName" placeholder="👤 Middle Name" required>
+                        </div>
+
+                        <div class="row-group">
+                            <div class="reg-input-group">
+                                <input list="course-levels" placeholder="🧑‍🎓 Course Level" required>
+                                <datalist id="course-levels">
+                                    <option value="1st year">
+                                    <option value="2nd year">
+                                    <option value="3rd year">
+                                    <option value="4th year">
+                                </datalist>
+                            </div>
+
+                            <div class="reg-input-group">
+                                <input list="courses" placeholder="📚 Course" required>
+                                <datalist id="courses">
+                                    <option value="BSIT">
+                                    <option value="BSCS">
+                                    <option value="BSCE">
+                                    <option value="BSBA">
+                                </datalist>
+                            </div>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="password" id="pass1" name="password" placeholder="🔒 Password" required>
+                            <span class="password-toggle" onclick="togglePass('pass1')">🧿</span>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="password" id="pass2" name="confirmPassword" placeholder="🔐 Confirm Password" required>
+                            <span class="password-toggle" onclick="togglePass('pass2')">🧿</span>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="email" name="email" placeholder="✉️ Email" required>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="text" name="address" placeholder="🏠 Address" required>
+                        </div>
+
+                        <div class="btn-center">
+                            <button type="submit" class="reg-submit-btn">Register</button>
+                            <div class="cancel-center"><a href="index.html" class="cancel-btn">Cancel</a></div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="image-column">
+                    <img src="images/signup.png" alt="Registration Illustration">
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+</body>
+<script>
+function togglePass(id) {
+    const input = document.getElementById(id);
+    const icon = input.nextElementSibling;
+
+    if (input.type === "password") {
+        input.type = "text";
+        icon.textContent = "🚫";
+    } else {
+        input.type = "password";
+        icon.textContent = "🧿";
+    }
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("registerForm");
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const password = form.password.value;
+        const confirmPassword = form.confirmPassword.value;
+
+        
+        if (password !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+       
+        const userData = {
+            idNumber: form.idNumber.value,
+            lastName: form.lastName.value,
+            firstName: form.firstName.value,
+            middleName: form.middleName.value,
+            email: form.email.value,
+            password: password,
+            address: form.address.value
+        };
+
+        try {
+            const response = await fetch("http://localhost:3000/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(userData)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(data.message);
+                window.location.href = "index.html";
+            } else {
+                alert("Error: " + data.error);
+            }
+        } catch (error) {
+            alert("Server not running!");
+            console.error(error);
+        }
+    });
+});
+</script>
+</html>
