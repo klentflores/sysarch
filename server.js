@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS users (
     lastName TEXT,
     firstName TEXT,
     middleName TEXT,
+    course TEXT,
+    yearLevel TEXT,
     email TEXT,
     password TEXT,
     address TEXT
@@ -37,17 +39,20 @@ app.post("/register", (req, res) => {
         lastName,
         firstName,
         middleName,
+        course,
+        yearLevel,
         email,
         password,
-        address
+        address,
+
     } = req.body;
 
     const sql = `
-    INSERT INTO users (idNumber, lastName, firstName, middleName, email, password, address)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO users (idNumber, lastName, firstName, middleName, course, yearLevel, email, password, address)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.run(sql, [idNumber, lastName, firstName, middleName, email, password, address], function(err) {
+    db.run(sql, [idNumber, lastName, firstName, middleName, course, yearLevel, email, password, address], function(err) {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
@@ -56,25 +61,28 @@ app.post("/register", (req, res) => {
     });
 });
 
-// --- LOGIN ROUTE --- //
-app.post("/login", (req, res) => {
-    console.log("Login Attempt:", req.body);
-    const { loginInput, password } = req.body;
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
 
+// --- UPDATED LOGIN ROUTE --- //
+app.post("/login", (req, res) => {
+    const { loginInput, password } = req.body;
     const sql = `SELECT * FROM users WHERE email = ? OR idNumber = ?`;
 
     db.get(sql, [loginInput, loginInput], (err, user) => {
         if (err) return res.status(500).json({ error: err.message });
 
         if (user && user.password === password) {
-            res.json({ message: "Login successful!", user: { firstName: user.firstName } });
+            res.json({ 
+                message: "Login successful!", 
+                user: user 
+            });
         } else {
             res.status(401).json({ message: "Invalid credentials." });
         }
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+
 

@@ -9,7 +9,6 @@ body {
     color: #333;
 }
 
-
 /*-----Navigation-----*/
 .navbar {
     background-color: #0056b3; 
@@ -18,16 +17,40 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 .nav-links {
     list-style: none;
     display: flex;
-    gap: 30px;
+    gap: 35px;
 }
 .nav-links a {
     color: white;
-    text-decoration: none; 
+    text-decoration: none;
     font-size: 15px;
+    position: relative;
+    padding: 5px 0;
+    display: inline-block;
+    transition: all 0.4s ease;
+}
+.nav-links a::after {
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: 0;
+    left: 50%;
+    background-color: #ffcc00;
+    transition: width 0.2s ease;
+}
+.nav-links a:hover {
+    color: #ffcc00;
+    transform: scale(1.05);
+}
+.nav-links a.active {
+    color: #ffcc00;
+}
+.nav-links a.active::after {
+    width: 100%;
 }
 
 
@@ -137,7 +160,7 @@ body {
     text-decoration: none;
 }
 .forgot-pass:hover {
-    text-decoration: underline;
+    color: #da0ca6;
 }
 
 
@@ -155,7 +178,7 @@ body {
     transition: background-color 0.2s;
 }
 .login-button:hover {
-    background-color: #0056b3;
+    background-color: #da0ca6;
 }
 
 
@@ -170,7 +193,7 @@ body {
     text-decoration: none;
 }
 .register-link:hover {
-    text-decoration: underline;
+    color: #da0ca6;
 }
 
 
@@ -304,7 +327,7 @@ body {
     cursor: pointer;
 }
 .reg-submit-btn:hover {
-    background-color: #0056b3;
+    background-color: #da0ca6;
 }
 .reg-submit-btn {
     background-color: #007bff;
@@ -329,5 +352,6 @@ body {
     padding: 10px 25px;
 }
 .cancel-btn:hover {
-    background-color: #f44336;
+    background-color: #da0ca6;
 }
+

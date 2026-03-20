@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CCS Sit-in Monitoring</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<style>
+    /*-----DASHBOARD-----*/
+        .logo-text:hover {
+            color: #ffcc00;
+            transition: width 0.2s ease;
+            transform: scale(1.05);
+        }
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr 1.5fr;
+            gap: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            align-items: start;
+        }
+        .dash-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+        .card-header {
+            background-color: #0056b3;
+            color: white;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: block;
+            margin: 0 auto 15px;
+            border: 2px solid #0056b3;
+            object-fit: cover;
+        }
+        .info-row {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .announcement-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+        .announcement-date {
+            font-size: 25px;
+            font-weight: bold;
+            color: #da0ca6;
+        }
+        .rules-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #444;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+</style>
+<body>
+
+    <nav class="navbar">
+        <div class="logo-text"><b>Dashboard</b></div>
+        <ul class="nav-links">
+            <li><a href="#">Notification ▾</a></li>
+            <li><a href="dashboard.html">Home</a></li>
+            <li><a href="editprofile.html">Edit Profile</a></li>
+            <li><a href="history.html">History</a></li>
+            <li><a href="reservation.html">Reservation</a></li>
+            <li><a href="index.html" class="logout-btn">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="dashboard-container">
+        
+        <div class="dash-card">
+            <div class="card-header">📋 Student Information</div>
+            <div class="card-body">
+                <img src="images/avatar.png" alt="Student Photo" class="profile-img">
+                <div class="info-row"><b>🪪 ID Number:</b> <span id="display-id">Loading...</span></div>
+                <div class="info-row"><b>👤 Name:</b> <span id="display-name">Loading...</span></div>
+                <div class="info-row"><b>🎓 Course:</b> <span id="display-course">Loading...</span></div>
+                <div class="info-row"><b>✉️ Email:</b> <span id="display-email">Loading...</span></div>
+                <div class="info-row"><b>📈 Year:</b> <span id="display-yearLevel">Loading...</span></div>
+                <div class="info-row"><b>🏠 Address:</b> <span id="display-address">Loading...</span></div>
+            </div>
+        </div>
+
+        <div class="dash-card">
+            <div class="card-header">📢 Announcement</div>
+            <div class="card-body">
+                <div class="announcement-item">
+                    <div class="announcement-date">CCS Admin 2025 - 2026</div>
+                    <p style="font-size: 17px; margin-top: 10px;"><b>Welcome to the New Semester, College of Computer Studies‼️</b></p>
+                    <p style="font-size: 15px; margin-top: 10px;">We’re excited to begin a new academic journey filled with learning, innovation, and success.🚀📚</p>
+                </div>
+                <div class="announcement-item">
+                    <div class="announcement-date">CCS Admin</div>
+                    <p style="font-size: 20px; margin-top: 10px;"><b>📢 Important Announcement‼️</b></p>
+                    <p style="font-size: 15px; margin-top: 10px;">We are excited to announce the launch of our new website 🎉 Explore our latest features, services, and updates designed to give you a better and more efficient experience. 🚀💻</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="dash-card">
+            <div class="card-header">📖 Rules and Regulation</div>
+            <div class="card-body">
+                <div class="rules-text">
+                    <center><b style="font-size: 20px; color: #da0ca6;">University of Cebu</b><br><b>COLLEGE OF INFORMATION & COMPUTER STUDIES</b></center><br>
+
+                    <b>LABORATORY RULES AND REGULATIONS</b>
+
+                    <p style="margin-bottom: 15px; margin-top: 15px; font-size: 15px;">To avoid embarrassment and maintain camaraderie with your friends and superiors at our laboratories, please observe the following:</p>
+
+                    <ul style="padding-left: 20px; margin-top: 10px;">
+                    <li>Maintain silence and proper decorum inside the laboratory.</li>
+                    <li>Games are not allowed inside the lab.</li>
+                    <li>Surfing the internet is allowed only with permission.</li>
+                    <li>Eating and drinking are strictly prohibited.</li>
+                    <li>Always log in using your assigned account.</li>
+                    <li>Do not access unauthorized files or systems.</li>
+                    <li>Handle all computer equipment with care.</li>
+                    <li>Report any hardware or software issues to the instructor immediately.</li>
+                    <li>Follow all instructions given by the laboratory instructor.</li>
+                    <li>Keep your workspace clean and organized at all times.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const sessionData = localStorage.getItem("userSession");
+
+    if (sessionData) {
+        const user = JSON.parse(sessionData);
+
+        document.getElementById("display-name").textContent = user.firstName + " " + user.middleName +" "+ user.lastName;
+        document.getElementById("display-email").textContent = user.email;
+        document.getElementById("display-address").textContent = user.address;
+        document.getElementById("display-course").textContent = user.course;
+        document.getElementById("display-yearLevel").textContent = user.yearLevel;
+
+        if(document.getElementById("display-id")) {
+            document.getElementById("display-id").textContent = user.idNumber;
+        }
+    } else {
+        window.location.href = "index.html";
+    }
+});
+</script>
+</body>
+</html>

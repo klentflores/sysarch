@@ -6,15 +6,28 @@
     <title>Home - CCS Sit-in Monitoring</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        .navbar {
+            background-color: #0056b3; 
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+            position: relative;
+            z-index: 10;
+        }
         .home-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
             text-align: center;
             background-color: #fff;
+            
         }
         .large-logo {
-            width: 450px;
+            width: 500px;
             height: auto;
             margin-top: 50px;
         }
@@ -40,8 +53,8 @@
             display: inline-block;
         }
         .btn-start:hover {
-            background-color: #0056b3;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            background-color: #da0ca6;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
     </style>
 </head>
@@ -50,8 +63,8 @@
     <nav class="navbar">
         <div class="nav-container">
             <span class="system-title"><b>College of Computer Studies Sit-in Monitoring System</b></span>
-        </div>
-    </nav>
+        </nav>
+    </div>
     <div class="home-wrapper">
         <div class="home-content">
             <img src="images/ccs.png" alt="CCS Logo" class="large-logo">

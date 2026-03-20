@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - CCS Portal</title>
+    <link rel="stylesheet" href="style.css"> 
+    <style>
+        /* Small adjustments to ensure the container is centered without a navbar */
+        .register-wrapper {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        input[readonly] {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-wrapper"> 
+        <div class="register-container">
+            <div class="register-content">
+                
+                <div class="form-column">
+                    <div class="reg-header">
+                        <img src="images/register.png" alt="Profile Icon">
+                        <h1 class="align-left">Edit Profile</h1>
+                    </div>
+
+                    <h2>Update your information</h2>
+                    <h4>Modify your details below. Your ID Number is fixed for security.</h4>
+
+                    <form id="editProfileForm">
+                        <div class="reg-input-group">
+                            <input type="text" id="edit-id" readonly title="ID Number cannot be changed">
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="text" id="edit-lastName" placeholder="👤 Last Name" required>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="text" id="edit-firstName" placeholder="👤 First Name" required>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="text" id="edit-middleName" placeholder="👤 Middle Name">
+                        </div>
+
+                        <div class="row-group">
+                            <div class="reg-input-group">
+                                <input id="edit-yearLevel" list="course-levels" placeholder="🧑‍🎓 Year Level" required>
+                                <datalist id="course-levels">
+                                    <option value="1st year">
+                                    <option value="2nd year">
+                                    <option value="3rd year">
+                                    <option value="4th year">
+                                </datalist>
+                            </div>
+
+                            <div class="reg-input-group">
+                                <input id="edit-course" list="courses" placeholder="📚 Course" required>
+                                <datalist id="courses">
+                                    <option value="BSIT">
+                                    <option value="BSCS">
+                                    <option value="BSCE">
+                                    <option value="BSBA">
+                                </datalist>
+                            </div>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="email" id="edit-email" placeholder="✉️ Email" required>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="text" id="edit-address" placeholder="🏠 Address" required>
+                        </div>
+
+                        <div class="btn-center">
+                            <button type="submit" class="reg-submit-btn">Save Changes</button>
+                            <div class="cancel-center">
+                                <a href="dashboard.html" class="cancel-btn">Back to Dashboard</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="image-column">
+                    <img src="images/edit-profile-illustration.png" alt="Edit Illustration">
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+    // Try to get the user from storage
+    const userData = localStorage.getItem("user");
+    
+    if (userData) {
+        const user = JSON.parse(userData);
+        
+        // Fill the boxes with the user's current data
+        document.getElementById("edit-id").value = user.idNumber;
+        document.getElementById("edit-lastName").value = user.lastName;
+        document.getElementById("edit-firstName").value = user.firstName;
+        document.getElementById("edit-middleName").value = user.middleName || "";
+        document.getElementById("edit-yearLevel").value = user.yearLevel;
+        document.getElementById("edit-course").value = user.course;
+        document.getElementById("edit-email").value = user.email;
+        document.getElementById("edit-address").value = user.address;
+    } else {
+        // STOP THE BLINKING: Redirect to LOGIN, not the same page!
+        window.location.href = "index.html"; 
+    }
+
+    // Save logic
+    document.getElementById("editProfileForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        alert("Updating database...");
+        // I can help you with the fetch() request here next!
+    });
+});
+    </script>
+</body>
+</html>

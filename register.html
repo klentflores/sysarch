@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="register-wrapper">
         <div class="register-container">
 
@@ -20,7 +19,7 @@
                     </div>
 
                     <h2>Get started on CCS</h2>
-                    <h4>Create your CCS student account to access academic services, course information, and campus resources.</h4>
+                    <h4 style="margin-top: 10px;">Create your CCS student account to access academic services, course information, and campus resources.</h4>
 
                     <form id="registerForm">
 
@@ -40,9 +39,9 @@
                             <input type="text" name="middleName" placeholder="👤 Middle Name" required>
                         </div>
 
-                        <div class="row-group">
+                       <div class="row-group">
                             <div class="reg-input-group">
-                                <input list="course-levels" placeholder="🧑‍🎓 Course Level" required>
+                                <input id="yearLevel" list="course-levels" placeholder="🧑‍🎓 Course Level" required>
                                 <datalist id="course-levels">
                                     <option value="1st year">
                                     <option value="2nd year">
@@ -52,7 +51,7 @@
                             </div>
 
                             <div class="reg-input-group">
-                                <input list="courses" placeholder="📚 Course" required>
+                                <input id="course" list="courses" placeholder="📚 Course" required>
                                 <datalist id="courses">
                                     <option value="BSIT">
                                     <option value="BSCS">
@@ -111,7 +110,6 @@ function togglePass(id) {
     }
 }
 
-
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("registerForm");
 
@@ -127,12 +125,13 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-       
         const userData = {
             idNumber: form.idNumber.value,
             lastName: form.lastName.value,
             firstName: form.firstName.value,
             middleName: form.middleName.value,
+            course: form.course.value,
+            yearLevel: form.yearLevel.value,
             email: form.email.value,
             password: password,
             address: form.address.value
@@ -155,6 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 alert("Error: " + data.error);
             }
+
         } catch (error) {
             alert("Server not running!");
             console.error(error);

@@ -80,14 +80,18 @@ document.querySelector('form').addEventListener('submit', async (e) => {
         const data = await response.json();
 
         if (response.ok) {
-            localStorage.setItem("userName", data.user.firstName);
-            window.location.href = "home.html";
+
+            localStorage.setItem("userSession", JSON.stringify(data.user));
+            
+            alert(`Successful Login!\nWelcome, ${data.user.firstName}!`);
+
+            window.location.href = "dashboard.html";
         } else {
             alert(data.message);
         }
     } catch (error) {
         console.error("Error:", error);
-        alert("Connection failed. Is server.js running?");
+        alert("Connection failed. Please ensure your server.js is running.");
     }
 });
 </script>
