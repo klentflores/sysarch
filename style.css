@@ -87,7 +87,7 @@ body {
     background-color: #fff;
     padding: 40px;
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     border: 1px solid #f0f0f0;
     overflow: hidden;
     
@@ -175,7 +175,7 @@ body {
     font-size: 17px;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 1s;
 }
 .login-button:hover {
     background-color: #da0ca6;
@@ -191,6 +191,7 @@ body {
 .register-link {
     color: #3495fc; 
     text-decoration: none;
+    
 }
 .register-link:hover {
     color: #da0ca6;
@@ -207,7 +208,6 @@ body {
     align-items: center;
 }
 
-
 /*-----Register Container/box-----*/
 .register-container {
     background-color: white;
@@ -218,6 +218,7 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     position: relative;
 }
+
 .reg-header {
     display: flex;
     align-items: center;
@@ -325,6 +326,7 @@ body {
     border-radius: 5px;
     font-size: 15px;
     cursor: pointer;
+    transition: background-color 1s;
 }
 .reg-submit-btn:hover {
     background-color: #da0ca6;
@@ -343,6 +345,7 @@ body {
     border: none;
     font-size: 15px;
     cursor: pointer;
+    transition: background-color 1s;
 }
 .cancel-btn {
     background-color: #007bff;
@@ -350,6 +353,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 10px 25px;
+    transition: background-color 1s;
 }
 .cancel-btn:hover {
     background-color: #da0ca6;

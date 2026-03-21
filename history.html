@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Information - CCS Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .logo-text:hover {
+            color: #ffcc00;
+            transition: width 0.2s ease;
+            transform: scale(1.05);
+        }
+
+        .history-container {
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .history-card {
+            background: white;
+            width: 90%;
+            max-width: 1200px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Table Design */
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .styled-table thead tr {
+            background-color: #0056b3; /* Matching your blue theme */
+            color: #ffffff;
+            text-align: left;
+        }
+
+        .styled-table th, .styled-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .styled-table tbody tr:nth-of-type(even) {
+            background-color: #f3f3f3;
+        }
+
+        /* Feedback Button */
+        .feedback-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .feedback-btn:hover {
+            background-color: #218838;
+        }
+
+        /* Header Actions */
+        .table-header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-text"><b>Sit-in System History</b></div>
+        <ul class="nav-links">
+            <li><a href="#">✉ Notification 🔻</a></li>
+            <li><a href="dashboard.html">🏠︎ Dashboard</a></li>
+            <li><a href="editprofile.html">✎ Edit Profile</a></li>
+            <li><a href="history.html" class="active">🕮 History</a></li>
+            <li><a href="reservation.html">🗒 Reservation</a></li>
+            <li><a href="index.html">⏻ Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="history-container">
+        <div class="history-card">
+            <center><h1>History Information</h1></center>
+            
+            <div class="table-header-actions">
+                <div class="entries-control">
+                    Show 
+                    <select id="entryCount">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                    </select> entries per page
+                </div>
+                <div class="search-container">
+                    Search: <input type="text" id="tableSearch">
+                </div>
+            </div>
+
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>ID Number</th>
+                        <th>Name</th>
+                        <th>Sit Purpose</th>
+                        <th>Laboratory</th>
+                        <th>Login</th>
+                        <th>Logout</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="historyData">
+                    </tbody>
+            </table>
+
+            <div class="table-footer">
+                <p id="entryInfo">Showing 0 to 0 of 0 entries</p>
+                <div class="pagination">
+                    <button>«</button>
+                    <button class="active">1</button>
+                    <button>»</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    
+    </script>
+</body>
+</html>

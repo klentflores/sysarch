@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation - CCS Sit-in Monitoring</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+    .logo-text:hover {
+        color: #ffcc00;
+        transition: width 0.2s ease;
+        transform: scale(1.05);
+    }
+    .reservation-container {
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px;
+        margin-top: 50px;
+    }
+
+    .reservation-card {
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 800px;
+    }
+
+    .reservation-card h1 {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .reservation-card .input-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .reservation-card label {
+        width: 200px;
+        font-weight: bold;
+    }
+
+    .reservation-card input {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+    }
+
+    .btn-blue {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-left: 200px;
+        transition: background-color 1s;
+    }
+    .btn-blue:hover {
+        background-color: #da0ca6;
+    }
+
+    .reserve-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background-color 1s;
+    }
+    .reserve-button:hover {
+        background-color: #da0ca6;
+    }
+
+    .mt-20 { 
+        margin-top: 15px; 
+    }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-text"><b>Reservation</b></div>
+        <ul class="nav-links">
+            <li><a href="#">✉ Notification 🔻</a></li>
+            <li><a href="dashboard.html">🏠︎ Dashboard</a></li>
+            <li><a href="editprofile.html">✎ Edit Profile</a></li>
+            <li><a href="history.html">🕮 History</a></li>
+            <li><a href="reservation.html" class="active">🗒 Reservation</a></li>
+            <li><a href="index.html">⏻ Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="reservation-container">
+        <div class="reservation-card">
+            <h1 style="font-size: 40px;">Reservation</h1>
+            <form id="reservationForm">
+                <div class="input-group">
+                    <label style="font-size: 15px;">ID Number:</label>
+                    <input type="text" id="res-id" placeholder="Your ID Number" required>
+                </div>
+                <div class="input-group">
+                    <label style="font-size: 15px;">Student Name:</label>
+                    <input type="text" id="res-name" placeholder="Student Name" required>
+                </div>
+                <div class="input-group">
+                    <label style="font-size: 15px;">Purpose:</label>
+                    <input type="text" id="res-purpose" placeholder="e.g. C Programming" required>
+                </div>
+                <div class="input-group">
+                    <label style="font-size: 15px;">Lab:</label>
+                    <input type="text" id="res-lab" placeholder="e.g. 524" required>
+                </div>
+                
+                <button type="button" id="submitBtn" class="btn-blue">Submit</button>
+
+                <div class="input-group mt-20">
+                    <label style="font-size: 15px;">Time In:</label>
+                    <input type="time" id="res-time" required>
+                </div>
+                <div class="input-group">
+                    <label style="font-size: 15px;">Date:</label>
+                    <input type="date" id="res-date" required>
+                </div>
+                <div class="input-group">
+                    <label style="font-size: 15px;">Remaining Session:</label>
+                    <input type="text" id="res-sessions" value=" " required>
+                </div>
+
+                <button type="submit" class="reserve-button">Reserve</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+    // Security check - matches your editprofile logic
+    const userData = localStorage.getItem("user");
+    if (!userData || userData === "undefined") {
+        alert("Session expired. Please log in again.");
+        window.location.href = "index.html";
+        return;
+    }
+
+    const user = JSON.parse(userData);
+    
+    // Auto-fill student details
+    document.getElementById("res-id").value = user.idNumber || "";
+    document.getElementById("res-name").value = `${user.firstName} ${user.lastName}`;
+
+    // Handle Reservation Submission
+    document.getElementById("reservationForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        const reservationData = {
+            idNumber: user.idNumber,
+            purpose: document.getElementById("res-purpose").value,
+            lab: document.getElementById("res-lab").value,
+            timeIn: document.getElementById("res-time").value,
+            date: document.getElementById("res-date").value
+        };
+
+        try {
+            const response = await fetch("http://localhost:3000/make-reservation", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(reservationData)
+            });
+
+            if (response.ok) {
+                alert("Reservation successfully submitted!");
+                window.location.href = "history.html";
+            } else {
+                alert("Failed to submit reservation.");
+            }
+        } catch (error) {
+            console.error("Server Error:", error);
+            alert("Ensure your node server.js is running!");
+        }
+    });
+});
+    </script>
+</body>
+</html>

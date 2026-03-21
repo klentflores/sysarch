@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile - CCS Portal</title>
     <link rel="stylesheet" href="style.css"> 
-    <style>
-        /* Small adjustments to ensure the container is centered without a navbar */
+    <style>   
         .register-wrapper {
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -30,16 +28,13 @@
                 
                 <div class="form-column">
                     <div class="reg-header">
-                        <img src="images/register.png" alt="Profile Icon">
+                        <img src="images/ccs.png" alt="Profile Icon">
                         <h1 class="align-left">Edit Profile</h1>
                     </div>
 
-                    <h2>Update your information</h2>
-                    <h4>Modify your details below. Your ID Number is fixed for security.</h4>
-
-                    <form id="editProfileForm">
+                    <form id="editProfileForm" style="margin-top: 20px;">
                         <div class="reg-input-group">
-                            <input type="text" id="edit-id" readonly title="ID Number cannot be changed">
+                            <input type="text" id="edit-id" placeholder="🪪 ID Number" required>
                         </div>
 
                         <div class="reg-input-group">
@@ -71,7 +66,7 @@
                                     <option value="BSIT">
                                     <option value="BSCS">
                                     <option value="BSCE">
-                                    <option value="BSBA">
+                                    <option value="ACT">
                                 </datalist>
                             </div>
                         </div>
@@ -85,16 +80,16 @@
                         </div>
 
                         <div class="btn-center">
-                            <button type="submit" class="reg-submit-btn">Save Changes</button>
+                            <button type="submit" class="reg-submit-btn">Save</button>
                             <div class="cancel-center">
-                                <a href="dashboard.html" class="cancel-btn">Back to Dashboard</a>
+                                <a href="dashboard.html" class="cancel-btn">Back</a>
                             </div>
                         </div>
                     </form>
                 </div>
 
                 <div class="image-column">
-                    <img src="images/edit-profile-illustration.png" alt="Edit Illustration">
+                    <img src="images/uc.png" alt="Edit Illustration">
                 </div>
                 
             </div>
@@ -103,33 +98,66 @@
 
     <script>
 document.addEventListener("DOMContentLoaded", () => {
-    // Try to get the user from storage
     const userData = localStorage.getItem("user");
-    
-    if (userData) {
-        const user = JSON.parse(userData);
-        
-        // Fill the boxes with the user's current data
-        document.getElementById("edit-id").value = user.idNumber;
-        document.getElementById("edit-lastName").value = user.lastName;
-        document.getElementById("edit-firstName").value = user.firstName;
-        document.getElementById("edit-middleName").value = user.middleName || "";
-        document.getElementById("edit-yearLevel").value = user.yearLevel;
-        document.getElementById("edit-course").value = user.course;
-        document.getElementById("edit-email").value = user.email;
-        document.getElementById("edit-address").value = user.address;
+    let originalID = ""; 
+
+    if (userData && userData !== "undefined") {
+        try {
+            const user = JSON.parse(userData);
+            originalID = user.idNumber; // Store the current ID as a reference
+
+            // Fill all inputs (Ensure your HTML ID input is NOT 'readonly')
+            document.getElementById("edit-id").value = originalID || "";
+            document.getElementById("edit-lastName").value = user.lastName || "";
+            document.getElementById("edit-firstName").value = user.firstName || "";
+            document.getElementById("edit-middleName").value = user.middleName || "";
+            document.getElementById("edit-yearLevel").value = user.yearLevel || "";
+            document.getElementById("edit-course").value = user.course || "";
+            document.getElementById("edit-email").value = user.email || "";
+            document.getElementById("edit-address").value = user.address || "";
+        } catch (error) {
+            console.error("Error parsing user data:", error);
+        }
     } else {
-        // STOP THE BLINKING: Redirect to LOGIN, not the same page!
-        window.location.href = "index.html"; 
+        window.location.href = "index.html"; // Redirect if no session exists
     }
 
-    // Save logic
     document.getElementById("editProfileForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        alert("Updating database...");
-        // I can help you with the fetch() request here next!
+        
+        const updatedUser = {
+            oldIdNumber: originalID, // Sent to server to locate the record in klent.db
+            idNumber: document.getElementById("edit-id").value,
+            lastName: document.getElementById("edit-lastName").value,
+            firstName: document.getElementById("edit-firstName").value,
+            middleName: document.getElementById("edit-middleName").value,
+            yearLevel: document.getElementById("edit-yearLevel").value,
+            course: document.getElementById("edit-course").value,
+            email: document.getElementById("edit-email").value,
+            address: document.getElementById("edit-address").value
+        };
+
+        try {
+            const response = await fetch("http://localhost:3000/update-profile", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedUser)
+            });
+
+            if (response.ok) {
+                // Update LocalStorage so changes show on the Dashboard immediately
+                localStorage.setItem("user", JSON.stringify(updatedUser));
+                alert("Profile and ID updated successfully!");
+                window.location.href = "dashboard.html";
+            } else {
+                alert("Update failed. Check if the new ID already exists.");
+            }
+        } catch (error) {
+            alert("Connection error! Is your 'node server.js' running?");
+        }
     });
 });
+
     </script>
 </body>
 </html>

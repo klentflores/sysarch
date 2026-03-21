@@ -84,5 +84,34 @@ app.post("/login", (req, res) => {
     });
 });
 
+app.post('/update-profile', (req, res) => {
+    const { oldIdNumber, idNumber, lastName, firstName, middleName, yearLevel, course, email, address } = req.body;
+
+    console.log(`Processing update for: ${oldIdNumber} -> ${idNumber}`);
+
+    const sql = `UPDATE students SET 
+                 idNumber = ?, lastName = ?, firstName = ?, middleName = ?, 
+                 yearLevel = ?, course = ?, email = ?, address = ? 
+                 WHERE idNumber = ?`;
+
+    const params = [idNumber, lastName, firstName, middleName, yearLevel, course, email, address, oldIdNumber];
+
+    db.run(sql, params, function(err) {
+        if (err) {
+            // This will print the specific error (like "UNIQUE constraint failed") in your CMD
+            console.error("❌ Database Error:", err.message); 
+            return res.status(500).json({ error: err.message });
+        }
+        
+        if (this.changes === 0) {
+            console.warn("⚠️ No record found with ID:", oldIdNumber);
+            return res.status(404).json({ error: "Original student record not found." });
+        }
+
+        console.log("✅ Profile updated successfully!");
+        res.json({ message: "Update successful!" });
+    });
+});
+
 
 

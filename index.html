@@ -10,11 +10,11 @@
     <nav class="navbar">
         <div class="logo=text"><b>College of Computer Studies Sit-in Monitoring System</b></div>
         <ul class="nav-links">
-            <li><a href="home.html">Home</a></li>
-            <li><a href="#">Community</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="index.html">Login</a></li>
-            <li><a href="register.html">Register</a></li>
+            <li><a href="home.html">🏠︎ Home</a></li>
+            <li><a href="#">🗫 Community</a></li>
+            <li><a href="#">🛈 About</a></li>
+            <li><a href="index.html" class="active">➜] Login</a></li>
+            <li><a href="register.html">🗒 Register</a></li>
         </ul>
     </nav>
 
@@ -81,7 +81,7 @@ document.querySelector('form').addEventListener('submit', async (e) => {
 
         if (response.ok) {
 
-            localStorage.setItem("userSession", JSON.stringify(data.user));
+            localStorage.setItem("user", JSON.stringify(data.user));
             
             alert(`Successful Login!\nWelcome, ${data.user.firstName}!`);
 
