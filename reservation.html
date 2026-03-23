@@ -141,7 +141,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-    // Security check - matches your editprofile logic
     const userData = localStorage.getItem("user");
     if (!userData || userData === "undefined") {
         alert("Session expired. Please log in again.");
@@ -151,11 +150,9 @@
 
     const user = JSON.parse(userData);
     
-    // Auto-fill student details
     document.getElementById("res-id").value = user.idNumber || "";
     document.getElementById("res-name").value = `${user.firstName} ${user.lastName}`;
 
-    // Handle Reservation Submission
     document.getElementById("reservationForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         

@@ -88,7 +88,7 @@ app.post('/update-profile', (req, res) => {
     const { oldIdNumber, idNumber, lastName, firstName, middleName, yearLevel, course, email, address } = req.body;
 
     console.log(`Processing update for: ${oldIdNumber} -> ${idNumber}`);
-    // ✅ To THIS
+
     const sql = `UPDATE users SET 
                 idNumber = ?, lastName = ?, firstName = ?, middleName = ?, 
                 yearLevel = ?, course = ?, email = ?, address = ? 
