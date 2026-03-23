@@ -104,9 +104,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (userData && userData !== "undefined") {
         try {
             const user = JSON.parse(userData);
-            originalID = user.idNumber; // Store the current ID as a reference
+            originalID = user.idNumber;
 
-            // Fill all inputs (Ensure your HTML ID input is NOT 'readonly')
             document.getElementById("edit-id").value = originalID || "";
             document.getElementById("edit-lastName").value = user.lastName || "";
             document.getElementById("edit-firstName").value = user.firstName || "";
@@ -119,14 +118,14 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Error parsing user data:", error);
         }
     } else {
-        window.location.href = "index.html"; // Redirect if no session exists
+        window.location.href = "index.html";
     }
 
     document.getElementById("editProfileForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         
         const updatedUser = {
-            oldIdNumber: originalID, // Sent to server to locate the record in klent.db
+            oldIdNumber: originalID,
             idNumber: document.getElementById("edit-id").value,
             lastName: document.getElementById("edit-lastName").value,
             firstName: document.getElementById("edit-firstName").value,
@@ -145,9 +144,10 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (response.ok) {
-                // Update LocalStorage so changes show on the Dashboard immediately
-                localStorage.setItem("user", JSON.stringify(updatedUser));
-                alert("Profile and ID updated successfully!");
+
+                const { oldIdNumber, ...cleanUser } = updatedUser;
+                localStorage.setItem("user", JSON.stringify(cleanUser));
+                alert("Profile updated successfully!");
                 window.location.href = "dashboard.html";
             } else {
                 alert("Update failed. Check if the new ID already exists.");

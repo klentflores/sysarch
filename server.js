@@ -88,17 +88,16 @@ app.post('/update-profile', (req, res) => {
     const { oldIdNumber, idNumber, lastName, firstName, middleName, yearLevel, course, email, address } = req.body;
 
     console.log(`Processing update for: ${oldIdNumber} -> ${idNumber}`);
-
-    const sql = `UPDATE students SET 
-                 idNumber = ?, lastName = ?, firstName = ?, middleName = ?, 
-                 yearLevel = ?, course = ?, email = ?, address = ? 
-                 WHERE idNumber = ?`;
+    // ✅ To THIS
+    const sql = `UPDATE users SET 
+                idNumber = ?, lastName = ?, firstName = ?, middleName = ?, 
+                yearLevel = ?, course = ?, email = ?, address = ? 
+                WHERE idNumber = ?`;
 
     const params = [idNumber, lastName, firstName, middleName, yearLevel, course, email, address, oldIdNumber];
 
     db.run(sql, params, function(err) {
         if (err) {
-            // This will print the specific error (like "UNIQUE constraint failed") in your CMD
             console.error("❌ Database Error:", err.message); 
             return res.status(500).json({ error: err.message });
         }

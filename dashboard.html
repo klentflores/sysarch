@@ -38,13 +38,16 @@
             padding: 20px;
         }
         .profile-img {
-            width: 150px;
-            height: 150px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin: 0 auto 15px;
             border: 2px solid #da0ca6;
             object-fit: cover;
+            background-color: #f0f0f0;
         }
         .info-row {
             margin-top: 20px;
@@ -55,7 +58,7 @@
             gap: 10px;
         }
         .announcement-item {
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid black;
             padding: 10px 0;
         }
         .announcement-date {
@@ -90,7 +93,11 @@
         <div class="dash-card">
             <div class="card-header">📋 Student Information</div>
             <div class="card-body">
-                <img src="images/avatar.png" alt="Student Photo" class="profile-img">
+                <div style="text-align: center; cursor: pointer;" onclick="document.getElementById('photoUpload').click()">
+                    <div id="noPhotoPlaceholder" class="profile-img"></div>
+                    <img id="profilePhoto" src="" alt="Student Photo" class="profile-img" style="display: none;">
+                </div>
+                <input type="file" id="photoUpload" accept="image/*" style="display: none;">
                 <div class="info-row"><b>🪪 ID Number:</b> <span id="display-id">Loading...</span></div>
                 <div class="info-row"><b>👤 Name:</b> <span id="display-name">Loading...</span></div>
                 <div class="info-row"><b>🎓 Course:</b> <span id="display-course">Loading...</span></div>
@@ -152,20 +159,50 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    const sessionData = localStorage.getItem("userSession");
+    const sessionData = localStorage.getItem("user");
 
     if (sessionData) {
         const user = JSON.parse(sessionData);
 
-        document.getElementById("display-name").textContent = user.firstName + " " + user.middleName +" "+ user.lastName;
+        document.getElementById("display-name").textContent = user.firstName + " " + user.middleName + " " + user.lastName;
         document.getElementById("display-email").textContent = user.email;
         document.getElementById("display-address").textContent = user.address;
         document.getElementById("display-course").textContent = user.course;
         document.getElementById("display-yearLevel").textContent = user.yearLevel;
 
-        if(document.getElementById("display-id")) {
+        if (document.getElementById("display-id")) {
             document.getElementById("display-id").textContent = user.idNumber;
         }
+
+        const savedPhoto = localStorage.getItem("userPhoto_" + user.idNumber);
+        if (savedPhoto) {
+
+            document.getElementById("profilePhoto").src = savedPhoto;
+            document.getElementById("profilePhoto").style.display = "block";
+            document.getElementById("noPhotoPlaceholder").style.display = "none";
+        } else {
+
+            document.getElementById("profilePhoto").style.display = "none";
+            document.getElementById("noPhotoPlaceholder").style.display = "flex";
+        }
+
+        document.getElementById("photoUpload").addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64Image = event.target.result;
+                localStorage.setItem("userPhoto_" + user.idNumber, base64Image);
+
+                document.getElementById("profilePhoto").src = base64Image;
+                document.getElementById("profilePhoto").style.display = "block";
+                document.getElementById("noPhotoPlaceholder").style.display = "none";
+                alert("Profile photo updated!");
+            };
+            reader.readAsDataURL(file);
+        });
+
     } else {
         window.location.href = "index.html";
     }

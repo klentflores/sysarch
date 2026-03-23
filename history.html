@@ -11,13 +11,11 @@
             transition: width 0.2s ease;
             transform: scale(1.05);
         }
-
         .history-container {
             padding: 40px;
             display: flex;
             justify-content: center;
         }
-
         .history-card {
             background: white;
             width: 90%;
@@ -26,31 +24,24 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
-
-        /* Table Design */
         .styled-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
             font-size: 0.9em;
         }
-
         .styled-table thead tr {
-            background-color: #0056b3; /* Matching your blue theme */
+            background-color: #0056b3;
             color: #ffffff;
             text-align: left;
         }
-
         .styled-table th, .styled-table td {
             padding: 12px 15px;
             border-bottom: 1px solid #dddddd;
         }
-
         .styled-table tbody tr:nth-of-type(even) {
             background-color: #f3f3f3;
         }
-
-        /* Feedback Button */
         .feedback-btn {
             background-color: #28a745;
             color: white;
@@ -60,18 +51,53 @@
             cursor: pointer;
             font-weight: bold;
         }
-
         .feedback-btn:hover {
             background-color: #218838;
         }
-
-        /* Header Actions */
         .table-header-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
         }
+
+        /* Sortable headers */
+        .styled-table th {
+            cursor: pointer;
+            user-select: none;
+        }
+        .sort-icon { margin-left: 4px; font-size: 0.75em; opacity: 0.6; }
+        .sort-icon.asc::after  { content: '▲'; opacity: 1; }
+        .sort-icon.desc::after { content: '▼'; opacity: 1; }
+        .sort-icon:not(.asc):not(.desc)::after { content: '⇅'; }
+
+        /* Table footer */
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        #entryInfo { font-size: 0.88em; color: #555; }
+
+        .pagination { display: flex; gap: 4px; }
+        .pagination button {
+            min-width: 32px;
+            height: 32px;
+            border: 1px solid #dee2e6;
+            background: white;
+            color: #333;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .pagination button:hover:not(:disabled) { background: #e9ecef; }
+        .pagination button.active { background: #0056b3; color: white; border-color: #0056b3; }
+        .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .empty-row td { text-align: center; color: #888; padding: 30px; }
     </style>
 </head>
 <body>
@@ -90,10 +116,10 @@
     <div class="history-container">
         <div class="history-card">
             <center><h1>History Information</h1></center>
-            
+
             <div class="table-header-actions">
                 <div class="entries-control">
-                    Show 
+                    Show
                     <select id="entryCount">
                         <option value="10">10</option>
                         <option value="25">25</option>
@@ -107,32 +133,155 @@
             <table class="styled-table">
                 <thead>
                     <tr>
-                        <th>ID Number</th>
-                        <th>Name</th>
-                        <th>Sit Purpose</th>
-                        <th>Laboratory</th>
-                        <th>Login</th>
-                        <th>Logout</th>
-                        <th>Date</th>
+                        <th data-col="id">ID Number <span class="sort-icon" id="sort-id"></span></th>
+                        <th data-col="name">Name <span class="sort-icon" id="sort-name"></span></th>
+                        <th data-col="purpose">Sit Purpose <span class="sort-icon" id="sort-purpose"></span></th>
+                        <th data-col="lab">Laboratory <span class="sort-icon" id="sort-lab"></span></th>
+                        <th data-col="login">Login <span class="sort-icon" id="sort-login"></span></th>
+                        <th data-col="logout">Logout <span class="sort-icon" id="sort-logout"></span></th>
+                        <th data-col="date">Date <span class="sort-icon" id="sort-date"></span></th>
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="historyData">
-                    </tbody>
+                <tbody id="historyData"></tbody>
             </table>
 
             <div class="table-footer">
                 <p id="entryInfo">Showing 0 to 0 of 0 entries</p>
-                <div class="pagination">
-                    <button>«</button>
-                    <button class="active">1</button>
-                    <button>»</button>
-                </div>
+                <div class="pagination" id="pagination"></div>
             </div>
         </div>
     </div>
+
     <script>
-    
+        function loadData() {
+            try {
+                const stored = localStorage.getItem("sitin_history");
+                if (stored) return JSON.parse(stored);
+            } catch(e) {}
+            return [
+                { id: " ", name: " ", purpose: " ", lab: "", login: " ", logout: " ", date: " " }
+            ];
+        }
+
+        let allData      = loadData();
+        let filteredData = [...allData];
+        let currentPage  = 1;
+        let perPage      = 10;
+        let sortCol      = null;
+        let sortDir      = "asc";
+
+        function render() {
+            const start = (currentPage - 1) * perPage;
+            const end   = Math.min(start + perPage, filteredData.length);
+            const slice = filteredData.slice(start, end);
+            const tbody = document.getElementById("historyData");
+            const total = filteredData.length;
+
+            if (slice.length === 0) {
+                tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No records found.</td></tr>`;
+                document.getElementById("entryInfo").textContent = "Showing 0 to 0 of 0 entries";
+            } else {
+                tbody.innerHTML = slice.map(row => `
+                    <tr>
+                        <td>${row.id}</td>
+                        <td>${row.name}</td>
+                        <td>${row.purpose}</td>
+                        <td>${row.lab}</td>
+                        <td>${row.login}</td>
+                        <td>${row.logout}</td>
+                        <td>${row.date}</td>
+                        <td><button class="feedback-btn">Feedback</button></td>
+                    </tr>
+                `).join("");
+                document.getElementById("entryInfo").textContent =
+                    `Showing ${start + 1} to ${end} of ${total} ${total === 1 ? "entry" : "entries"}`;
+            }
+
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredData.length / perPage) || 1;
+            const pg = document.getElementById("pagination");
+            let html = "";
+
+            html += `<button onclick="goPage(1)" ${currentPage===1?"disabled":""}>«</button>`;
+            html += `<button onclick="goPage(${currentPage-1})" ${currentPage===1?"disabled":""}>‹</button>`;
+
+            pageRange(currentPage, totalPages).forEach(p => {
+                html += p === "…"
+                    ? `<button disabled>…</button>`
+                    : `<button class="${p===currentPage?"active":""}" onclick="goPage(${p})">${p}</button>`;
+            });
+
+            html += `<button onclick="goPage(${currentPage+1})" ${currentPage===totalPages?"disabled":""}>›</button>`;
+            html += `<button onclick="goPage(${totalPages})" ${currentPage===totalPages?"disabled":""}>»</button>`;
+            pg.innerHTML = html;
+        }
+
+        function pageRange(cur, total) {
+            if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+            if (cur <= 4)       return [1,2,3,4,5,"…",total];
+            if (cur >= total-3) return [1,"…",total-4,total-3,total-2,total-1,total];
+            return [1,"…",cur-1,cur,cur+1,"…",total];
+        }
+
+        function goPage(p) {
+            const totalPages = Math.ceil(filteredData.length / perPage) || 1;
+            currentPage = Math.max(1, Math.min(p, totalPages));
+            render();
+        }
+
+        document.getElementById("tableSearch").addEventListener("input", function() {
+            const q = this.value.trim().toLowerCase();
+            filteredData = allData.filter(row =>
+                Object.values(row).some(v => String(v).toLowerCase().includes(q))
+            );
+            applySort();
+            currentPage = 1;
+            render();
+        });
+
+        document.getElementById("entryCount").addEventListener("change", function() {
+            perPage = parseInt(this.value);
+            currentPage = 1;
+            render();
+        });
+
+        document.querySelectorAll("th[data-col]").forEach(th => {
+            th.addEventListener("click", function() {
+                const col = this.dataset.col;
+                sortDir = (sortCol === col && sortDir === "asc") ? "desc" : "asc";
+                sortCol = col;
+                applySort();
+                updateSortIcons();
+                render();
+            });
+        });
+
+        function applySort() {
+            if (!sortCol) return;
+            filteredData.sort((a, b) => {
+                const va = String(a[sortCol] || "");
+                const vb = String(b[sortCol] || "");
+                return sortDir === "asc"
+                    ? va.localeCompare(vb, undefined, {numeric: true})
+                    : vb.localeCompare(va, undefined, {numeric: true});
+            });
+        }
+
+        function updateSortIcons() {
+            ["id","name","purpose","lab","login","logout","date"].forEach(c => {
+                const el = document.getElementById(`sort-${c}`);
+                if (!el) return;
+                el.className = "sort-icon" + (sortCol === c ? " " + sortDir : "");
+            });
+        }
+
+        // ── INIT ──
+        updateSortIcons();
+        render();
     </script>
 </body>
 </html>
