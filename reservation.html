@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservation - CCS Sit-in Monitoring</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
     .logo-text:hover {
         color: #ffcc00;
@@ -87,14 +88,14 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo-text"><b>Reservation</b></div>
+        <div class="logo-text">Reservation</div>
         <ul class="nav-links">
             <li><a href="#">✉ Notification 🔻</a></li>
             <li><a href="dashboard.html">🏠︎ Dashboard</a></li>
             <li><a href="editprofile.html">✎ Edit Profile</a></li>
             <li><a href="history.html">🕮 History</a></li>
             <li><a href="reservation.html" class="active">🗒 Reservation</a></li>
-            <li><a href="#" onclick="localStorage.removeItem('loggedInId'); window.location.href='index.html';">⏻ Logout</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout">⏻ Logout</a></li>
         </ul>
     </nav>
 
@@ -139,59 +140,89 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            const idNumber = localStorage.getItem("loggedInId");
-            if (!idNumber) {
-                alert("Session expired. Please log in again.");
-                window.location.href = "index.html";
-                return;
+<script>
+    function logout() {
+        Swal.fire({
+            title: 'Logout?',
+            text: "Are you sure you want to end your session?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#0056b3',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Logout!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem('loggedInId');
+                window.location.href = 'index.html';
             }
-
-            // Fetch user data from server
-            try {
-                const res  = await fetch(`http://localhost:3000/student/${idNumber}`);
-                const user = await res.json();
-
-                if (!res.ok) { window.location.href = "index.html"; return; }
-
-                document.getElementById("res-id").value   = user.idNumber || "";
-                document.getElementById("res-name").value = `${user.firstName} ${user.lastName}`;
-            } catch (err) {
-                alert("Cannot connect to server. Make sure server.js is running.");
-                return;
-            }
-
-            document.getElementById("reservationForm").addEventListener("submit", async (e) => {
-                e.preventDefault();
-
-                const reservationData = {
-                    idNumber: document.getElementById("res-id").value,
-                    purpose:  document.getElementById("res-purpose").value,
-                    lab:      document.getElementById("res-lab").value,
-                    timeIn:   document.getElementById("res-time").value,
-                    date:     document.getElementById("res-date").value
-                };
-
-                try {
-                    const response = await fetch("http://localhost:3000/make-reservation", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(reservationData)
-                    });
-
-                    if (response.ok) {
-                        alert("Reservation successfully submitted!");
-                        window.location.href = "history.html";
-                    } else {
-                        alert("Failed to submit reservation.");
-                    }
-                } catch (error) {
-                    console.error("Server Error:", error);
-                    alert("Ensure your node server.js is running!");
-                }
-            });
         });
-    </script>
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const idNumber = localStorage.getItem("loggedInId");
+        if (!idNumber) {
+            window.location.href = "index.html";
+            return;
+        }
+
+        try {
+            const res  = await fetch(`http://localhost:3000/student/${idNumber}`);
+            const user = await res.json();
+
+            if (!res.ok) { window.location.href = "index.html"; return; }
+
+            document.getElementById("res-id").value       = user.idNumber || "";
+            document.getElementById("res-name").value     = `${user.firstName} ${user.lastName}`;
+            document.getElementById("res-sessions").value = user.sessions !== undefined ? user.sessions : "30";
+            
+            document.getElementById("res-id").readOnly   = true;
+            document.getElementById("res-name").readOnly = true;
+            document.getElementById("res-sessions").readOnly = true;
+
+        } catch (err) {
+            console.error("Connection error:", err);
+            Swal.fire('Error', "Cannot connect to server. Make sure server.js is running.", 'error');
+            return;
+        }
+
+        document.getElementById("reservationForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const reservationData = {
+                idNumber: document.getElementById("res-id").value,
+                purpose:  document.getElementById("res-purpose").value,
+                lab:      document.getElementById("res-lab").value,
+                timeIn:   document.getElementById("res-time").value,
+                date:     document.getElementById("res-date").value
+            };
+
+            try {
+                const response = await fetch("http://localhost:3000/make-reservation", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(reservationData)
+                });
+
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Reservation successfully submitted!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = "history.html";
+                    });
+                } else {
+                    Swal.fire('Failed', 'Failed to submit reservation. Please try again.', 'error');
+                }
+            } catch (error) {
+                console.error("Server Error:", error);
+                Swal.fire('Error', "Ensure your node server.js is running!", 'error');
+            }
+        });
+    });
+</script>
 </body>
 </html>

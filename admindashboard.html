@@ -142,16 +142,16 @@
 <body>
 
     <nav class="navbar">
-        <div class="logo-text"><b>CCS Admin</b></div>
+        <div class="logo-text">College of Computer Studies Admin</div>
         <ul class="nav-links">
             <li><a href="admindashboard.html" class="active">🏠︎ Home</a></li>
             <li><a href="javascript:void(0)" onclick="openSearchModal()">🔎︎ Search</a></li>
             <li><a href="studentlist.html">👤 Students</a></li>
             <li><a href="javascript:void(0)" onclick="openSitInModal()">🧑‍💻 Sit-in</a></li>
-            <li><a href="viewrecords.html">📄 View Sit-in Records</a></li>
-            <li><a href="viewrecords.html">📁 Sit-in Reports Records</a></li>
+            <li><a href="viewsitin.html">📄 View Sit-in Records</a></li>
+            <li><a href="viewrecords.html">📁 Sit-in Reports</a></li>
             <li><a href="viewrecords.html">📝 Feedback Reports</a></li>
-            <li><a href="javascript:void(0)" onclick="logout()">⏻ Logout</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout">⏻ Log out</a></li>
         </ul>
     </nav>
 
@@ -328,7 +328,6 @@
                 timerProgressBar: true
             });
 
-            // Set to true so it doesn't pop up again if you refresh the page
             sessionStorage.setItem("adminWelcomeShown", "true");
         }
     };

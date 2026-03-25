@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>History Information - CCS Portal</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .logo-text:hover {
             color: #ffcc00;
@@ -102,14 +103,14 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo-text"><b>Sit-in System History</b></div>
+        <div class="logo-text">History</div>
         <ul class="nav-links">
             <li><a href="#">✉ Notification 🔻</a></li>
             <li><a href="dashboard.html">🏠︎ Dashboard</a></li>
             <li><a href="editprofile.html">✎ Edit Profile</a></li>
             <li><a href="history.html" class="active">🕮 History</a></li>
             <li><a href="reservation.html">🗒 Reservation</a></li>
-            <li><a href="index.html">⏻ Logout</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout">⏻ Logout</a></li>
         </ul>
     </nav>
 
@@ -153,141 +154,159 @@
         </div>
     </div>
 
-    <script>
-        let allData      = [];
-        let filteredData = [];
-        let currentPage  = 1;
-        let perPage      = 10;
-        let sortCol      = null;
-        let sortDir      = "asc";
-
-        async function loadData() {
-            const idNumber = localStorage.getItem("loggedInId");
-            if (!idNumber) { window.location.href = "index.html"; return; }
-
-            try {
-                const res = await fetch(`http://localhost:3000/history/${idNumber}`);
-                allData = await res.json();
-                if (!Array.isArray(allData)) allData = [];
-            } catch(e) {
-                allData = [];
-                console.error("Failed to load history:", e);
+<script>
+    function logout() {
+        Swal.fire({
+            title: 'Logout?',
+            text: "Are you sure you want to end your session?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#0056b3',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Logout!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem('loggedInId');
+                window.location.href = 'index.html';
             }
+        });
+    }
 
-            filteredData = [...allData];
+    let allData      = [];
+    let filteredData = [];
+    let currentPage  = 1;
+    let perPage      = 10;
+    let sortCol      = null;
+    let sortDir      = "asc";
+
+    async function loadData() {
+        const idNumber = localStorage.getItem("loggedInId");
+        if (!idNumber) { window.location.href = "index.html"; return; }
+
+        try {
+            const res = await fetch(`http://localhost:3000/history/${idNumber}`);
+            allData = await res.json();
+            if (!Array.isArray(allData)) allData = [];
+        } catch(e) {
+            allData = [];
+            console.error("Failed to load history:", e);
+        }
+
+        filteredData = [...allData];
+        updateSortIcons();
+        render();
+    }
+
+    function render() {
+        const start = (currentPage - 1) * perPage;
+        const end   = Math.min(start + perPage, filteredData.length);
+        const slice = filteredData.slice(start, end);
+        const tbody = document.getElementById("historyData");
+        const total = filteredData.length;
+
+        if (slice.length === 0) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No records found.</td></tr>`;
+            document.getElementById("entryInfo").textContent = "Showing 0 to 0 of 0 entries";
+        } else {
+            tbody.innerHTML = slice.map(row => `
+                <tr>
+                    <td>${row.id}</td>
+                    <td>${row.name}</td>
+                    <td>${row.purpose}</td>
+                    <td>${row.lab}</td>
+                    <td>${row.login}</td>
+                    <td>${row.logout}</td>
+                    <td>${row.date}</td>
+                    <td><button class="feedback-btn">Feedback</button></td>
+                </tr>
+            `).join("");
+            document.getElementById("entryInfo").textContent =
+                `Showing ${start + 1} to ${end} of ${total} ${total === 1 ? "entry" : "entries"}`;
+        }
+
+        renderPagination();
+    }
+
+    function renderPagination() {
+        const totalPages = Math.ceil(filteredData.length / perPage) || 1;
+        const pg = document.getElementById("pagination");
+        let html = "";
+
+        html += `<button onclick="goPage(1)" ${currentPage===1?"disabled":""}>«</button>`;
+        html += `<button onclick="goPage(${currentPage-1})" ${currentPage===1?"disabled":""}>‹</button>`;
+
+        pageRange(currentPage, totalPages).forEach(p => {
+            html += p === "…"
+                ? `<button disabled>…</button>`
+                : `<button class="${p===currentPage?"active":""}" onclick="goPage(${p})">${p}</button>`;
+        });
+
+        html += `<button onclick="goPage(${currentPage+1})" ${currentPage===totalPages?"disabled":""}>›</button>`;
+        html += `<button onclick="goPage(${totalPages})" ${currentPage===totalPages?"disabled":""}>»</button>`;
+        pg.innerHTML = html;
+    }
+
+    function pageRange(cur, total) {
+        if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+        if (cur <= 4)       return [1,2,3,4,5,"…",total];
+        if (cur >= total-3) return [1,"…",total-4,total-3,total-2,total-1,total];
+        return [1,"…",cur-1,cur,cur+1,"…",total];
+    }
+
+    function goPage(p) {
+        const totalPages = Math.ceil(filteredData.length / perPage) || 1;
+        currentPage = Math.max(1, Math.min(p, totalPages));
+        render();
+    }
+
+    document.getElementById("tableSearch").addEventListener("input", function() {
+        const q = this.value.trim().toLowerCase();
+        filteredData = allData.filter(row =>
+            Object.values(row).some(v => String(v).toLowerCase().includes(q))
+        );
+        applySort();
+        currentPage = 1;
+        render();
+    });
+
+    document.getElementById("entryCount").addEventListener("change", function() {
+        perPage = parseInt(this.value);
+        currentPage = 1;
+        render();
+    });
+
+    document.querySelectorAll("th[data-col]").forEach(th => {
+        th.addEventListener("click", function() {
+            const col = this.dataset.col;
+            sortDir = (sortCol === col && sortDir === "asc") ? "desc" : "asc";
+            sortCol = col;
+            applySort();
             updateSortIcons();
             render();
-        }
-
-        function render() {
-            const start = (currentPage - 1) * perPage;
-            const end   = Math.min(start + perPage, filteredData.length);
-            const slice = filteredData.slice(start, end);
-            const tbody = document.getElementById("historyData");
-            const total = filteredData.length;
-
-            if (slice.length === 0) {
-                tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No records found.</td></tr>`;
-                document.getElementById("entryInfo").textContent = "Showing 0 to 0 of 0 entries";
-            } else {
-                tbody.innerHTML = slice.map(row => `
-                    <tr>
-                        <td>${row.id}</td>
-                        <td>${row.name}</td>
-                        <td>${row.purpose}</td>
-                        <td>${row.lab}</td>
-                        <td>${row.login}</td>
-                        <td>${row.logout}</td>
-                        <td>${row.date}</td>
-                        <td><button class="feedback-btn">Feedback</button></td>
-                    </tr>
-                `).join("");
-                document.getElementById("entryInfo").textContent =
-                    `Showing ${start + 1} to ${end} of ${total} ${total === 1 ? "entry" : "entries"}`;
-            }
-
-            renderPagination();
-        }
-
-        function renderPagination() {
-            const totalPages = Math.ceil(filteredData.length / perPage) || 1;
-            const pg = document.getElementById("pagination");
-            let html = "";
-
-            html += `<button onclick="goPage(1)" ${currentPage===1?"disabled":""}>«</button>`;
-            html += `<button onclick="goPage(${currentPage-1})" ${currentPage===1?"disabled":""}>‹</button>`;
-
-            pageRange(currentPage, totalPages).forEach(p => {
-                html += p === "…"
-                    ? `<button disabled>…</button>`
-                    : `<button class="${p===currentPage?"active":""}" onclick="goPage(${p})">${p}</button>`;
-            });
-
-            html += `<button onclick="goPage(${currentPage+1})" ${currentPage===totalPages?"disabled":""}>›</button>`;
-            html += `<button onclick="goPage(${totalPages})" ${currentPage===totalPages?"disabled":""}>»</button>`;
-            pg.innerHTML = html;
-        }
-
-        function pageRange(cur, total) {
-            if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
-            if (cur <= 4)       return [1,2,3,4,5,"…",total];
-            if (cur >= total-3) return [1,"…",total-4,total-3,total-2,total-1,total];
-            return [1,"…",cur-1,cur,cur+1,"…",total];
-        }
-
-        function goPage(p) {
-            const totalPages = Math.ceil(filteredData.length / perPage) || 1;
-            currentPage = Math.max(1, Math.min(p, totalPages));
-            render();
-        }
-
-        document.getElementById("tableSearch").addEventListener("input", function() {
-            const q = this.value.trim().toLowerCase();
-            filteredData = allData.filter(row =>
-                Object.values(row).some(v => String(v).toLowerCase().includes(q))
-            );
-            applySort();
-            currentPage = 1;
-            render();
         });
+    });
 
-        document.getElementById("entryCount").addEventListener("change", function() {
-            perPage = parseInt(this.value);
-            currentPage = 1;
-            render();
+    function applySort() {
+        if (!sortCol) return;
+        filteredData.sort((a, b) => {
+            const va = String(a[sortCol] || "");
+            const vb = String(b[sortCol] || "");
+            return sortDir === "asc"
+                ? va.localeCompare(vb, undefined, {numeric: true})
+                : vb.localeCompare(va, undefined, {numeric: true});
         });
+    }
 
-        document.querySelectorAll("th[data-col]").forEach(th => {
-            th.addEventListener("click", function() {
-                const col = this.dataset.col;
-                sortDir = (sortCol === col && sortDir === "asc") ? "desc" : "asc";
-                sortCol = col;
-                applySort();
-                updateSortIcons();
-                render();
-            });
+    function updateSortIcons() {
+        ["id","name","purpose","lab","login","logout","date"].forEach(c => {
+            const el = document.getElementById(`sort-${c}`);
+            if (!el) return;
+            el.className = "sort-icon" + (sortCol === c ? " " + sortDir : "");
         });
+    }
 
-        function applySort() {
-            if (!sortCol) return;
-            filteredData.sort((a, b) => {
-                const va = String(a[sortCol] || "");
-                const vb = String(b[sortCol] || "");
-                return sortDir === "asc"
-                    ? va.localeCompare(vb, undefined, {numeric: true})
-                    : vb.localeCompare(va, undefined, {numeric: true});
-            });
-        }
-
-        function updateSortIcons() {
-            ["id","name","purpose","lab","login","logout","date"].forEach(c => {
-                const el = document.getElementById(`sort-${c}`);
-                if (!el) return;
-                el.className = "sort-icon" + (sortCol === c ? " " + sortDir : "");
-            });
-        }
-
-        loadData();
-    </script>
+    loadData();
+</script>
 </body>
 </html>

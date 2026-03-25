@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile - CCS Portal</title>
-    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>   
 
     .register-wrapper {
@@ -35,14 +36,14 @@
 </head>
 <body>
         <nav class="navbar">
-        <div class="logo-text"><b>Dashboard</b></div>
+        <div class="logo-text">Edit Profile Students</div>
         <ul class="nav-links">
             <li><a href="#">✉ Notification 🔻</a></li>
             <li><a href="dashboard.html">🏠︎ Dashboard</a></li>
             <li><a href="editprofile.html" class="active">✎ Edit Profile</a></li>
             <li><a href="history.html">🕮 History</a></li>
             <li><a href="reservation.html">🗒 Reservation</a></li>
-            <li><a href="#" onclick="localStorage.removeItem('loggedInId'); window.location.href='index.html';">⏻ Logout</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout">⏻ Logout</a></li>
         </ul>
     </nav>
 
@@ -56,7 +57,7 @@
                         <h1 class="align-left">Edit Profile</h1>
                     </div>
 
-                    <form id="editProfileForm" style="margin-top: 20px;">
+                    <form id="editProfileForm" onsubmit="return false;" style="margin-top: 20px;">
                         <div class="reg-input-group">
                             <input type="text" id="edit-id" placeholder="🪪 ID Number" required>
                         </div>
@@ -104,7 +105,7 @@
                         </div>
 
                         <div class="btn-center">
-                            <button type="submit" class="reg-submit-btn">Save</button>
+                            <button type="button" id="saveBtn" class="reg-submit-btn">Save</button>
                             <div class="cancel-center">
                                 <a href="dashboard.html" class="cancel-btn">Back</a>
                             </div>
@@ -121,45 +122,67 @@
     </div>
 
 <script>
+function logout() {
+    Swal.fire({
+        title: 'Logout?',
+        text: "Are you sure you want to end your session?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0056b3',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Logout!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.removeItem('loggedInId');
+            window.location.href = 'index.html';
+        }
+    });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     const idNumber = localStorage.getItem("loggedInId");
-    if (!idNumber) { window.location.href = "index.html"; return; }
+    if (!idNumber) { 
+        window.location.href = "index.html"; 
+        return; 
+    }
 
     let originalID = idNumber;
 
     try {
-        const res  = await fetch(`http://localhost:3000/student/${idNumber}`);
+        const res = await fetch(`http://localhost:3000/student/${idNumber}`);
         const user = await res.json();
 
-        if (!res.ok) { window.location.href = "index.html"; return; }
+        if (res.ok) {
+            originalID = user.idNumber;
 
-        originalID = user.idNumber;
-        document.getElementById("edit-id").value         = user.idNumber   || "";
-        document.getElementById("edit-lastName").value   = user.lastName   || "";
-        document.getElementById("edit-firstName").value  = user.firstName  || "";
-        document.getElementById("edit-middleName").value = user.middleName || "";
-        document.getElementById("edit-yearLevel").value  = user.yearLevel  || "";
-        document.getElementById("edit-course").value     = user.course     || "";
-        document.getElementById("edit-email").value      = user.email      || "";
-        document.getElementById("edit-address").value    = user.address    || "";
+            document.getElementById("edit-id").value = user.idNumber || "";
+            document.getElementById("edit-lastName").value = user.lastName || "";
+            document.getElementById("edit-firstName").value = user.firstName || "";
+            document.getElementById("edit-middleName").value = user.middleName || "";
+            document.getElementById("edit-yearLevel").value = user.yearLevel || "";
+            document.getElementById("edit-course").value = user.course || "";
+            document.getElementById("edit-email").value = user.email || "";
+            document.getElementById("edit-address").value = user.address || "";
+        }
     } catch (err) {
-        alert("Cannot connect to server. Make sure server.js is running.");
-        return;
+        console.error(err);
     }
 
-    document.getElementById("editProfileForm").addEventListener("submit", async (e) => {
+    document.getElementById("saveBtn").addEventListener("click", async function (e) {
         e.preventDefault();
+        e.stopPropagation();
 
         const updatedUser = {
             oldIdNumber: originalID,
-            idNumber:    document.getElementById("edit-id").value,
-            lastName:    document.getElementById("edit-lastName").value,
-            firstName:   document.getElementById("edit-firstName").value,
-            middleName:  document.getElementById("edit-middleName").value,
-            yearLevel:   document.getElementById("edit-yearLevel").value,
-            course:      document.getElementById("edit-course").value,
-            email:       document.getElementById("edit-email").value,
-            address:     document.getElementById("edit-address").value
+            idNumber: document.getElementById("edit-id").value,
+            lastName: document.getElementById("edit-lastName").value,
+            firstName: document.getElementById("edit-firstName").value,
+            middleName: document.getElementById("edit-middleName").value,
+            yearLevel: document.getElementById("edit-yearLevel").value,
+            course: document.getElementById("edit-course").value,
+            email: document.getElementById("edit-email").value,
+            address: document.getElementById("edit-address").value
         };
 
         try {
@@ -170,15 +193,29 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
 
             if (response.ok) {
-
                 localStorage.setItem("loggedInId", updatedUser.idNumber);
-                alert("Profile updated successfully!");
-                window.location.href = "dashboard.html";
+
+                sessionStorage.setItem("profileUpdated", "true");
+                
+                // 🔥 BULLETPROOF POPUP - NO TIMER!
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ Saved!',
+                    text: 'Profile updated successfully!',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#0056b3',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'dashboard.html';
+                    }
+                });
             } else {
-                alert("Update failed. Check if the new ID already exists.");
+                Swal.fire('❌ Update Failed', 'ID might be taken.', 'error');
             }
         } catch (error) {
-            alert("Connection error! Is your 'node server.js' running?");
+            Swal.fire('❌ Error', 'Server connection lost.', 'error');
         }
     });
 });

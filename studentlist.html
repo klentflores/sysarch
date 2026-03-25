@@ -95,16 +95,16 @@
 <body>
 
     <nav class="navbar">
-        <div class="logo-text"><b>CCS Admin</b></div>
+        <div class="logo-text">College of Computer Studies Admin</div>
         <ul class="nav-links">
             <li><a href="admindashboard.html">🏠︎ Home</a></li>
             <li><a href="javascript:void(0)" onclick="openSearchModal()">🔎︎ Search</a></li>
             <li><a href="studentlist.html" class="active">👤 Students</a></li>
             <li><a href="javascript:void(0)" onclick="openSearchModal()">🧑‍💻 Sit-in</a></li>
-            <li><a href="viewrecords.html">📄 View Sit-in Records</a></li>
-            <li><a href="viewrecords.html">📁 Sit-in Reports Records</a></li>
+            <li><a href="viewsitin.html">📄 View Sit-in Records</a></li>
+            <li><a href="viewrecords.html">📁 Sit-in Reports</a></li>
             <li><a href="viewrecords.html">📝 Feedback Reports</a></li>
-            <li><a href="javascript:void(0)" onclick="logout()">⏻ Logout</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout">⏻ Log out</a></li>
         </ul>
     </nav>
 
@@ -145,8 +145,8 @@
                 <div class="form-row"><label>Sessions Left:</label><input type="text" id="sitRemaining" readonly></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-cancel" style="background-color: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px;" onclick="closeSitInModal()">Cancel</button>
-                <button type="button" class="btn-primary" style="background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px;" onclick="submitSitIn()">Confirm Sit-In</button>
+                <button class="btn-close-modal" onclick="closeSitInModal()">Cancel</button>
+                <button class="btn-sit-in" onclick="submitSitIn()">Confirm Sit-In</button>
             </div>
         </div>
     </div>
@@ -170,8 +170,7 @@
         </table>
     </div>
 
-    <script>
-        // LOGIC PRESERVED FROM STUDENTLIST
+<script>
         function closeModalOnOutsideClick(event, modalId) {
             if (event.target.id === modalId) document.getElementById(modalId).style.display = 'none';
         }
@@ -216,7 +215,6 @@
             }).join('');
         }
 
-        // Add executeSearch and submitSitIn logic here as per your dashboard script
         async function executeSearch() {
             const id = document.getElementById('modalSearchInput').value.trim();
             if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
@@ -241,11 +239,19 @@
             rows.forEach(r => r.style.display = r.innerText.toLowerCase().includes(val) ? "" : "none");
         }
 
-        window.onload = fetchStudents;
-
-        function logout() {
-            window.location.href = "index.html";
-        }
-    </script>
+    function logout() {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You will be logged out.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, logout'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "index.html";
+            }
+        });
+    }
+</script>
 </body>
 </html>
