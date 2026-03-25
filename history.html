@@ -154,22 +154,30 @@
     </div>
 
     <script>
-        function loadData() {
-            try {
-                const stored = localStorage.getItem("sitin_history");
-                if (stored) return JSON.parse(stored);
-            } catch(e) {}
-            return [
-                { id: " ", name: " ", purpose: " ", lab: "", login: " ", logout: " ", date: " " }
-            ];
-        }
-
-        let allData      = loadData();
-        let filteredData = [...allData];
+        let allData      = [];
+        let filteredData = [];
         let currentPage  = 1;
         let perPage      = 10;
         let sortCol      = null;
         let sortDir      = "asc";
+
+        async function loadData() {
+            const idNumber = localStorage.getItem("loggedInId");
+            if (!idNumber) { window.location.href = "index.html"; return; }
+
+            try {
+                const res = await fetch(`http://localhost:3000/history/${idNumber}`);
+                allData = await res.json();
+                if (!Array.isArray(allData)) allData = [];
+            } catch(e) {
+                allData = [];
+                console.error("Failed to load history:", e);
+            }
+
+            filteredData = [...allData];
+            updateSortIcons();
+            render();
+        }
 
         function render() {
             const start = (currentPage - 1) * perPage;
@@ -279,8 +287,7 @@
             });
         }
 
-        updateSortIcons();
-        render();
+        loadData();
     </script>
 </body>
 </html>

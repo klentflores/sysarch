@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - CCS Sit-in Monitoring</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <style>
         .logo-text:hover {
@@ -84,7 +85,7 @@
             <li><a href="editprofile.html" >✎ Edit Profile</a></li>
             <li><a href="history.html">🕮 History</a></li>
             <li><a href="reservation.html">🗒 Reservation</a></li>
-            <li><a href="index.html">⏻ Logout</a></li>
+            <li><a href="#" id="logoutBtn">⏻ Logout</a></li>
         </ul>
     </nav>
 
@@ -94,10 +95,11 @@
             <div class="card-header">📋 Student Information</div>
             <div class="card-body">
                 <div style="text-align: center; cursor: pointer;" onclick="document.getElementById('photoUpload').click()">
-                    <div id="noPhotoPlaceholder" class="profile-img"></div>
+                    <div id="noPhotoPlaceholder" class="profile-img">Click to Upload</div>
                     <img id="profilePhoto" src="" alt="Student Photo" class="profile-img" style="display: none;">
                 </div>
                 <input type="file" id="photoUpload" accept="image/*" style="display: none;">
+                
                 <div class="info-row"><b>🪪 ID Number:</b> <span id="display-id">Loading...</span></div>
                 <div class="info-row"><b>👤 Name:</b> <span id="display-name">Loading...</span></div>
                 <div class="info-row"><b>🎓 Course:</b> <span id="display-course">Loading...</span></div>
@@ -157,53 +159,92 @@
     </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const sessionData = localStorage.getItem("user");
+document.addEventListener("DOMContentLoaded", async () => {
+    const idNumber = localStorage.getItem("loggedInId");
+    if (!idNumber) { window.location.href = "index.html"; return; }
 
-    if (sessionData) {
-        const user = JSON.parse(sessionData);
+    // 1. LOGOUT LOGIC
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Logout?',
+                text: "Are you sure you want to end your session?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0056b3',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, Logout!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('loggedInId');
+                    window.location.href = 'index.html';
+                }
+            });
+        });
+    }
 
-        document.getElementById("display-name").textContent = user.firstName + " " + user.middleName + " " + user.lastName;
-        document.getElementById("display-email").textContent = user.email;
-        document.getElementById("display-address").textContent = user.address;
-        document.getElementById("display-course").textContent = user.course;
-        document.getElementById("display-yearLevel").textContent = user.yearLevel;
+    try {
+        // 2. FETCH USER DATA FIRST
+        const res = await fetch(`http://localhost:3000/student/${idNumber}`);
+        const user = await res.json();
 
-        if (document.getElementById("display-id")) {
-            document.getElementById("display-id").textContent = user.idNumber;
+        if (!res.ok) { window.location.href = "index.html"; return; }
+
+        // 3. SHOW WELCOME POPUP (Now we have user.firstName available)
+        const justLoggedIn = sessionStorage.getItem("justLoggedIn");
+        if (justLoggedIn) {
+            sessionStorage.removeItem("justLoggedIn");
+            Swal.fire({
+                icon: 'success',
+                title: 'Successful Login!',
+                text: `Welcome back, ${user.firstName}!`,
+                showConfirmButton: false,
+                timer: 2000
+            });
         }
 
-        const savedPhoto = localStorage.getItem("userPhoto_" + user.idNumber);
-        if (savedPhoto) {
+        // 4. DISPLAY DATA
+        document.getElementById("display-id").textContent = user.idNumber;
+        document.getElementById("display-name").textContent = `${user.firstName} ${user.middleName} ${user.lastName}`;
+        document.getElementById("display-course").textContent = user.course;
+        document.getElementById("display-email").textContent = user.email;
+        document.getElementById("display-yearLevel").textContent = user.yearLevel;
+        document.getElementById("display-address").textContent = user.address;
 
-            document.getElementById("profilePhoto").src = savedPhoto;
+        if (user.profilePhoto) {
+            document.getElementById("profilePhoto").src = user.profilePhoto;
             document.getElementById("profilePhoto").style.display = "block";
             document.getElementById("noPhotoPlaceholder").style.display = "none";
-        } else {
-
-            document.getElementById("profilePhoto").style.display = "none";
-            document.getElementById("noPhotoPlaceholder").style.display = "flex";
         }
 
+        // PHOTO UPLOAD LOGIC
         document.getElementById("photoUpload").addEventListener("change", function(e) {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
-            reader.onload = function(event) {
+            reader.onload = async function(event) {
                 const base64Image = event.target.result;
-                localStorage.setItem("userPhoto_" + user.idNumber, base64Image);
-
-                document.getElementById("profilePhoto").src = base64Image;
-                document.getElementById("profilePhoto").style.display = "block";
-                document.getElementById("noPhotoPlaceholder").style.display = "none";
-                alert("Profile photo updated!");
+                try {
+                    const uploadRes = await fetch("http://localhost:3000/upload-photo", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ idNumber: user.idNumber, photo: base64Image })
+                    });
+                    if (uploadRes.ok) {
+                        document.getElementById("profilePhoto").src = base64Image;
+                        document.getElementById("profilePhoto").style.display = "block";
+                        document.getElementById("noPhotoPlaceholder").style.display = "none";
+                        Swal.fire({ icon: 'success', title: 'Photo Updated!', timer: 1200, showConfirmButton: false });
+                    }
+                } catch(err) { console.error(err); }
             };
             reader.readAsDataURL(file);
         });
 
-    } else {
-        window.location.href = "index.html";
+    } catch (err) {
+        console.error("Failed to load student info:", err);
     }
 });
 </script>

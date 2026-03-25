@@ -5,10 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>CCS Sit-in Monitoring System</title>
         <link rel="stylesheet" href="style.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </head>
 <body>
     <nav class="navbar">
-        <div class="logo=text"><b>College of Computer Studies Sit-in Monitoring System</b></div>
+        <div class="logo-text"><b>College of Computer Studies Sit-in Monitoring System</b></div>
         <ul class="nav-links">
             <li><a href="home.html">🏠︎ Home</a></li>
             <li><a href="#">🗫 Community</a></li>
@@ -64,36 +65,46 @@ function toggleVisibility() {
         toggleIcon.textContent = "🧿";
     }
 }
-document.querySelector('form').addEventListener('submit', async (e) => {
-    
-    e.preventDefault();
 
-    const loginInput = document.getElementById('loginID').value;
-    const password = document.getElementById('passwordField').value;
+const form = document.querySelector('form');
+if (form) {
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    try {
-        const response = await fetch('http://localhost:3000/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ loginInput, password }) 
-        });
+        const loginInput = document.getElementById('loginID').value.trim().toLowerCase();
+        const password = document.getElementById('passwordField').value.trim();
 
-        const data = await response.json();
+        console.log("Input received:", loginInput);
 
-        if (response.ok) {
-
-            localStorage.setItem("user", JSON.stringify(data.user));
-            
-            alert(`Successful Login!\nWelcome, ${data.user.firstName}!`);
-
-            window.location.href = "dashboard.html";
-        } else {
-            alert(data.message);
+        if (loginInput === "admin" && password === "admin123") {
+            console.log("Admin recognized!");
+            sessionStorage.setItem("adminWelcomeShown", "false");
+            window.location.href = "admindashboard.html";
+            return;
         }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("Connection failed. Please ensure your server.js is running.");
-    }
-});
+
+        try {
+            const response = await fetch('http://localhost:3000/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ loginInput, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem("loggedInId", data.user.idNumber);
+                sessionStorage.setItem("justLoggedIn", "true");
+                window.location.href = "dashboard.html";
+            } else {
+                alert(data.message);
+            }
+
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Connection failed. Please ensure your server is running.");
+        }
+    });
+}
 </script>
 </html>

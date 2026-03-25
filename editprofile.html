@@ -6,21 +6,45 @@
     <title>Edit Profile - CCS Portal</title>
     <link rel="stylesheet" href="style.css"> 
     <style>   
-        .register-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        input[readonly] {
-            background-color: #f0f0f0;
-            cursor: not-allowed;
-            color: #777;
-        }
+
+    .register-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .register-container {
+        width: 100%;
+        max-width: 900px;
+        margin: auto;
+    }
+    
+    input[readonly] {
+        background-color: #f0f0f0;
+        cursor: not-allowed;
+        color: #777;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+    }
     </style>
 </head>
 <body>
+        <nav class="navbar">
+        <div class="logo-text"><b>Dashboard</b></div>
+        <ul class="nav-links">
+            <li><a href="#">✉ Notification 🔻</a></li>
+            <li><a href="dashboard.html">🏠︎ Dashboard</a></li>
+            <li><a href="editprofile.html" class="active">✎ Edit Profile</a></li>
+            <li><a href="history.html">🕮 History</a></li>
+            <li><a href="reservation.html">🗒 Reservation</a></li>
+            <li><a href="#" onclick="localStorage.removeItem('loggedInId'); window.location.href='index.html';">⏻ Logout</a></li>
+        </ul>
+    </nav>
 
     <div class="register-wrapper"> 
         <div class="register-container">
@@ -97,43 +121,45 @@
     </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const userData = localStorage.getItem("user");
-    let originalID = ""; 
+document.addEventListener("DOMContentLoaded", async () => {
+    const idNumber = localStorage.getItem("loggedInId");
+    if (!idNumber) { window.location.href = "index.html"; return; }
 
-    if (userData && userData !== "undefined") {
-        try {
-            const user = JSON.parse(userData);
-            originalID = user.idNumber;
+    let originalID = idNumber;
 
-            document.getElementById("edit-id").value = originalID || "";
-            document.getElementById("edit-lastName").value = user.lastName || "";
-            document.getElementById("edit-firstName").value = user.firstName || "";
-            document.getElementById("edit-middleName").value = user.middleName || "";
-            document.getElementById("edit-yearLevel").value = user.yearLevel || "";
-            document.getElementById("edit-course").value = user.course || "";
-            document.getElementById("edit-email").value = user.email || "";
-            document.getElementById("edit-address").value = user.address || "";
-        } catch (error) {
-            console.error("Error parsing user data:", error);
-        }
-    } else {
-        window.location.href = "index.html";
+    try {
+        const res  = await fetch(`http://localhost:3000/student/${idNumber}`);
+        const user = await res.json();
+
+        if (!res.ok) { window.location.href = "index.html"; return; }
+
+        originalID = user.idNumber;
+        document.getElementById("edit-id").value         = user.idNumber   || "";
+        document.getElementById("edit-lastName").value   = user.lastName   || "";
+        document.getElementById("edit-firstName").value  = user.firstName  || "";
+        document.getElementById("edit-middleName").value = user.middleName || "";
+        document.getElementById("edit-yearLevel").value  = user.yearLevel  || "";
+        document.getElementById("edit-course").value     = user.course     || "";
+        document.getElementById("edit-email").value      = user.email      || "";
+        document.getElementById("edit-address").value    = user.address    || "";
+    } catch (err) {
+        alert("Cannot connect to server. Make sure server.js is running.");
+        return;
     }
 
     document.getElementById("editProfileForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        
+
         const updatedUser = {
             oldIdNumber: originalID,
-            idNumber: document.getElementById("edit-id").value,
-            lastName: document.getElementById("edit-lastName").value,
-            firstName: document.getElementById("edit-firstName").value,
-            middleName: document.getElementById("edit-middleName").value,
-            yearLevel: document.getElementById("edit-yearLevel").value,
-            course: document.getElementById("edit-course").value,
-            email: document.getElementById("edit-email").value,
-            address: document.getElementById("edit-address").value
+            idNumber:    document.getElementById("edit-id").value,
+            lastName:    document.getElementById("edit-lastName").value,
+            firstName:   document.getElementById("edit-firstName").value,
+            middleName:  document.getElementById("edit-middleName").value,
+            yearLevel:   document.getElementById("edit-yearLevel").value,
+            course:      document.getElementById("edit-course").value,
+            email:       document.getElementById("edit-email").value,
+            address:     document.getElementById("edit-address").value
         };
 
         try {
@@ -145,8 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (response.ok) {
 
-                const { oldIdNumber, ...cleanUser } = updatedUser;
-                localStorage.setItem("user", JSON.stringify(cleanUser));
+                localStorage.setItem("loggedInId", updatedUser.idNumber);
                 alert("Profile updated successfully!");
                 window.location.href = "dashboard.html";
             } else {

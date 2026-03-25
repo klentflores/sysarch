@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student List - CCS Admin</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* COPIED FROM ADMINDASHBOARD.HTML */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 500;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: white;
+            padding: 0;
+            border-radius: 10px;
+            width: 450px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: slideDown 0.3s ease-out;
+        }
+        .modal-header {
+            background: #0056b3;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 { font-size: 20px; color: white; margin: 0; }
+        .close-btn { background: none; border: none; font-size: 15px; cursor: pointer; color: white; }
+        .modal-body { padding: 25px; }
+
+        .form-row { display: flex; margin-bottom: 15px; align-items: center; }
+        .form-row label { width: 140px; font-weight: bold; color: #333; font-size: 14px; }
+        .form-row input, .form-row select { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+
+        input[readonly] { background: #eee; cursor: not-allowed; }
+        .modal-footer {
+            padding: 12px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Specific Dashboard Button Style */
+        .modal-footer button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 1s;
+        }
+        .modal-footer button:hover { background-color: #da0ca6; }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* STUDENT LIST TABLE SPECIFIC STYLES */
+        .admin-table-container { 
+            padding: 40px; 
+            max-width: 1200px; 
+            margin: 20px auto; 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f9fa; color: #333; }
+        .btn-add { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-reset { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .search-box { float: right; padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 250px; }
+        .badge-session { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; background: #e9f5ff; color: #0056b3; }
+        .badge-session.low { background: #fff3cd; color: #856404; }
+        .badge-session.critical { background: #f8d7da; color: #842029; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo-text"><b>CCS Admin</b></div>
+        <ul class="nav-links">
+            <li><a href="admindashboard.html">🏠︎ Home</a></li>
+            <li><a href="javascript:void(0)" onclick="openSearchModal()">🔎︎ Search</a></li>
+            <li><a href="studentlist.html" class="active">👤 Students</a></li>
+            <li><a href="javascript:void(0)" onclick="openSearchModal()">🧑‍💻 Sit-in</a></li>
+            <li><a href="viewrecords.html">📄 View Sit-in Records</a></li>
+            <li><a href="viewrecords.html">📁 Sit-in Reports Records</a></li>
+            <li><a href="viewrecords.html">📝 Feedback Reports</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()">⏻ Logout</a></li>
+        </ul>
+    </nav>
+
+    <div id="searchModal" class="modal-overlay" onclick="closeModalOnOutsideClick(event, 'searchModal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Search Student</h2>
+                <button class="close-btn" onclick="closeSearchModal()">❌</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px; box-sizing: border-box;">
+            </div>
+            <div class="modal-footer">
+                <button onclick="executeSearch()">Check ID</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="sitInModal" class="modal-overlay" onclick="closeModalOnOutsideClick(event, 'sitInModal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sit-In Entry Form</h2>
+                <button class="close-btn" onclick="closeSitInModal()">❌</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row"><label>ID Number:</label><input type="text" id="sitIdNumber" readonly></div>
+                <div class="form-row"><label>Full Name:</label><input type="text" id="sitStudentName" readonly></div>
+                <div class="form-row">
+                    <label>Purpose:</label>
+                    <select id="sitPurpose">
+                        <option>C Programming</option>
+                        <option>Java Projects</option>
+                        <option>Python/Data Science</option>
+                        <option>Web Development</option>
+                    </select>
+                </div>
+                <div class="form-row"><label>Laboratory:</label><input type="text" id="sitLab" placeholder="e.g. 524"></div>
+                <div class="form-row"><label>Sessions Left:</label><input type="text" id="sitRemaining" readonly></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" style="background-color: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px;" onclick="closeSitInModal()">Cancel</button>
+                <button type="button" class="btn-primary" style="background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px;" onclick="submitSitIn()">Confirm Sit-In</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-table-container">
+        <h1>Students Information</h1>
+        <div style="margin-bottom: 20px;">
+            <button class="btn-add" onclick="addStudent()">Add Student</button>
+            <button class="btn-reset" onclick="resetSessions()">Reset All Sessions</button>
+            <input type="text" class="search-box" id="tableSearch" placeholder="Filter table..." onkeyup="filterTable()">
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Number</th><th>Name</th><th>Year Level</th><th>Course</th><th>Remaining</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="studentTableBody">
+                <tr><td colspan="6" style="text-align:center;">Loading students...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // LOGIC PRESERVED FROM STUDENTLIST
+        function closeModalOnOutsideClick(event, modalId) {
+            if (event.target.id === modalId) document.getElementById(modalId).style.display = 'none';
+        }
+
+        function openSearchModal() { 
+            document.getElementById('searchModal').style.display = 'flex'; 
+            document.getElementById('modalSearchInput').focus();
+        }
+        function closeSearchModal() { document.getElementById('searchModal').style.display = 'none'; }
+        function closeSitInModal() { document.getElementById('sitInModal').style.display = 'none'; }
+
+        async function fetchStudents() {
+            try {
+                const response = await fetch('http://localhost:3000/get-all-students');
+                const students = await response.json();
+                renderTable(students);
+            } catch (error) {
+                document.getElementById("studentTableBody").innerHTML = `<tr><td colspan="6" style="text-align:center;color:red;">Server connection failed.</td></tr>`;
+            }
+        }
+
+        function renderTable(students) {
+            const tableBody = document.getElementById("studentTableBody");
+            if (!students.length) {
+                tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No records found.</td></tr>`;
+                return;
+            }
+            tableBody.innerHTML = students.map(s => {
+                const sessions = s.remainingSession ?? 30;
+                let badge = sessions <= 5 ? 'critical' : (sessions <= 10 ? 'low' : '');
+                return `<tr>
+                    <td>${s.idNumber}</td>
+                    <td>${s.firstName} ${s.lastName}</td>
+                    <td>${s.yearLevel}</td>
+                    <td>${s.course}</td>
+                    <td><span class="badge-session ${badge}">${sessions}</span></td>
+                    <td>
+                        <button style="background:#007bff; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="editStudent('${s.idNumber}')">Edit</button>
+                        <button style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteStudent('${s.idNumber}')">Delete</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // Add executeSearch and submitSitIn logic here as per your dashboard script
+        async function executeSearch() {
+            const id = document.getElementById('modalSearchInput').value.trim();
+            if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
+            try {
+                const res = await fetch(`http://localhost:3000/get-student/${id}`);
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('sitIdNumber').value = data.idNumber;
+                    document.getElementById('sitStudentName').value = `${data.firstName} ${data.lastName}`;
+                    document.getElementById('sitRemaining').value = data.remainingSession || 30;
+                    closeSearchModal();
+                    document.getElementById('sitInModal').style.display = 'flex';
+                } else {
+                    Swal.fire('Oops!', 'Student not found.', 'warning');
+                }
+            } catch (e) { Swal.fire('Error', 'Server connection failed', 'error'); }
+        }
+
+        function filterTable() {
+            const val = document.getElementById("tableSearch").value.toLowerCase();
+            const rows = document.querySelectorAll("#studentTableBody tr");
+            rows.forEach(r => r.style.display = r.innerText.toLowerCase().includes(val) ? "" : "none");
+        }
+
+        window.onload = fetchStudents;
+
+        function logout() {
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

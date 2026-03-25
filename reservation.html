@@ -94,7 +94,7 @@
             <li><a href="editprofile.html">✎ Edit Profile</a></li>
             <li><a href="history.html">🕮 History</a></li>
             <li><a href="reservation.html" class="active">🗒 Reservation</a></li>
-            <li><a href="index.html">⏻ Logout</a></li>
+            <li><a href="#" onclick="localStorage.removeItem('loggedInId'); window.location.href='index.html';">⏻ Logout</a></li>
         </ul>
     </nav>
 
@@ -140,49 +140,58 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-    const userData = localStorage.getItem("user");
-    if (!userData || userData === "undefined") {
-        alert("Session expired. Please log in again.");
-        window.location.href = "index.html";
-        return;
-    }
-
-    const user = JSON.parse(userData);
-    
-    document.getElementById("res-id").value = user.idNumber || "";
-    document.getElementById("res-name").value = `${user.firstName} ${user.lastName}`;
-
-    document.getElementById("reservationForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        
-        const reservationData = {
-            idNumber: user.idNumber,
-            purpose: document.getElementById("res-purpose").value,
-            lab: document.getElementById("res-lab").value,
-            timeIn: document.getElementById("res-time").value,
-            date: document.getElementById("res-date").value
-        };
-
-        try {
-            const response = await fetch("http://localhost:3000/make-reservation", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(reservationData)
-            });
-
-            if (response.ok) {
-                alert("Reservation successfully submitted!");
-                window.location.href = "history.html";
-            } else {
-                alert("Failed to submit reservation.");
+        document.addEventListener("DOMContentLoaded", async () => {
+            const idNumber = localStorage.getItem("loggedInId");
+            if (!idNumber) {
+                alert("Session expired. Please log in again.");
+                window.location.href = "index.html";
+                return;
             }
-        } catch (error) {
-            console.error("Server Error:", error);
-            alert("Ensure your node server.js is running!");
-        }
-    });
-});
+
+            // Fetch user data from server
+            try {
+                const res  = await fetch(`http://localhost:3000/student/${idNumber}`);
+                const user = await res.json();
+
+                if (!res.ok) { window.location.href = "index.html"; return; }
+
+                document.getElementById("res-id").value   = user.idNumber || "";
+                document.getElementById("res-name").value = `${user.firstName} ${user.lastName}`;
+            } catch (err) {
+                alert("Cannot connect to server. Make sure server.js is running.");
+                return;
+            }
+
+            document.getElementById("reservationForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const reservationData = {
+                    idNumber: document.getElementById("res-id").value,
+                    purpose:  document.getElementById("res-purpose").value,
+                    lab:      document.getElementById("res-lab").value,
+                    timeIn:   document.getElementById("res-time").value,
+                    date:     document.getElementById("res-date").value
+                };
+
+                try {
+                    const response = await fetch("http://localhost:3000/make-reservation", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(reservationData)
+                    });
+
+                    if (response.ok) {
+                        alert("Reservation successfully submitted!");
+                        window.location.href = "history.html";
+                    } else {
+                        alert("Failed to submit reservation.");
+                    }
+                } catch (error) {
+                    console.error("Server Error:", error);
+                    alert("Ensure your node server.js is running!");
+                }
+            });
+        });
     </script>
 </body>
 </html>

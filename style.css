@@ -9,6 +9,7 @@ body {
     color: #333;
 }
 
+
 /*-----Navigation-----*/
 .navbar {
     background-color: #0056b3; 
@@ -201,8 +202,8 @@ body {
 /*----------Register Page----------*/
 .register-wrapper {
     background-color: #f0f2f5;
-    min-height: 100vh;
-    padding: 60px;
+    min-height: 50px;
+    padding: 50px;
     display: flex;
     flex-direction: column;
     align-items: center;
