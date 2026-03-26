@@ -57,7 +57,8 @@
                         <h1 class="align-left">Edit Profile</h1>
                     </div>
 
-                    <form id="editProfileForm" onsubmit="return false;" style="margin-top: 20px;">
+                    <!-- ✅ REMOVED onsubmit and changed to type="button" to fully prevent form submission -->
+                    <form id="editProfileForm" onsubmit="return false;">
                         <div class="reg-input-group">
                             <input type="text" id="edit-id" placeholder="🪪 ID Number" required>
                         </div>
@@ -105,6 +106,7 @@
                         </div>
 
                         <div class="btn-center">
+                            <!-- ✅ type="button" prevents ANY accidental form submit -->
                             <button type="button" id="saveBtn" class="reg-submit-btn">Save</button>
                             <div class="cancel-center">
                                 <a href="dashboard.html" class="cancel-btn">Back</a>
@@ -169,9 +171,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error(err);
     }
 
-    document.getElementById("saveBtn").addEventListener("click", async function (e) {
+    // ✅ FIX: Disable button immediately on first click to prevent double-firing
+    const saveBtn = document.getElementById("saveBtn");
+
+    saveBtn.addEventListener("click", async function (e) {
         e.preventDefault();
         e.stopPropagation();
+        e.stopImmediatePropagation();
+        saveBtn.disabled = true;
 
         const updatedUser = {
             oldIdNumber: originalID,
@@ -194,27 +201,31 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (response.ok) {
                 localStorage.setItem("loggedInId", updatedUser.idNumber);
-
                 sessionStorage.setItem("profileUpdated", "true");
-                
-                // 🔥 BULLETPROOF POPUP - NO TIMER!
+
                 Swal.fire({
                     icon: 'success',
-                    title: '✅ Saved!',
+                    title: 'Saved!',
                     text: 'Profile updated successfully!',
                     confirmButtonText: 'OK',
                     confirmButtonColor: '#0056b3',
                     allowOutsideClick: false,
-                    allowEscapeKey: false
+                    allowEscapeKey: false,
+                    timer: undefined,
+                    timerProgressBar: false,
+                    heightAuto: false  // ✅ Prevents layout shift from closing popup
                 }).then((result) => {
                     if (result.isConfirmed) {
                         window.location.href = 'dashboard.html';
                     }
                 });
+
             } else {
+                saveBtn.disabled = false;
                 Swal.fire('❌ Update Failed', 'ID might be taken.', 'error');
             }
         } catch (error) {
+            saveBtn.disabled = false;
             Swal.fire('❌ Error', 'Server connection lost.', 'error');
         }
     });

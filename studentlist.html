@@ -82,13 +82,21 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
         }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+
         th { background-color: #f8f9fa; color: #333; }
+
         .btn-add { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
         .btn-reset { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
         .search-box { float: right; padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 250px; }
+        
         .badge-session { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; background: #e9f5ff; color: #0056b3; }
+        
         .badge-session.low { background: #fff3cd; color: #856404; }
+        
         .badge-session.critical { background: #f8d7da; color: #842029; }
     </style>
 </head>
@@ -100,7 +108,7 @@
             <li><a href="admindashboard.html">🏠︎ Home</a></li>
             <li><a href="javascript:void(0)" onclick="openSearchModal()">🔎︎ Search</a></li>
             <li><a href="studentlist.html" class="active">👤 Students</a></li>
-            <li><a href="javascript:void(0)" onclick="openSearchModal()">🧑‍💻 Sit-in</a></li>
+            <li><a href="javascript:void(0)" onclick="openSitInModal()">🧑‍💻 Sit-in</a></li>
             <li><a href="viewsitin.html">📄 View Sit-in Records</a></li>
             <li><a href="viewrecords.html">📁 Sit-in Reports</a></li>
             <li><a href="viewrecords.html">📝 Feedback Reports</a></li>
@@ -115,10 +123,10 @@
                 <button class="close-btn" onclick="closeSearchModal()">❌</button>
             </div>
             <div class="modal-body">
-                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px; box-sizing: border-box;">
+                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px;">
             </div>
             <div class="modal-footer">
-                <button onclick="executeSearch()">Check ID</button>
+                <button class="btn-sit-in" onclick="executeSearch()">Check ID</button>
             </div>
         </div>
     </div>
@@ -171,16 +179,90 @@
     </div>
 
 <script>
-        function closeModalOnOutsideClick(event, modalId) {
-            if (event.target.id === modalId) document.getElementById(modalId).style.display = 'none';
+    function closeModalOnOutsideClick(event, modalId) {
+        const modal = document.getElementById(modalId);
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    function openSearchModal() {
+        document.getElementById('searchModal').style.display = 'flex';
+        document.getElementById('modalSearchInput').focus();
+    }
+
+    function closeSearchModal() {
+        document.getElementById('searchModal').style.display = 'none';
+    }
+
+    function openSitInModal() {
+        document.getElementById('sitInModal').style.display = 'flex';
+    }
+
+    function closeSitInModal() {
+        document.getElementById('sitInModal').style.display = 'none';
+    }
+
+    async function executeSearch() {
+        const id = document.getElementById('modalSearchInput').value.trim();
+        if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
+
+        try {
+            const res = await fetch(`http://localhost:3000/get-student/${id}`);
+            const data = await res.json();
+
+            if (res.ok) {
+                document.getElementById('sitIdNumber').value = data.idNumber;
+
+                const fullName = `${data.firstName || data.firstname || ''} ${data.lastName || data.lastname || ''}`.trim();
+                document.getElementById('sitStudentName').value = fullName || "N/A";
+
+                document.getElementById('sitRemaining').value = data.remainingSession || 30;
+
+                closeSearchModal();
+                document.getElementById('sitInModal').style.display = 'flex';
+            } else {
+                Swal.fire('Oops!', 'Student not found in database.', 'warning');
+            }
+        } catch (e) {
+            console.error(e);
+            Swal.fire('Connection Error', 'Is your server running?', 'error');
+        }
+    }
+
+    async function submitSitIn() {
+        const payload = {
+            idNumber: document.getElementById('sitIdNumber').value,
+            purpose: document.getElementById('sitPurpose').value,
+            lab: document.getElementById('sitLab').value
+        };
+
+        if (!payload.lab) {
+            return Swal.fire('Warning', 'Please assign a Lab Room', 'warning');
         }
 
-        function openSearchModal() { 
-            document.getElementById('searchModal').style.display = 'flex'; 
-            document.getElementById('modalSearchInput').focus();
+        try {
+            const res = await fetch('http://localhost:3000/sit-in', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                Swal.fire('Success', 'Student is now sitting-in!', 'success');
+                closeSitInModal();
+
+                const count = document.getElementById('currentSitIn');
+                count.innerText = parseInt(count.innerText) + 1;
+            } else {
+                const err = await res.text();
+                Swal.fire('Error', err || 'Failed to submit sit-in', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            Swal.fire('Error', 'Could not process sit-in.', 'error');
         }
-        function closeSearchModal() { document.getElementById('searchModal').style.display = 'none'; }
-        function closeSitInModal() { document.getElementById('sitInModal').style.display = 'none'; }
+    }
 
         async function fetchStudents() {
             try {
@@ -213,24 +295,6 @@
                     </td>
                 </tr>`;
             }).join('');
-        }
-
-        async function executeSearch() {
-            const id = document.getElementById('modalSearchInput').value.trim();
-            if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
-            try {
-                const res = await fetch(`http://localhost:3000/get-student/${id}`);
-                const data = await res.json();
-                if (res.ok) {
-                    document.getElementById('sitIdNumber').value = data.idNumber;
-                    document.getElementById('sitStudentName').value = `${data.firstName} ${data.lastName}`;
-                    document.getElementById('sitRemaining').value = data.remainingSession || 30;
-                    closeSearchModal();
-                    document.getElementById('sitInModal').style.display = 'flex';
-                } else {
-                    Swal.fire('Oops!', 'Student not found.', 'warning');
-                }
-            } catch (e) { Swal.fire('Error', 'Server connection failed', 'error'); }
         }
 
         function filterTable() {
