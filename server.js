@@ -2,18 +2,16 @@ const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const path = require("path"); // Added for reliable file pathing
+const path = require("path");
 
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
 
-// --- CRITICAL: Increased limit to 50MB to allow large profile photos ---
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
-// Ensures the database file stays in the project root regardless of where you launch from
 const dbPath = path.resolve(__dirname, "klent.db");
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
@@ -37,7 +35,6 @@ db.serialize(() => {
         email TEXT,
         password TEXT,
         address TEXT,
-        remainingSession INTEGER DEFAULT 30,
         profilePhoto TEXT
     )
     `);

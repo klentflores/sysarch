@@ -43,7 +43,7 @@
             <li><a href="editprofile.html" class="active">✎ Edit Profile</a></li>
             <li><a href="history.html">🕮 History</a></li>
             <li><a href="reservation.html">🗒 Reservation</a></li>
-            <li><a href="javascript:void(0)" onclick="logout()" class="logout">⏻ Logout</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout">➜] Logout</a></li>
         </ul>
     </nav>
 
@@ -211,9 +211,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     confirmButtonColor: '#0056b3',
                     allowOutsideClick: false,
                     allowEscapeKey: false,
-                    timer: undefined,
+                    timer: 5000,
                     timerProgressBar: false,
-                    heightAuto: false  // ✅ Prevents layout shift from closing popup
                 }).then((result) => {
                     if (result.isConfirmed) {
                         window.location.href = 'dashboard.html';

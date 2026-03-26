@@ -72,7 +72,6 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* STUDENT LIST TABLE SPECIFIC STYLES */
         .admin-table-container { 
             padding: 40px; 
             max-width: 1200px; 
@@ -112,7 +111,7 @@
             <li><a href="viewsitin.html">📄 View Sit-in Records</a></li>
             <li><a href="viewrecords.html">📁 Sit-in Reports</a></li>
             <li><a href="viewrecords.html">📝 Feedback Reports</a></li>
-            <li><a href="javascript:void(0)" onclick="logout()" class="logout">⏻ Log out</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout">➜] Log out</a></li>
         </ul>
     </nav>
 
@@ -160,8 +159,8 @@
     </div>
 
     <div class="admin-table-container">
-        <h1>Students Information</h1>
-        <div style="margin-bottom: 20px;">
+        <h1 style="text-align: center; font-size: 26px;">Students Information</h1>
+        <div style="margin-bottom: 20px; margin-top: 20px;">
             <button class="btn-add" onclick="addStudent()">Add Student</button>
             <button class="btn-reset" onclick="resetSessions()">Reset All Sessions</button>
             <input type="text" class="search-box" id="tableSearch" placeholder="Filter table..." onkeyup="filterTable()">

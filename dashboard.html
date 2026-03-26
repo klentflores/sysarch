@@ -80,7 +80,7 @@
         <li><a href="editprofile.html">✎ Edit Profile</a></li>
         <li><a href="history.html">🕮 History</a></li>
         <li><a href="reservation.html">🗒 Reservation</a></li>
-        <li><a href="javascript:void(0)" onclick="logout()" class="logout">⏻ Logout</a></li>
+        <li><a href="javascript:void(0)" onclick="logout()" class="logout">➜] Logout</a></li>
     </ul>
 </nav>
 
@@ -154,8 +154,8 @@
     </div>
 
 <script>
-function logout() {
-    Swal.fire({
+async function logout() {
+    const result = await Swal.fire({
         title: 'Logout?',
         text: "Are you sure you want to end your session?",
         icon: 'warning',
@@ -163,12 +163,28 @@ function logout() {
         confirmButtonColor: '#0056b3',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, Logout!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            localStorage.removeItem('loggedInId');
-            window.location.href = 'index.html';
-        }
     });
+
+    if (result.isConfirmed) {
+        const sessionId = sessionStorage.getItem("currentSessionId");
+        const now = new Date();
+        const logoutTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+
+        if (sessionId) {
+            await fetch("http://localhost:3000/update-logout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    id: sessionId, 
+                    timeOut: logoutTime 
+                })
+            });
+        }
+
+        localStorage.removeItem('loggedInId');
+        sessionStorage.clear();
+        window.location.href = 'index.html';
+    }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -188,19 +204,44 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        // ✅ LOGIN POPUP
-        const justLoggedIn = sessionStorage.getItem("justLoggedIn");
-        if (justLoggedIn) {
-            sessionStorage.removeItem("justLoggedIn");
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Successful Login!',
-                text: `Welcome back, ${user.firstName}!`,
-                showConfirmButton: false,
-                timer: 2000
-            });
-        }
+// ✅ LOGIN POPUP & RECORD HISTORY
+const justLoggedIn = sessionStorage.getItem("justLoggedIn");
+    if (justLoggedIn) {
+        sessionStorage.removeItem("justLoggedIn");
+
+        // Get current time and date
+        const now = new Date();
+        const currentTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
+
+        // Send the login record to the server
+        fetch("http://localhost:3000/add-history", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                idNumber: user.idNumber,
+                purpose: "Sit-in (Login)",
+                lab: "Lab 1", // Default lab
+                login: currentTime,
+                date: currentDate
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Store the record ID so we can update the logout time later
+            sessionStorage.setItem("currentSessionId", data.id);
+        })
+        .catch(err => console.error("Error recording login:", err));
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Successful Login!',
+            text: `Welcome back, ${user.firstName}!`,
+            showConfirmButton: false,
+            timer: 2000
+        });
+    }
 
         // REPLACE THIS ENTIRE SECTION in dashboard.html
         const profileUpdated = sessionStorage.getItem("profileUpdated");
