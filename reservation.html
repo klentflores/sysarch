@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservation - CCS Sit-in Monitoring</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Load SweetAlert2 first, before anything else -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     .logo-text:hover {
         color: #ffcc00;
@@ -95,15 +94,8 @@
             <li><a href="dashboard.html">🏠︎ Dashboard</a></li>
             <li><a href="editprofile.html">✎ Edit Profile</a></li>
             <li><a href="history.html">🕮 History</a></li>
-<<<<<<< HEAD
-            <li><a href="reservation.html" class="active">🗒 Reservation</a></li>
-            <li><a href="javascript:void(0)" onclick="logout()" class="logout">➜] Logout</a></li>
-=======
-            <!-- FIX: was href="reservation.html" — clicking it reloaded the page and killed SweetAlert -->
             <li><a href="javascript:void(0)" class="active">🗒 Reservation</a></li>
-            <!-- FIX: use onclick with event.preventDefault() to stop any navigation -->
             <li><a href="javascript:void(0)" onclick="logout(event)" class="logout">⏻ Logout</a></li>
->>>>>>> b4d29a0 (maynalang na okay okayyyy gamayyyyyyyyyyyyyyyy!!!!!!!!!!!!!!!!!!!)
         </ul>
     </nav>
 
@@ -111,7 +103,6 @@
         <div class="reservation-card">
             <h1 style="font-size: 40px;">Reservation</h1>
 
-            <!-- ✅ FIX: Changed <form> to <div> to prevent any accidental page reload -->
             <div id="reservationForm">
                 <div class="input-group">
                     <label style="font-size: 15px;">ID Number:</label>
