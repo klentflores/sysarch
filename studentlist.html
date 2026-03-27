@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* MODAL STYLES (MATCHING DASHBOARD) */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -310,6 +309,7 @@
                     <p><b>Email:</b> ${data.email || 'N/A'}</p>
                     <p><b>Year:</b> ${data.yearLevel || 'N/A'}</p>
                     <p><b>Address:</b> ${data.address || 'N/A'}</p>
+                    <p><b>Sessions Left:</b> <span class="badge badge-session">${data.remainingSession ?? 30}</span></p>
                 `;
                 openModal('studentInfoModal');
             } else {

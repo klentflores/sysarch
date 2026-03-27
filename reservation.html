@@ -61,7 +61,7 @@
         border-radius: 5px;
         cursor: pointer;
         margin-left: 200px;
-        transition: background-color 1s;
+        transition: background-color 0.3s;
     }
     .btn-blue:hover {
         background-color: #da0ca6;
@@ -75,7 +75,7 @@
         border-radius: 5px;
         cursor: pointer;
         margin-top: 20px;
-        transition: background-color 1s;
+        transition: background-color 0.3s;
     }
     .reserve-button:hover {
         background-color: #da0ca6;
@@ -168,7 +168,7 @@
                 body: JSON.stringify(reservationData)
             });
 
-            const resultData = await response.json(); // Get the error message from server
+            const resultData = await response.json();
 
             if (response.ok) {
                 Swal.fire({
@@ -211,7 +211,7 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ idNumber: studentId })
                 });
-                localStorage.clear(); // Clear all data on logout
+                localStorage.clear();
                 window.location.href = 'index.html';
             } catch (err) {
                 localStorage.clear();

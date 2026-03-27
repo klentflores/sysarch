@@ -122,7 +122,7 @@
                         </div>
 
                         <div class="btn-center">
-                            <button type="button" id="saveBtn" class="reg-submit-btn">Save</button>
+                            <button type="submit" id="saveBtn" class="reg-submit-btn">Save</button>
                         </div>
                     </form>
                 </div>
@@ -139,7 +139,6 @@
 async function logout() {
     const studentId = localStorage.getItem('loggedInId');
     
-    // 1. Confirm with the user
     const { isConfirmed } = await Swal.fire({
         title: 'Logout?',
         text: "This will end your current lab session and log you out.",
@@ -151,7 +150,7 @@ async function logout() {
 
     if (isConfirmed) {
         try {
-            // 2. IMPORTANT: Tell the server to record the logout time in history
+
             if (studentId) {
                 await fetch("http://localhost:3000/record-final-logout", {
                     method: "POST",
@@ -160,12 +159,10 @@ async function logout() {
                 });
             }
 
-            // 3. Clear local session data
             localStorage.removeItem('loggedInId');
             localStorage.removeItem('sessionExpiry');
             sessionStorage.clear();
 
-            // 4. Success message before leaving
             Swal.fire({
                 icon: 'success',
                 title: 'Logged Out',
@@ -177,7 +174,7 @@ async function logout() {
             });
         } catch (err) {
             console.error("Logout error:", err);
-            // Even if server update fails, still log out locally
+
             localStorage.removeItem('loggedInId');
             window.location.href = 'index.html';
         }
@@ -212,7 +209,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById("edit-address").value = user.address || "";
 
             if (user.profilePhoto) {
-                selectedPhoto = user.profilePhoto; // important for saving if unchanged
+
+                selectedPhoto = user.profilePhoto;
                 document.getElementById("profilePhoto").src = user.profilePhoto;
                 document.getElementById("profilePhoto").style.display = "block";
                 document.getElementById("noPhotoPlaceholder").style.display = "none";
@@ -269,7 +267,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (response.ok) {
                 localStorage.setItem("loggedInId", updatedUser.idNumber);
                 
-                // This is the important part: Wait for the user to click "OK"
                 Swal.fire({
                     icon: 'success',
                     title: 'Profile Updated!',
@@ -278,11 +275,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     timer: 5000,
-                    timerProgressBar: false,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = 'dashboard.html';
-                    }
+                    timerProgressBar: true,
+                }).then(() => {
+                    window.location.href = 'dashboard.html';
                 });
             } else {
                 saveBtn.disabled = false;
@@ -294,10 +289,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             saveBtn.innerText = "Save";
             Swal.fire('Error', 'Server connection lost.', 'error');
         }
-    });
-
-    document.getElementById("saveBtn").addEventListener("click", () => {
-        editForm.requestSubmit(); 
     });
 });
 </script>

@@ -332,6 +332,7 @@
                     <p><b>Email:</b> ${data.email || 'N/A'}</p>
                     <p><b>Year:</b> ${data.yearLevel || 'N/A'}</p>
                     <p><b>Address:</b> ${data.address || 'N/A'}</p>
+                    <p><b>Sessions Left:</b> <span class="badge badge-session">${data.remainingSession ?? 30}</span></p>
                 `;
                 openModal('studentInfoModal');
             } else {
