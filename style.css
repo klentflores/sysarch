@@ -131,7 +131,7 @@ body {
 .login-card h1 {
     color: #2a8af0;
     margin-bottom: 25px;
-    font-size: 50px;
+    font-size: 55px;
     text-align: center;
 }
 .input-group {
@@ -142,7 +142,7 @@ body {
     width: 100%;
     padding: 15px;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 10px;
     outline: none;
 }
 .input-group input:focus {
@@ -150,7 +150,7 @@ body {
 }
 .input-group label {
     display: block;
-    font-size: 10px;
+    font-size: 15px;
     color: #666;
     margin-top: 5px;
     margin-left: 2px;
@@ -171,7 +171,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 14px;
+    font-size: 15px;
     margin-bottom: 30px;
 }
 .remember-me {
@@ -199,8 +199,8 @@ body {
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 5px;
-    font-size: 17px;
+    border-radius: 10px;
+    font-size: 20px;
     font-weight: bold;
     cursor: pointer;
     transition: background-color 1s;
@@ -213,8 +213,8 @@ body {
 /*-----Don't have an account? Register-----*/
 .register-text {
     text-align: center;
-    margin-top: 20px;
-    font-size: 14px;
+    margin-top: 25px;
+    font-size: 15px;
 }
 .register-link {
     color: #3495fc; 
@@ -293,7 +293,7 @@ body {
 }
 .reg-input-group input {
     width: 100%;
-    padding: 8px 10px;
+    padding: 9px 10px;
     border: 1px solid #bdc3c7;
     border-radius: 3px;
     outline: none;
@@ -340,7 +340,7 @@ body {
     width: 100%;
     background-color: #007bff;
     color: white;
-    border: none;
+    border-radius: 10px;
     padding: 10px 25px;
     font-size: 15px;
     cursor: pointer;
@@ -356,7 +356,7 @@ body {
 .sign-in-row {
     text-align: center;
     margin-top: 17px;
-    font-size: 14px;
+    font-size: 15px;
 }
 .login-link:hover {
     color: #da0ca6;
