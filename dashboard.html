@@ -69,6 +69,64 @@
             max-height: 400px;
             overflow-y: auto;
         }
+
+        #sessionTimerBox {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+
+            background: linear-gradient(135deg, #0056b3, #007bff);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 12px;
+
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+
+            font-weight: bold;
+
+            /* 🔥 effects */
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.4);
+            animation: pulseGlow 2s infinite;
+
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        #sessionTimerBox:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(0, 123, 255, 0.7);
+        }
+
+        /* 🔥 pulse + glow animation */
+        @keyframes pulseGlow {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+            }
+            50% {
+                transform: scale(1.03);
+                box-shadow: 0 0 25px rgba(0, 123, 255, 0.6);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+            }
+        }
+
+        .session-label {
+            font-size: 14px;
+            opacity: 0.9;
+            letter-spacing: 1px;
+        }
+
+        #sessionTimer {
+            font-size: 15px;
+            font-weight: bold;
+        }
 </style>
 <body>
 
@@ -89,11 +147,10 @@
         <div class="dash-card">
             <div class="card-header">📋 Student Information</div>
             <div class="card-body">
-                <div style="text-align: center; cursor: pointer;" onclick="document.getElementById('photoUpload').click()">
-                    <div id="noPhotoPlaceholder" class="profile-img">Click to Upload</div>
+                <div style="text-align: center;">
+                    <div id="noPhotoPlaceholder" class="profile-img"></div>
                     <img id="profilePhoto" src="" alt="Student Photo" class="profile-img" style="display: none;">
                 </div>
-                <input type="file" id="photoUpload" accept="image/*" style="display: none;">
                 
                 <div class="info-row"><b>🪪 ID Number:</b> <span id="display-id">Loading...</span></div>
                 <div class="info-row"><b>👤 Name:</b> <span id="display-name">Loading...</span></div>
@@ -101,7 +158,12 @@
                 <div class="info-row"><b>✉️ Email:</b> <span id="display-email">Loading...</span></div>
                 <div class="info-row"><b>📈 Year:</b> <span id="display-yearLevel">Loading...</span></div>
                 <div class="info-row"><b>🏠 Address:</b> <span id="display-address">Loading...</span></div>
+                <div id="sessionTimerBox">
+                    <span class="session-label">Session</span>
+                    <span id="sessionTimer"></span>
+                </div>
             </div>
+
         </div>
 
         <div class="dash-card">
@@ -190,9 +252,11 @@ async function logout() {
 document.addEventListener("DOMContentLoaded", async () => {
 
     const idNumber = localStorage.getItem("loggedInId");
-    if (!idNumber) { 
-        window.location.href = "index.html"; 
-        return; 
+    const expiryTime = parseInt(localStorage.getItem("sessionExpiry"));
+
+    if (!idNumber || !expiryTime) {
+        window.location.href = "index.html";
+        return;
     }
 
     try {
@@ -200,7 +264,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const user = await res.json();
 
         if (!res.ok) {
-            window.location.href = "index.html"; 
+            window.location.href = "index.html";
             return;
         }
 
@@ -269,54 +333,43 @@ const justLoggedIn = sessionStorage.getItem("justLoggedIn");
         document.getElementById("display-email").textContent = user.email;
         document.getElementById("display-yearLevel").textContent = user.yearLevel;
         document.getElementById("display-address").textContent = user.address;
+        
+        // Also display remaining sessions if you have that element
+        if(document.getElementById("display-sessions")){
+            document.getElementById("display-sessions").textContent = user.remainingSession;
+        }
 
-        // PROFILE PHOTO
         if (user.profilePhoto) {
             document.getElementById("profilePhoto").src = user.profilePhoto;
             document.getElementById("profilePhoto").style.display = "block";
             document.getElementById("noPhotoPlaceholder").style.display = "none";
         }
 
-        // PHOTO UPLOAD
-        document.getElementById("photoUpload").addEventListener("change", function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(event) {
-                const base64Image = event.target.result;
-
-                try {
-                    const uploadRes = await fetch("http://localhost:3000/upload-photo", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ idNumber: user.idNumber, photo: base64Image })
-                    });
-
-                    if (uploadRes.ok) {
-                        document.getElementById("profilePhoto").src = base64Image;
-                        document.getElementById("profilePhoto").style.display = "block";
-                        document.getElementById("noPhotoPlaceholder").style.display = "none";
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Photo Updated!',
-                            timer: 1200,
-                            showConfirmButton: false
-                        });
-                    }
-
-                } catch(err) {
-                    console.error(err);
-                }
-            };
-
-            reader.readAsDataURL(file);
-        });
-
     } catch (err) {
-        console.error("Failed to load student info:", err);
+        console.error(err);
     }
+
+    const timerEl = document.getElementById("sessionTimer");
+
+    function updateTimer() {
+        const remaining = expiryTime - Date.now();
+
+        if (remaining <= 0) {
+            // Auto-logout if timer runs out (also records logout time)
+            logout(); 
+            return;
+        }
+
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+
+        if (timerEl) {
+            timerEl.textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+        }
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
 });
 </script>
 </body>

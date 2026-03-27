@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* COPIED FROM ADMINDASHBOARD.HTML */
+        /* MODAL STYLES (MATCHING DASHBOARD) */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -18,16 +18,18 @@
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(5px);
+            background-color: rgba(0,0,0,0.4); /* Fixed background */
         }
+
         .modal-content {
             background: white;
-            padding: 0;
             border-radius: 10px;
             width: 450px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             overflow: hidden;
             animation: slideDown 0.3s ease-out;
         }
+
         .modal-header {
             background: #0056b3;
             color: white;
@@ -36,15 +38,48 @@
             justify-content: space-between;
             align-items: center;
         }
-        .modal-header h2 { font-size: 20px; color: white; margin: 0; }
-        .close-btn { background: none; border: none; font-size: 15px; cursor: pointer; color: white; }
-        .modal-body { padding: 25px; }
 
-        .form-row { display: flex; margin-bottom: 15px; align-items: center; }
-        .form-row label { width: 140px; font-weight: bold; color: #333; font-size: 14px; }
-        .form-row input, .form-row select { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .modal-header h2 { 
+            font-size: 20px; 
+            color: white; 
+            margin: 0; 
+        }
 
-        input[readonly] { background: #eee; cursor: not-allowed; }
+        .close-btn { 
+            background: none; 
+            border: none; 
+            font-size: 20px; 
+            cursor: pointer; 
+        }
+
+        .modal-body { 
+            padding: 25px; 
+        }
+
+        .form-row { 
+            display: flex; 
+            margin-bottom: 15px; 
+            align-items: center; 
+        }
+
+        .form-row label { 
+            width: 150px; 
+            font-weight: bold; 
+            color: #333; 
+            font-size: 14px; 
+        }
+        .form-row input, .form-row select { 
+            flex: 1; 
+            padding: 10px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+        }
+
+        input[readonly] { 
+            background: #eee; 
+            cursor: not-allowed; 
+        }
+
         .modal-footer {
             padding: 12px;
             background: #f8f9fa;
@@ -52,20 +87,28 @@
             justify-content: flex-end;
             gap: 10px;
         }
-
-        /* Specific Dashboard Button Style */
         .modal-footer button {
             padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
             border: none;
             border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 14px;
             cursor: pointer;
             transition: background-color 1s;
         }
-        .modal-footer button:hover { background-color: #da0ca6; }
+
+        .btn-confirm { 
+            background-color: #007bff; 
+            color: white; 
+        }
+
+        .btn-cancel {
+            background-color: #007bff; 
+            color: white; 
+        }
+
+        .modal-footer button:hover {
+            background-color: #da0ca6;
+        }
 
         @keyframes slideDown {
             from { transform: translateY(-50px); opacity: 0; }
@@ -80,23 +123,74 @@
             border-radius: 12px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
         }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+        }
+        
+        th, td { 
+            padding: 12px; 
+            text-align: left; 
+            border-bottom: 1px solid #ddd; 
+        }
 
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { 
+            background-color: #f8f9fa; 
+            color: #333; 
+        }
 
-        th { background-color: #f8f9fa; color: #333; }
+        .btn-add { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold; 
+        }
 
-        .btn-add { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-reset { 
+            background: #dc3545; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold; 
+        }
+
+        .search-box { 
+            float: right; 
+            padding: 10px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            width: 250px; 
+        }
+
+        .badge-session { 
+            display: inline-block; 
+            padding: 3px 10px; 
+            border-radius: 12px; 
+            font-size: 13px; 
+            font-weight: bold; 
+            background: #e9f5ff; 
+            color: #0056b3; 
+        }
         
-        .btn-reset { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        
-        .search-box { float: right; padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 250px; }
-        
-        .badge-session { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; background: #e9f5ff; color: #0056b3; }
-        
-        .badge-session.low { background: #fff3cd; color: #856404; }
-        
-        .badge-session.critical { background: #f8d7da; color: #842029; }
+        /* Information Styles */
+        #infoBody p { 
+            margin: 10px 0; 
+            font-size: 14px; 
+            border-bottom: 1px solid #eee; 
+            padding-bottom: 5px; 
+        }
+
+        #infoBody b { 
+            color: #0056b3;
+            width: 100px; 
+            display: inline-block; 
+        }
     </style>
 </head>
 <body>
@@ -107,7 +201,7 @@
             <li><a href="admindashboard.html">🏠︎ Home</a></li>
             <li><a href="javascript:void(0)" onclick="openSearchModal()">🔎︎ Search</a></li>
             <li><a href="studentlist.html" class="active">👤 Students</a></li>
-            <li><a href="javascript:void(0)" onclick="openSitInModal()">🧑‍💻 Sit-in</a></li>
+            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()">🧑‍💻 Sit-in</a></li>
             <li><a href="viewsitin.html">📄 View Sit-in Records</a></li>
             <li><a href="viewrecords.html">📁 Sit-in Reports</a></li>
             <li><a href="viewrecords.html">📝 Feedback Reports</a></li>
@@ -115,54 +209,68 @@
         </ul>
     </nav>
 
-    <div id="searchModal" class="modal-overlay" onclick="closeModalOnOutsideClick(event, 'searchModal')">
+    <div id="searchModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Search Student</h2>
-                <button class="close-btn" onclick="closeSearchModal()">❌</button>
+                <button class="close-btn" onclick="closeModal('searchModal')">❌</button>
             </div>
             <div class="modal-body">
-                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px;">
+                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px; box-sizing: border-box;">
             </div>
             <div class="modal-footer">
-                <button class="btn-sit-in" onclick="executeSearch()">Check ID</button>
+                <button class="btn-confirm" onclick="executeSearch()">Search</button>
             </div>
         </div>
     </div>
 
-    <div id="sitInModal" class="modal-overlay" onclick="closeModalOnOutsideClick(event, 'sitInModal')">
+    <div id="studentInfoModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Student Information</h2>
+                <button class="close-btn" onclick="closeModal('studentInfoModal')">❌</button>
+            </div>
+            <div class="modal-body" id="infoBody">
+                </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('studentInfoModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="genericSitInModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Sit-In Entry Form</h2>
-                <button class="close-btn" onclick="closeSitInModal()">❌</button>
+                <button class="close-btn" onclick="closeModal('genericSitInModal')">❌</button>
             </div>
             <div class="modal-body">
-                <div class="form-row"><label>ID Number:</label><input type="text" id="sitIdNumber" readonly></div>
-                <div class="form-row"><label>Full Name:</label><input type="text" id="sitStudentName" readonly></div>
+                <div class="form-row"><label>ID Number:</label><input type="text" id="genIdNumber" placeholder="Enter ID"></div>
+                <div class="form-row"><label>Full Name:</label><input type="text" id="genFullName" placeholder="Enter Name"></div>
                 <div class="form-row">
                     <label>Purpose:</label>
-                    <select id="sitPurpose">
+                    <select id="genPurpose">
                         <option>C Programming</option>
                         <option>Java Projects</option>
                         <option>Python/Data Science</option>
                         <option>Web Development</option>
                     </select>
                 </div>
-                <div class="form-row"><label>Laboratory:</label><input type="text" id="sitLab" placeholder="e.g. 524"></div>
-                <div class="form-row"><label>Sessions Left:</label><input type="text" id="sitRemaining" readonly></div>
+                <div class="form-row"><label>Laboratory:</label><input type="text" id="genLab" placeholder="e.g. 524"></div>
+                <div class="form-row"><label>Sessions Left:</label><input type="text" id="genRemaining" placeholder="e.g. 30"></div>
             </div>
             <div class="modal-footer">
-                <button class="btn-close-modal" onclick="closeSitInModal()">Cancel</button>
-                <button class="btn-sit-in" onclick="submitSitIn()">Confirm Sit-In</button>
+                <button class="btn-cancel" onclick="closeModal('genericSitInModal')">Cancel</button>
+                <button class="btn-confirm" onclick="submitGenericSitIn()">Confirm Sit-In</button>
             </div>
         </div>
     </div>
 
     <div class="admin-table-container">
-        <h1 style="text-align: center; font-size: 26px;">Students Information</h1>
-        <div style="margin-bottom: 20px; margin-top: 20px;">
-            <button class="btn-add" onclick="addStudent()">Add Student</button>
-            <button class="btn-reset" onclick="resetSessions()">Reset All Sessions</button>
+        <h1>Students Information</h1>
+        <div style="margin-bottom: 20px;">
+            <button class="btn-add" onclick="Swal.fire('Info','Redirecting to registration...','info')">Add Student</button>
+            <button class="btn-reset" onclick="resetAllSessions()">Reset All Sessions</button>
             <input type="text" class="search-box" id="tableSearch" placeholder="Filter table..." onkeyup="filterTable()">
         </div>
         <table>
@@ -172,145 +280,124 @@
                 </tr>
             </thead>
             <tbody id="studentTableBody">
-                <tr><td colspan="6" style="text-align:center;">Loading students...</td></tr>
-            </tbody>
+                </tbody>
         </table>
     </div>
 
 <script>
-    function closeModalOnOutsideClick(event, modalId) {
-        const modal = document.getElementById(modalId);
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    }
+    // --- Modal Controls ---
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    function openSearchModal() {
-        document.getElementById('searchModal').style.display = 'flex';
-        document.getElementById('modalSearchInput').focus();
-    }
-
-    function closeSearchModal() {
-        document.getElementById('searchModal').style.display = 'none';
-    }
-
-    function openSitInModal() {
-        document.getElementById('sitInModal').style.display = 'flex';
-    }
-
-    function closeSitInModal() {
-        document.getElementById('sitInModal').style.display = 'none';
-    }
+    // --- Search Logic (Matches Dashboard) ---
+    function openSearchModal() { openModal('searchModal'); document.getElementById('modalSearchInput').focus(); }
 
     async function executeSearch() {
         const id = document.getElementById('modalSearchInput').value.trim();
         if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
 
         try {
-            const res = await fetch(`http://localhost:3000/get-student/${id}`);
+            const res = await fetch(`http://localhost:3000/student/${id}`);
             const data = await res.json();
 
             if (res.ok) {
-                document.getElementById('sitIdNumber').value = data.idNumber;
-
-                const fullName = `${data.firstName || data.firstname || ''} ${data.lastName || data.lastname || ''}`.trim();
-                document.getElementById('sitStudentName').value = fullName || "N/A";
-
-                document.getElementById('sitRemaining').value = data.remainingSession || 30;
-
-                closeSearchModal();
-                document.getElementById('sitInModal').style.display = 'flex';
+                closeModal('searchModal');
+                const infoBody = document.getElementById('infoBody');
+                infoBody.innerHTML = `
+                    <p><b>ID Number:</b> ${data.idNumber}</p>
+                    <p><b>Name:</b> ${data.firstName} ${data.lastName}</p>
+                    <p><b>Course:</b> ${data.course || 'N/A'}</p>
+                    <p><b>Email:</b> ${data.email || 'N/A'}</p>
+                    <p><b>Year:</b> ${data.yearLevel || 'N/A'}</p>
+                    <p><b>Address:</b> ${data.address || 'N/A'}</p>
+                `;
+                openModal('studentInfoModal');
             } else {
-                Swal.fire('Oops!', 'Student not found in database.', 'warning');
+                Swal.fire('Oops!', 'Student not found.', 'warning');
             }
-        } catch (e) {
-            console.error(e);
-            Swal.fire('Connection Error', 'Is your server running?', 'error');
-        }
+        } catch (e) { Swal.fire('Error', 'Server Error', 'error'); }
     }
 
-    async function submitSitIn() {
+    // --- Generic Sit-In Logic (Matches Dashboard image style) ---
+    function openGenericSitInForm() { openModal('genericSitInModal'); }
+
+    async function submitGenericSitIn() {
         const payload = {
-            idNumber: document.getElementById('sitIdNumber').value,
-            purpose: document.getElementById('sitPurpose').value,
-            lab: document.getElementById('sitLab').value
+            idNumber: document.getElementById('genIdNumber').value.trim(),
+            purpose: document.getElementById('genPurpose').value,
+            lab: document.getElementById('genLab').value.trim(),
+            date: new Date().toLocaleDateString(),
+            timeIn: new Date().toLocaleTimeString()
         };
 
-        if (!payload.lab) {
-            return Swal.fire('Warning', 'Please assign a Lab Room', 'warning');
+        if (!payload.idNumber || !payload.lab) {
+            return Swal.fire('Warning', 'ID Number and Lab are required.', 'warning');
         }
 
         try {
-            const res = await fetch('http://localhost:3000/sit-in', {
+            const res = await fetch('http://localhost:3000/make-reservation', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
             if (res.ok) {
-                Swal.fire('Success', 'Student is now sitting-in!', 'success');
-                closeSitInModal();
-
-                const count = document.getElementById('currentSitIn');
-                count.innerText = parseInt(count.innerText) + 1;
+                Swal.fire('Success', 'Sit-in recorded!', 'success');
+                closeModal('genericSitInModal');
+                fetchStudents(); // Refresh table
             } else {
-                const err = await res.text();
-                Swal.fire('Error', err || 'Failed to submit sit-in', 'error');
+                const txt = await res.text();
+                Swal.fire('Error', txt, 'error');
             }
-        } catch (e) {
-            console.error(e);
-            Swal.fire('Error', 'Could not process sit-in.', 'error');
-        }
+        } catch (e) { Swal.fire('Error', 'Connection failed.', 'error'); }
     }
 
-        async function fetchStudents() {
-            try {
-                const response = await fetch('http://localhost:3000/get-all-students');
-                const students = await response.json();
-                renderTable(students);
-            } catch (error) {
-                document.getElementById("studentTableBody").innerHTML = `<tr><td colspan="6" style="text-align:center;color:red;">Server connection failed.</td></tr>`;
-            }
-        }
-
-        function renderTable(students) {
+    // --- Table Data Logic ---
+    async function fetchStudents() {
+        try {
+            const response = await fetch('http://localhost:3000/admin/students');
+            const students = await response.json();
             const tableBody = document.getElementById("studentTableBody");
-            if (!students.length) {
-                tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No records found.</td></tr>`;
-                return;
-            }
-            tableBody.innerHTML = students.map(s => {
-                const sessions = s.remainingSession ?? 30;
-                let badge = sessions <= 5 ? 'critical' : (sessions <= 10 ? 'low' : '');
-                return `<tr>
+            
+            tableBody.innerHTML = students.map(s => `
+                <tr>
                     <td>${s.idNumber}</td>
                     <td>${s.firstName} ${s.lastName}</td>
                     <td>${s.yearLevel}</td>
                     <td>${s.course}</td>
-                    <td><span class="badge-session ${badge}">${sessions}</span></td>
+                    <td><span class="badge-session">${s.remainingSession ?? 30}</span></td>
                     <td>
                         <button style="background:#007bff; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="editStudent('${s.idNumber}')">Edit</button>
                         <button style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="deleteStudent('${s.idNumber}')">Delete</button>
                     </td>
-                </tr>`;
-            }).join('');
+                </tr>
+            `).join('');
+        } catch (error) {
+            console.error(error);
         }
+    }
 
-        function filterTable() {
-            const val = document.getElementById("tableSearch").value.toLowerCase();
-            const rows = document.querySelectorAll("#studentTableBody tr");
-            rows.forEach(r => r.style.display = r.innerText.toLowerCase().includes(val) ? "" : "none");
-        }
+    function filterTable() {
+        const val = document.getElementById("tableSearch").value.toLowerCase();
+        const rows = document.querySelectorAll("#studentTableBody tr");
+        rows.forEach(r => r.style.display = r.innerText.toLowerCase().includes(val) ? "" : "none");
+    }
+
+    window.onload = fetchStudents;
 
     function logout() {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "You will be logged out.",
+            title: 'Logout Admin?',
+            text: "Are you sure you want to end your admin session?",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Yes, logout'
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, logout admin!',
+            cancelButtonText: 'Cancel'
         }).then((result) => {
             if (result.isConfirmed) {
+                sessionStorage.removeItem("adminWelcomeShown");
                 window.location.href = "index.html";
             }
         });

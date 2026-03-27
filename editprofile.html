@@ -7,6 +7,19 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>   
+    .profile-image {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        border: 2px solid #0056b3;
+        object-fit: cover;
+        background-color: #f0f0f0;
+        margin-bottom: 30px;
+    }    
 
     .register-wrapper {
         display: flex;
@@ -53,12 +66,15 @@
                 
                 <div class="form-column">
                     <div class="reg-header">
-                        <img src="images/ccs.png" alt="Profile Icon">
-                        <h1 class="align-left">Edit Profile</h1>
+                        <div style="text-align: center; cursor: pointer;" onclick="document.getElementById('photoUpload').click()">
+                            <div id="noPhotoPlaceholder" class="profile-image"></div>
+                            <img id="profilePhoto" src="" alt="Student Photo" class="profile-image" style="display: none;">
+                        </div>
                     </div>
 
-                    <!-- ✅ REMOVED onsubmit and changed to type="button" to fully prevent form submission -->
-                    <form id="editProfileForm" onsubmit="return false;">
+                    <input type="file" id="photoUpload" accept="image/*" style="display: none;">
+
+                    <form id="editProfileForm">
                         <div class="reg-input-group">
                             <input type="text" id="edit-id" placeholder="🪪 ID Number" required>
                         </div>
@@ -106,11 +122,7 @@
                         </div>
 
                         <div class="btn-center">
-                            <!-- ✅ type="button" prevents ANY accidental form submit -->
                             <button type="button" id="saveBtn" class="reg-submit-btn">Save</button>
-                            <div class="cancel-center">
-                                <a href="dashboard.html" class="cancel-btn">Back</a>
-                            </div>
                         </div>
                     </form>
                 </div>
@@ -124,23 +136,55 @@
     </div>
 
 <script>
-function logout() {
-    Swal.fire({
+async function logout() {
+    const studentId = localStorage.getItem('loggedInId');
+    
+    // 1. Confirm with the user
+    const { isConfirmed } = await Swal.fire({
         title: 'Logout?',
-        text: "Are you sure you want to end your session?",
+        text: "This will end your current lab session and log you out.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#0056b3',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, Logout!',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
-        if (result.isConfirmed) {
+        confirmButtonText: 'Yes, Logout!'
+    });
+
+    if (isConfirmed) {
+        try {
+            // 2. IMPORTANT: Tell the server to record the logout time in history
+            if (studentId) {
+                await fetch("http://localhost:3000/record-final-logout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ idNumber: studentId })
+                });
+            }
+
+            // 3. Clear local session data
+            localStorage.removeItem('loggedInId');
+            localStorage.removeItem('sessionExpiry');
+            sessionStorage.clear();
+
+            // 4. Success message before leaving
+            Swal.fire({
+                icon: 'success',
+                title: 'Logged Out',
+                text: 'Your session has been closed.',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = 'index.html';
+            });
+        } catch (err) {
+            console.error("Logout error:", err);
+            // Even if server update fails, still log out locally
             localStorage.removeItem('loggedInId');
             window.location.href = 'index.html';
         }
-    });
+    }
 }
+
+let selectedPhoto = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
     const idNumber = localStorage.getItem("loggedInId");
@@ -166,19 +210,41 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById("edit-course").value = user.course || "";
             document.getElementById("edit-email").value = user.email || "";
             document.getElementById("edit-address").value = user.address || "";
+
+            if (user.profilePhoto) {
+                selectedPhoto = user.profilePhoto; // important for saving if unchanged
+                document.getElementById("profilePhoto").src = user.profilePhoto;
+                document.getElementById("profilePhoto").style.display = "block";
+                document.getElementById("noPhotoPlaceholder").style.display = "none";
+            }
         }
     } catch (err) {
         console.error(err);
     }
 
-    // ✅ FIX: Disable button immediately on first click to prevent double-firing
-    const saveBtn = document.getElementById("saveBtn");
+    document.getElementById("photoUpload").addEventListener("change", function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
 
-    saveBtn.addEventListener("click", async function (e) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            selectedPhoto = event.target.result;
+
+            document.getElementById("profilePhoto").src = selectedPhoto;
+            document.getElementById("profilePhoto").style.display = "block";
+            document.getElementById("noPhotoPlaceholder").style.display = "none";
+        };
+        reader.readAsDataURL(file);
+    });
+
+    const editForm = document.getElementById("editProfileForm");
+
+    editForm.addEventListener("submit", async function (e) {
         e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
+        
+        const saveBtn = document.getElementById("saveBtn");
         saveBtn.disabled = true;
+        saveBtn.innerText = "Saving...";
 
         const updatedUser = {
             oldIdNumber: originalID,
@@ -189,7 +255,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             yearLevel: document.getElementById("edit-yearLevel").value,
             course: document.getElementById("edit-course").value,
             email: document.getElementById("edit-email").value,
-            address: document.getElementById("edit-address").value
+            address: document.getElementById("edit-address").value,
+            profilePhoto: selectedPhoto 
         };
 
         try {
@@ -201,13 +268,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (response.ok) {
                 localStorage.setItem("loggedInId", updatedUser.idNumber);
-                sessionStorage.setItem("profileUpdated", "true");
-
+                
+                // This is the important part: Wait for the user to click "OK"
                 Swal.fire({
                     icon: 'success',
-                    title: 'Saved!',
-                    text: 'Profile updated successfully!',
-                    confirmButtonText: 'OK',
+                    title: 'Profile Updated!',
+                    text: 'Your changes have been saved.',
                     confirmButtonColor: '#0056b3',
                     allowOutsideClick: false,
                     allowEscapeKey: false,
@@ -218,15 +284,20 @@ document.addEventListener("DOMContentLoaded", async () => {
                         window.location.href = 'dashboard.html';
                     }
                 });
-
             } else {
                 saveBtn.disabled = false;
-                Swal.fire('❌ Update Failed', 'ID might be taken.', 'error');
+                saveBtn.innerText = "Save";
+                Swal.fire('Error', 'Update failed. ID might be taken.', 'error');
             }
         } catch (error) {
             saveBtn.disabled = false;
-            Swal.fire('❌ Error', 'Server connection lost.', 'error');
+            saveBtn.innerText = "Save";
+            Swal.fire('Error', 'Server connection lost.', 'error');
         }
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+        editForm.requestSubmit(); 
     });
 });
 </script>

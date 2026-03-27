@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <nav class="navbar">
+        <div class="logo-text">College of Computer Studies Sit-in Monitoring System</div>
+        <ul class="nav-links">
+            <li><a href="home.html">🏠︎ Home</a></li>
+            <li><a href="#">🗫 Community</a></li>
+            <li><a href="#">🛈 About</a></li>
+            <li><a href="index.html">➜] Login</a></li>
+            <li><a href="register.html" class="active">🗒 Register</a></li>
+        </ul>
+    </nav>
+
     <div class="register-wrapper">
         <div class="register-container">
 
@@ -14,12 +26,9 @@
                 <div class="form-column">
 
                     <div class="reg-header">
-                        <img src="images/register.png" alt="Register Icon">
-                        <h1 class="align-left">Registration</h1>
+                         <p class="form-eyebrow"><b>NEW STUDENT</b></p>
+                        <h1 class="form-title">Create your account</h1>
                     </div>
-
-                    <h2>Get started on CCS</h2>
-                    <h4 style="margin-top: 10px;">Create your CCS student account to access academic services, course information, and campus resources.</h4>
 
                     <form id="registerForm">
 
@@ -78,12 +87,13 @@
                         <div class="reg-input-group">
                             <input type="text" name="address" placeholder="🏠 Address" required>
                         </div>
+                        <label class="reg-agree"><input type="checkbox">I AGREE TO THE TERMS OF SERVICE AND PRIVACY POLICY.</label>
 
                         <div class="btn-center">
-                            <button type="submit" class="reg-submit-btn">Register</button>
-                            <div class="cancel-center"><a href="index.html" class="cancel-btn">Cancel</a></div>
+                            <button type="submit" class="reg-submit-btn">Create Account</button>
                         </div>
 
+                        <p class="sign-in-row">Already have an account? <a href="index.html" class="login-link">Sign in</a></p>
                     </form>
                 </div>
 

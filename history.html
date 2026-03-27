@@ -134,12 +134,12 @@
             <table class="styled-table">
                 <thead>
                     <tr>
-                        <th data-col="id">ID Number <span class="sort-icon" id="sort-id"></span></th>
-                        <th data-col="name">Name <span class="sort-icon" id="sort-name"></span></th>
+                        <th data-col="idNumber">ID Number <span class="sort-icon" id="sort-idNumber"></span></th>
+                        <th data-col="displayName">Name <span class="sort-icon" id="sort-displayName"></span></th>
                         <th data-col="purpose">Sit Purpose <span class="sort-icon" id="sort-purpose"></span></th>
                         <th data-col="lab">Laboratory <span class="sort-icon" id="sort-lab"></span></th>
-                        <th data-col="login">Login <span class="sort-icon" id="sort-login"></span></th>
-                        <th data-col="logout">Logout <span class="sort-icon" id="sort-logout"></span></th>
+                        <th data-col="displayIn">Login <span class="sort-icon" id="sort-displayIn"></span></th>
+                        <th data-col="displayOut">Logout <span class="sort-icon" id="sort-displayOut"></span></th>
                         <th data-col="date">Date <span class="sort-icon" id="sort-date"></span></th>
                         <th>Action</th>
                     </tr>
@@ -155,23 +155,47 @@
     </div>
 
 <script>
-    function logout() {
-        Swal.fire({
-            title: 'Logout?',
-            text: "Are you sure you want to end your session?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#0056b3',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, Logout!',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                localStorage.removeItem('loggedInId');
-                window.location.href = 'index.html';
+async function logout() {
+    const studentId = localStorage.getItem('loggedInId');
+    
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout?',
+        text: "This will end your current lab session and log you out.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0056b3',
+        confirmButtonText: 'Yes, Logout!'
+    });
+
+    if (isConfirmed) {
+        try {
+            if (studentId) {
+                await fetch("http://localhost:3000/record-final-logout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ idNumber: studentId })
+                });
             }
-        });
+
+            localStorage.removeItem('loggedInId');
+            localStorage.removeItem('sessionExpiry');
+            sessionStorage.clear();
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Logged Out',
+                text: 'Your session has been closed.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            window.location.href = 'index.html';
+        } catch (err) {
+            console.error("Logout error:", err);
+            localStorage.removeItem('loggedInId');
+            window.location.href = 'index.html';
+        }
     }
+}
 
     let allData      = [];
     let filteredData = [];
@@ -180,14 +204,50 @@
     let sortCol      = null;
     let sortDir      = "asc";
 
+    function formatTime(timeStr) {
+        if (!timeStr || timeStr === "null" || timeStr === "---") return "---";
+        if (timeStr.includes("AM") || timeStr.includes("PM")) return timeStr; 
+
+        try {
+            let [hours, minutes] = timeStr.split(':');
+            hours = parseInt(hours);
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            return `${hours}:${minutes.substring(0,2)} ${ampm}`;
+        } catch (e) {
+            return timeStr;
+        }
+    }
+
     async function loadData() {
         const idNumber = localStorage.getItem("loggedInId");
-        if (!idNumber) { window.location.href = "index.html"; return; }
+        // Get name from localStorage. If it's missing, defaults to "Student"
+        const sessionName = localStorage.getItem("userName") || "Student";
+
+        if (!idNumber) { 
+            window.location.href = "index.html"; 
+            return; 
+        }
 
         try {
             const res = await fetch(`http://localhost:3000/history/${idNumber}`);
-            allData = await res.json();
-            if (!Array.isArray(allData)) allData = [];
+            let rawData = await res.json();
+            
+            if (!Array.isArray(rawData)) {
+                allData = [];
+            } else {
+                allData = rawData.map(row => {
+                    return {
+                        ...row,
+                        // Fix the name using the session data
+                        displayName: sessionName,
+                        // Ensure Login and Logout are formatted to AM/PM
+                        displayIn: formatTime(row.timeIn || row.login || "---"),
+                        displayOut: (row.timeOut && row.timeOut !== "null") ? formatTime(row.timeOut) : "None"
+                    };
+                });
+            }
         } catch(e) {
             allData = [];
             console.error("Failed to load history:", e);
@@ -209,18 +269,27 @@
             tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No records found.</td></tr>`;
             document.getElementById("entryInfo").textContent = "Showing 0 to 0 of 0 entries";
         } else {
-            tbody.innerHTML = slice.map(row => `
-                <tr>
-                    <td>${row.id}</td>
-                    <td>${row.name}</td>
-                    <td>${row.purpose}</td>
-                    <td>${row.lab}</td>
-                    <td>${row.login}</td>
-                    <td>${row.logout}</td>
-                    <td>${row.date}</td>
-                    <td><button class="feedback-btn">Feedback</button></td>
-                </tr>
-            `).join("");
+            tbody.innerHTML = slice.map(row => {
+                // ✅ DEFINE fullName HERE
+                // This combines the names sent by your new JOIN query in server.js
+                const fullName = (row.firstName && row.lastName) 
+                    ? `${row.firstName} ${row.lastName}` 
+                    : 'Student';
+
+                return `
+                    <tr>
+                        <td>${row.idNumber || 'N/A'}</td>
+                        <td>${fullName}</td> 
+                        <td>${row.purpose || 'N/A'}</td>
+                        <td>${row.lab || 'N/A'}</td>
+                        <td>${row.displayIn || row.timeIn}</td> 
+                        <td>${row.displayOut || row.timeOut || 'None'}</td>
+                        <td>${row.date || 'N/A'}</td>
+                        <td><button class="feedback-btn">Feedback</button></td>
+                    </tr>
+                `;
+            }).join("");
+            
             document.getElementById("entryInfo").textContent =
                 `Showing ${start + 1} to ${end} of ${total} ${total === 1 ? "entry" : "entries"}`;
         }
@@ -290,8 +359,8 @@
     function applySort() {
         if (!sortCol) return;
         filteredData.sort((a, b) => {
-            const va = String(a[sortCol] || "");
-            const vb = String(b[sortCol] || "");
+            let va = String(a[sortCol] || "").toLowerCase();
+            let vb = String(b[sortCol] || "").toLowerCase();
             return sortDir === "asc"
                 ? va.localeCompare(vb, undefined, {numeric: true})
                 : vb.localeCompare(va, undefined, {numeric: true});
@@ -299,7 +368,7 @@
     }
 
     function updateSortIcons() {
-        ["id","name","purpose","lab","login","logout","date"].forEach(c => {
+        ["idNumber","displayName","purpose","lab","displayIn","displayOut","date"].forEach(c => {
             const el = document.getElementById(`sort-${c}`);
             if (!el) return;
             el.className = "sort-icon" + (sortCol === c ? " " + sortDir : "");

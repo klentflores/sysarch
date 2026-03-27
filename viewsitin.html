@@ -24,6 +24,7 @@
             margin: 30px auto;
             padding: 0 20px;
         }
+
         h1.page-title {
             text-align: center;
             font-size: 26px;
@@ -33,12 +34,14 @@
             font-weight: 650;
             padding-bottom: 5px;
         }
+
         .table-card {
             background: white;
             border-radius: 12px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.05);
             padding: 25px;
         }
+
         .table-controls {
             display: flex;
             justify-content: space-between;
@@ -47,12 +50,14 @@
             flex-wrap: wrap;
             gap: 15px;
         }
+
         .entries-control select, .search-control input {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 5px;
             outline: none;
         }
+
         .btn-refresh {
             background: #0056b3;
             color: white;
@@ -62,6 +67,7 @@
             cursor: pointer;
             font-weight: bold;
         }
+
         /* ── TABLE ── */
         table {
             width: 100%;
@@ -80,41 +86,40 @@
             border-bottom: 2px solid #eee;
         }
 
-        td { padding: 12px 15px; border-bottom: 1px solid #f1f1f1; color: #444; }
-        tbody tr:hover { background: #fcfdfe; }
+        td { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid #f1f1f1; 
+            color: #444; 
+        }
+
+        tbody tr:hover { 
+            background: #fcfdfe; 
+        }
 
         /* ── BADGES ── */
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
-        .badge-active { background: #d4edda; color: #155724; }
-        .badge-timeout { background: #f8d7da; color: #721c24; }
-        .badge-session { background: #e9f5ff; color: #0056b3; }
+        .badge { 
+            padding: 4px 10px; 
+            border-radius: 20px; 
+            font-size: 11px; 
+            font-weight: bold; 
+        }
+
+        .badge-active { 
+            background: #d4edda; 
+            color: #155724; 
+        }
+
+        .badge-timeout { 
+            background: #f8d7da; 
+            color: #721c24; 
+        }
+
+        .badge-session { 
+            background: #e9f5ff; 
+            color: #0056b3; }
 
         /* ── MODAL FORM ROW LAYOUT ── */
-        .form-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .form-row label {
-            width: 130px;
-            font-weight: bold;
-            font-size: 14px;
-            color: #555;
-        }
-        .form-row input, .form-row select {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-        }
-        input[readonly] { background: #f0f0f0; cursor: not-allowed; }
-
-        @keyframes slideDown {
-            from { transform: translateY(-30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-                .modal-overlay {
+        .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0;
@@ -124,16 +129,18 @@
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(5px);
+            background-color: rgba(0,0,0,0.4); /* Fixed background */
         }
+
         .modal-content {
             background: white;
-            padding: 0;
             border-radius: 10px;
             width: 450px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             overflow: hidden;
             animation: slideDown 0.3s ease-out;
         }
+
         .modal-header {
             background: #0056b3;
             color: white;
@@ -142,42 +149,48 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .modal-header h2 { 
             font-size: 20px; 
             color: white; 
+            margin: 0; 
         }
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 15px;
-            cursor: pointer;
+        
+        .close-btn { 
+            background: none; 
+            border: none; 
+            font-size: 20px; 
+            cursor: pointer; 
         }
+
         .modal-body { 
             padding: 25px; 
         }
 
-        .form-row {
-            display: flex;
-            margin-bottom: 15px;
-            align-items: center;
+        .form-row { 
+            display: flex; 
+            margin-bottom: 15px; 
+            align-items: center; 
         }
+
         .form-row label { 
             width: 150px; 
             font-weight: bold; 
             color: #333; 
             font-size: 14px; 
         }
-        .form-row input, .form-row select {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        .form-row input, .form-row select { 
+            flex: 1; 
+            padding: 10px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
         }
 
         input[readonly] { 
             background: #eee; 
             cursor: not-allowed; 
         }
+
         .modal-footer {
             padding: 12px;
             background: #f8f9fa;
@@ -185,23 +198,44 @@
             justify-content: flex-end;
             gap: 10px;
         }
-
         .modal-footer button {
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
             transition: background-color 1s;
+        }
+
+        .btn-confirm { 
+            background-color: #007bff; 
+            color: white; 
+        }
+
+        .btn-cancel {
+            background-color: #007bff; 
+            color: white; 
         }
 
         .modal-footer button:hover {
             background-color: #da0ca6;
         }
+        
+        #infoBody p { 
+            margin: 10px 0; 
+            font-size: 14px; 
+            border-bottom: 1px solid #eee; 
+            padding-bottom: 5px; 
+        }
+
+        #infoBody b { 
+            color: #0056b3;
+            width: 100px; 
+            display: inline-block; 
+        }
+
         @keyframes slideDown {
-            from { transform: translateY(-50px); opacity: 0; }
+            from { transform: translateY(-30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
     </style>
@@ -214,7 +248,7 @@
         <li><a href="admindashboard.html">🏠︎ Home</a></li>
         <li><a href="javascript:void(0)" onclick="openSearchModal()">🔎︎ Search</a></li>
         <li><a href="studentlist.html">👤 Students</a></li>
-        <li><a href="javascript:void(0)" onclick="openSitInModal()">🧑‍💻 Sit-in</a></li>
+        <li><a href="javascript:void(0)" onclick="openGenericSitInForm()">🧑‍💻 Sit-in</a></li>
         <li><a href="viewsitin.html" class="active">📄 View Sit-in Records</a></li>
         <li><a href="sitinreports.html">📁 Sit-in Reports</a></li>
         <li><a href="feedbackreports.html">📝 Feedback Reports</a></li>
@@ -222,45 +256,59 @@
     </ul>
 </nav>
 
-    <div id="searchModal" class="modal-overlay" onclick="closeModalOnOutsideClick(event, 'searchModal')">
+    <div id="searchModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Search Student</h2>
-                <button class="close-btn" onclick="closeSearchModal()">❌</button>
+                <button class="close-btn" onclick="closeModal('searchModal')">❌</button>
             </div>
             <div class="modal-body">
-                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px;">
+                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px; box-sizing: border-box;">
             </div>
             <div class="modal-footer">
-                <button class="btn-sit-in" onclick="executeSearch()">Check ID</button>
+                <button class="btn-confirm" onclick="executeSearch()">Search</button>
             </div>
         </div>
     </div>
 
-    <div id="sitInModal" class="modal-overlay" onclick="closeModalOnOutsideClick(event, 'sitInModal')">
+    <div id="studentInfoModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Student Information</h2>
+                <button class="close-btn" onclick="closeModal('studentInfoModal')">❌</button>
+            </div>
+            <div class="modal-body" id="infoBody">
+                </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('studentInfoModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="genericSitInModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Sit-In Entry Form</h2>
-                <button class="close-btn" onclick="closeSitInModal()">❌</button>
+                <button class="close-btn" onclick="closeModal('genericSitInModal')">❌</button>
             </div>
             <div class="modal-body">
-                <div class="form-row"><label>ID Number:</label><input type="text" id="sitIdNumber" readonly></div>
-                <div class="form-row"><label>Full Name:</label><input type="text" id="sitStudentName" readonly></div>
+                <div class="form-row"><label>ID Number:</label><input type="text" id="genIdNumber" placeholder="Enter ID"></div>
+                <div class="form-row"><label>Full Name:</label><input type="text" id="genFullName" placeholder="Enter Name"></div>
                 <div class="form-row">
                     <label>Purpose:</label>
-                    <select id="sitPurpose">
+                    <select id="genPurpose">
                         <option>C Programming</option>
                         <option>Java Projects</option>
                         <option>Python/Data Science</option>
                         <option>Web Development</option>
                     </select>
                 </div>
-                <div class="form-row"><label>Laboratory:</label><input type="text" id="sitLab" placeholder="e.g. 524"></div>
-                <div class="form-row"><label>Sessions Left:</label><input type="text" id="sitRemaining" readonly></div>
+                <div class="form-row"><label>Laboratory:</label><input type="text" id="genLab" placeholder="e.g. 524"></div>
+                <div class="form-row"><label>Sessions Left:</label><input type="text" id="genRemaining" placeholder="e.g. 30"></div>
             </div>
             <div class="modal-footer">
-                <button class="btn-close-modal" onclick="closeSitInModal()">Cancel</button>
-                <button class="btn-sit-in" onclick="submitSitIn()">Confirm Sit-In</button>
+                <button class="btn-cancel" onclick="closeModal('genericSitInModal')">Cancel</button>
+                <button class="btn-confirm" onclick="submitGenericSitIn()">Confirm Sit-In</button>
             </div>
         </div>
     </div>
@@ -313,29 +361,122 @@
     let filteredRecords = [];
     let currentPage = 1;
     let entriesPerPage = 10;
-    let sortCol = 0;
-    let sortAsc = true;
 
+    // --- 1. DATA FETCHING ---
     async function fetchSitIns() {
-        document.getElementById('sitInTableBody').innerHTML = `<tr><td colspan="8">Loading...</td></tr>`;
+        const tbody = document.getElementById('sitInTableBody');
+        tbody.innerHTML = `<tr><td colspan="8">Loading sit-in records...</td></tr>`;
         try {
             const res = await fetch('http://localhost:3000/get-sitin');
             allRecords = await res.json();
             applySearch();
         } catch (e) {
-            document.getElementById('sitInTableBody').innerHTML = `<tr><td colspan="8" style="color:red;">Server error.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" style="color:red;">Server error. Please check your connection.</td></tr>`;
         }
     }
 
+    function openModal(id) { 
+        const modal = document.getElementById(id);
+        if (modal) modal.style.display = 'flex'; 
+    }
+
+    function closeModal(id) { 
+        const modal = document.getElementById(id);
+        if (modal) modal.style.display = 'none'; 
+    }
+
+
+    function openSearchModal() { 
+        openModal('searchModal'); 
+        document.getElementById('modalSearchInput').value = "";
+        document.getElementById('modalSearchInput').focus(); 
+    }
+
+    async function executeSearch() {
+        const id = document.getElementById('modalSearchInput').value.trim();
+        if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
+
+        try {
+            // NOTE: Ensure this endpoint matches your backend (usually /get-student/ID)
+            const res = await fetch(`http://localhost:3000/get-student/${id}`);
+            const data = await res.json();
+
+            if (res.ok) {
+                closeModal('searchModal');
+                const infoBody = document.getElementById('infoBody');
+                infoBody.innerHTML = `
+                    <div style="text-align:left; line-height:1.6;">
+                        <p><b>ID Number:</b> ${data.idNumber}</p>
+                        <p><b>Name:</b> ${data.firstName} ${data.lastName}</p>
+                        <p><b>Course:</b> ${data.course || 'N/A'}</p>
+                        <p><b>Year:</b> ${data.yearLevel || 'N/A'}</p>
+                        <p><b>Sessions Left:</b> <span class="badge badge-session">${data.remainingSession ?? 30}</span></p>
+                    </div>
+                `;
+                openModal('studentInfoModal');
+            } else {
+                Swal.fire('Oops!', 'Student not found.', 'warning');
+            }
+        } catch (e) { 
+            Swal.fire('Error', 'Server Error. Check if your backend is running.', 'error'); 
+        }
+    }
+
+    // --- Generic Sit-In Logic ---
+    function openGenericSitInForm() { 
+        // Clear previous inputs when opening a blank form
+        document.getElementById('genIdNumber').value = "";
+        document.getElementById('genFullName').value = "";
+        document.getElementById('genLab').value = "";
+        document.getElementById('genRemaining').value = "30";
+        openModal('genericSitInModal'); 
+    }
+
+    async function submitGenericSitIn() {
+        const payload = {
+            idNumber: document.getElementById('genIdNumber').value.trim(),
+            purpose: document.getElementById('genPurpose').value,
+            lab: document.getElementById('genLab').value.trim()
+        };
+
+        if (!payload.idNumber || !payload.lab) {
+            return Swal.fire('Warning', 'ID Number and Lab are required.', 'warning');
+        }
+
+        try {
+            // Matches the endpoint from your previous code
+            const res = await fetch('http://localhost:3000/sit-in', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                Swal.fire({ icon: 'success', title: 'Sit-in recorded!', timer: 1500, showConfirmButton: false });
+                closeModal('genericSitInModal');
+                fetchSitIns(); // Refresh the table automatically
+            } else {
+                const txt = await res.text();
+                Swal.fire('Error', txt, 'error');
+            }
+        } catch (e) { 
+            Swal.fire('Error', 'Connection failed.', 'error'); 
+        }
+    }
+
+    // --- 4. TABLE CONTROLS & PAGINATION ---
     function applySearch() {
         const val = document.getElementById('searchInput').value.toLowerCase();
-        filteredRecords = allRecords.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(val)));
+        filteredRecords = allRecords.filter(r => 
+            Object.values(r).some(v => String(v).toLowerCase().includes(val))
+        );
         currentPage = 1;
         renderTable();
     }
 
     function changeEntries() {
         entriesPerPage = parseInt(document.getElementById('entriesSelect').value);
+        currentPage = 1;
         renderTable();
     }
 
@@ -344,11 +485,18 @@
         const start = (currentPage - 1) * entriesPerPage;
         const pageData = filteredRecords.slice(start, start + entriesPerPage);
 
+        if (pageData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">No records found.</td></tr>`;
+            updatePagination(0);
+            return;
+        }
+
         tbody.innerHTML = pageData.map(r => {
-            const sessions = r.remainingSession ?? r.sessionsLeft ?? '—';
+            const sessions = r.remainingSession ?? 30;
             const isActive = !r.timeOut && !r.time_out;
+            const currentSitId = r.sitInId ?? r.id;
             return `<tr>
-                <td>${r.sitInId ?? r.id ?? '—'}</td>
+                <td>${currentSitId ?? '—'}</td>
                 <td>${r.idNumber}</td>
                 <td>${r.firstName ?? ''} ${r.lastName ?? ''}</td>
                 <td>${r.purpose}</td>
@@ -356,111 +504,55 @@
                 <td><span class="badge badge-session">${sessions}</span></td>
                 <td>${isActive ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-timeout">Timed Out</span>'}</td>
                 <td>
-                    ${isActive ? `<button class="btn-timeout" onclick="timeOut('${r.idNumber}', '${r.sitInId ?? r.id}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Time Out</button>` : `<button disabled style="padding:5px 10px; border-radius:4px; cursor:not-allowed;">Done</button>`}
+                    ${isActive ? 
+                        `<button onclick="timeOut('${r.idNumber}', '${currentSitId}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Time Out</button>` : 
+                        `<button disabled style="padding:5px 10px; border-radius:4px; cursor:not-allowed;">Done</button>`}
                 </td>
             </tr>`;
         }).join('');
         
-        document.getElementById('paginationInfo').textContent = `Showing ${start + 1} to ${Math.min(start + entriesPerPage, filteredRecords.length)} of ${filteredRecords.length} entries`;
+        document.getElementById('paginationInfo').textContent = 
+            `Showing ${start + 1} to ${Math.min(start + entriesPerPage, filteredRecords.length)} of ${filteredRecords.length} entries`;
+        
+        updatePagination(filteredRecords.length);
     }
 
-    function closeModalOnOutsideClick(event, modalId) {
-        const modal = document.getElementById(modalId);
-        if (event.target === modal) {
-            modal.style.display = 'none';
+    function updatePagination(totalItems) {
+        const totalPages = Math.ceil(totalItems / entriesPerPage);
+        const container = document.getElementById('paginationBtns');
+        let html = '';
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<button onclick="goToPage(${i})" style="margin: 0 2px; padding: 5px 10px; cursor:pointer; background: ${i === currentPage ? '#0056b3' : '#fff'}; color: ${i === currentPage ? '#fff' : '#000'}; border: 1px solid #ddd;">${i}</button>`;
         }
+        container.innerHTML = html;
     }
 
-    function openSearchModal() {
-        document.getElementById('searchModal').style.display = 'flex';
-        document.getElementById('modalSearchInput').focus();
+    function goToPage(p) {
+        currentPage = p;
+        renderTable();
     }
 
-    function closeSearchModal() {
-        document.getElementById('searchModal').style.display = 'none';
+    function sortTable(n) {
+        const keyMap = ['id', 'idNumber', 'lastName', 'purpose', 'lab', 'remainingSession', 'timeOut'];
+        const key = keyMap[n];
+        filteredRecords.sort((a, b) => {
+            let valA = a[key] || '';
+            let valB = b[key] || '';
+            return valA.toString().localeCompare(valB.toString(), undefined, {numeric: true});
+        });
+        renderTable();
     }
-
-    function openSitInModal() {
-        document.getElementById('sitInModal').style.display = 'flex';
-    }
-
-    function closeSitInModal() {
-        document.getElementById('sitInModal').style.display = 'none';
-    }
-
-    async function executeSearch() {
-        const id = document.getElementById('modalSearchInput').value.trim();
-        if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
-
-        try {
-            const res = await fetch(`http://localhost:3000/get-student/${id}`);
-            const data = await res.json();
-
-            if (res.ok) {
-                document.getElementById('sitIdNumber').value = data.idNumber;
-
-                const fullName = `${data.firstName || data.firstname || ''} ${data.lastName || data.lastname || ''}`.trim();
-                document.getElementById('sitStudentName').value = fullName || "N/A";
-
-                document.getElementById('sitRemaining').value = data.remainingSession || 30;
-
-                closeSearchModal();
-                document.getElementById('sitInModal').style.display = 'flex';
-            } else {
-                Swal.fire('Oops!', 'Student not found in database.', 'warning');
-            }
-        } catch (e) {
-            console.error(e);
-            Swal.fire('Connection Error', 'Is your server running?', 'error');
-        }
-    }
-
-    async function submitSitIn() {
-        const payload = {
-            idNumber: document.getElementById('sitIdNumber').value,
-            purpose: document.getElementById('sitPurpose').value,
-            lab: document.getElementById('sitLab').value
-        };
-
-        if (!payload.lab) {
-            return Swal.fire('Warning', 'Please assign a Lab Room', 'warning');
-        }
-
-        try {
-            const res = await fetch('http://localhost:3000/sit-in', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (res.ok) {
-                Swal.fire('Success', 'Student is now sitting-in!', 'success');
-                closeSitInModal();
-
-                const count = document.getElementById('currentSitIn');
-                count.innerText = parseInt(count.innerText) + 1;
-            } else {
-                const err = await res.text();
-                Swal.fire('Error', err || 'Failed to submit sit-in', 'error');
-            }
-        } catch (e) {
-            console.error(e);
-            Swal.fire('Error', 'Could not process sit-in.', 'error');
-        }
-    }
-
 
     function logout() {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "You will be logged out.",
+            title: 'Logout Admin?',
+            text: "You will be returned to the login screen.",
             icon: 'warning',
             showCancelButton: true,
+            confirmButtonColor: '#d33',
             confirmButtonText: 'Yes, logout'
         }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "index.html";
-            }
+            if (result.isConfirmed) window.location.href = "index.html";
         });
     }
 
