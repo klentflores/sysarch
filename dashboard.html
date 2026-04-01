@@ -24,7 +24,7 @@
             border: 1px solid #ddd;
         }
         .card-header {
-            background-color: #0056b3;
+            background-color: #4e73df;
             color: white;
             padding: 12px 15px;
             font-weight: bold;
@@ -41,7 +41,7 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 15px;
-            border: 2px solid #da0ca6;
+            border: 1px solid #4e73df;
             object-fit: cover;
             background-color: #f0f0f0;
         }
@@ -60,7 +60,6 @@
         .announcement-date {
             font-size: 25px;
             font-weight: bold;
-            color: #da0ca6;
         }
         .rules-text {
             font-size: 15px;
@@ -77,7 +76,7 @@
             align-items: center;
             gap: 8px;
 
-            background: linear-gradient(135deg, #0056b3, #007bff);
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);;
             color: white;
             padding: 10px 16px;
             border-radius: 12px;
@@ -89,7 +88,7 @@
             font-weight: bold;
 
             /* 🔥 effects */
-            box-shadow: 0 0 15px rgba(0, 123, 255, 0.4);
+            box-shadow: 0 0 25px rgba(78, 115, 223, 0.6);
             animation: pulseGlow 2s infinite;
 
             transition: all 0.3s ease;
@@ -98,22 +97,21 @@
 
         #sessionTimerBox:hover {
             transform: scale(1.02);
-            box-shadow: 0 0 25px rgba(0, 123, 255, 0.7);
+            box-shadow: 0 0 25px rgba(78, 115, 223, 0.6);
         }
 
-        /* 🔥 pulse + glow animation */
         @keyframes pulseGlow {
             0% {
                 transform: scale(1);
-                box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+                box-shadow: 0 0 25px rgba(78, 115, 223, 0.6);
             }
             50% {
                 transform: scale(1.03);
-                box-shadow: 0 0 25px rgba(0, 123, 255, 0.6);
+                box-shadow: 0 0 25px rgba(78, 115, 223, 0.6);
             }
             100% {
                 transform: scale(1);
-                box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+                box-shadow: 0 0 25px rgba(78, 115, 223, 0.6);
             }
         }
 
@@ -186,7 +184,7 @@
             <div class="card-header">📖 Rules and Regulation</div>
             <div class="card-body">
                 <div class="rules-text">
-                    <center><b style="font-size: 30px; color: #da0ca6;">University of Cebu</b><br><b>COLLEGE OF INFORMATION & COMPUTER STUDIES</b></center><br>
+                    <center><b style="font-size: 30px;">University of Cebu</b><br><b>COLLEGE OF INFORMATION & COMPUTER STUDIES</b></center><br>
 
                     <b>LABORATORY RULES AND REGULATIONS</b>
                     <p style="margin-bottom: 15px; margin-top: 15px; font-size: 15px;">To avoid embarrassment and maintain camaraderie with your friends and superiors at our laboratories, please observe the following:</p>
@@ -355,7 +353,6 @@ const justLoggedIn = sessionStorage.getItem("justLoggedIn");
         const remaining = expiryTime - Date.now();
 
         if (remaining <= 0) {
-            // Auto-logout if timer runs out (also records logout time)
             logout(); 
             return;
         }

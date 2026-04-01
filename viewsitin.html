@@ -23,18 +23,8 @@
             max-width: 1300px;
             margin: 30px auto;
             padding: 0 20px;
+            margin-top: 50px;
         }
-
-        h1.page-title {
-            text-align: center;
-            font-size: 26px;
-            color: #333;
-            margin-top: 30px;
-            margin-bottom: 30px;
-            font-weight: 650;
-            padding-bottom: 5px;
-        }
-
         .table-card {
             background: white;
             border-radius: 12px;
@@ -82,7 +72,7 @@
             color: #0056b3;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 12px;
+            font-size: 13px;
             border-bottom: 2px solid #eee;
         }
 
@@ -288,23 +278,41 @@
     <div id="genericSitInModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Sit-In Entry Form</h2>
+                <h2>Confirm Sit-In for <span id="displayStudentName">Student</span></h2>
                 <button class="close-btn" onclick="closeModal('genericSitInModal')">❌</button>
             </div>
             <div class="modal-body">
-                <div class="form-row"><label>ID Number:</label><input type="text" id="genIdNumber" placeholder="Enter ID"></div>
-                <div class="form-row"><label>Full Name:</label><input type="text" id="genFullName" placeholder="Enter Name"></div>
+                <div class="form-row">
+                    <label>ID Number:</label>
+                    <input type="text" id="genIdNumber" placeholder="Enter ID Number" oninput="autoFillStudent()">
+                </div>
+                <div class="form-row">
+                    <label>Full Name:</label>
+                    <input type="text" id="genFullName" placeholder="Student Name" readonly>
+                </div>
                 <div class="form-row">
                     <label>Purpose:</label>
                     <select id="genPurpose">
-                        <option>C Programming</option>
-                        <option>Java Projects</option>
-                        <option>Python/Data Science</option>
-                        <option>Web Development</option>
+                        <option value="C Programming">C Programming</option>
+                        <option value="Java Projects">Java Projects</option>
+                        <option value="Python/Data Science">Python/Data Science</option>
+                        <option value="Web Development">Web Development</option>
                     </select>
                 </div>
-                <div class="form-row"><label>Laboratory:</label><input type="text" id="genLab" placeholder="e.g. 524"></div>
-                <div class="form-row"><label>Sessions Left:</label><input type="text" id="genRemaining" placeholder="e.g. 30"></div>
+                <div class="form-row">
+                    <label>Laboratory:</label>
+                    <select id="genLab">
+                        <option value="524">524</option>
+                        <option value="525">525</option>
+                        <option value="526">526</option>
+                        <option value="527">527</option>
+                        <option value="528">528</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Sessions Left:</label>
+                    <input type="text" id="genRemaining" placeholder="30" readonly>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal('genericSitInModal')">Cancel</button>
@@ -313,49 +321,51 @@
         </div>
     </div>
 
-<div class="page-wrapper">
-    <h1 class="page-title">Current Sit-in Sessions</h1>
+    <div class="page-wrapper">
 
-    <div class="table-card">
-        <div class="table-controls">
-            <div style="display:flex; gap:10px; align-items:center;">
-                <div class="entries-control">
-                    Show <select id="entriesSelect" onchange="changeEntries()">
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                    </select> entries
+        <div class="table-card">
+
+            <center><h1 style="margin-bottom: 20px;">Current Sit-in Sessions</h1></center>
+
+            <div class="table-controls">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <div class="entries-control">
+                        Show <select id="entriesSelect" onchange="changeEntries()">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                        </select> entries
+                    </div>
+                    <button class="btn-refresh" onclick="fetchSitIns()">🔄 Refresh</button>
                 </div>
-                <button class="btn-refresh" onclick="fetchSitIns()">🔄 Refresh</button>
+                <div class="search-control">
+                    Search: <input type="text" id="searchInput" oninput="applySearch()">
+                </div>
             </div>
-            <div class="search-control">
-                Search: <input type="text" id="searchInput" oninput="applySearch()">
+
+            <table id="sitInTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">Sit ID <span class="sort-icon">▲</span></th>
+                        <th onclick="sortTable(1)">ID Number <span class="sort-icon">⇅</span></th>
+                        <th onclick="sortTable(2)">Name <span class="sort-icon">⇅</span></th>
+                        <th onclick="sortTable(3)">Purpose <span class="sort-icon">⇅</span></th>
+                        <th onclick="sortTable(4)">Lab <span class="sort-icon">⇅</span></th>
+                        <th onclick="sortTable(5)">Session <span class="sort-icon">⇅</span></th>
+                        <th onclick="sortTable(6)">Status <span class="sort-icon">⇅</span></th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="sitInTableBody">
+                    <tr class="empty-row"><td colspan="8">Loading sit-in records...</td></tr>
+                </tbody>
+            </table>
+
+            <div class="pagination-row" style="display:flex; justify-content:space-between; margin-top:20px; font-size:13px;">
+                <div id="paginationInfo"></div>
+                <div id="paginationBtns" class="pagination-btns"></div>
             </div>
-        </div>
-
-        <table id="sitInTable">
-            <thead>
-                <tr>
-                    <th onclick="sortTable(0)">Sit ID <span class="sort-icon">▲</span></th>
-                    <th onclick="sortTable(1)">ID Number <span class="sort-icon">⇅</span></th>
-                    <th onclick="sortTable(2)">Name <span class="sort-icon">⇅</span></th>
-                    <th onclick="sortTable(3)">Purpose <span class="sort-icon">⇅</span></th>
-                    <th onclick="sortTable(4)">Lab <span class="sort-icon">⇅</span></th>
-                    <th onclick="sortTable(5)">Session <span class="sort-icon">⇅</span></th>
-                    <th onclick="sortTable(6)">Status <span class="sort-icon">⇅</span></th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="sitInTableBody">
-                <tr class="empty-row"><td colspan="8">Loading sit-in records...</td></tr>
-            </tbody>
-        </table>
-
-        <div class="pagination-row" style="display:flex; justify-content:space-between; margin-top:20px; font-size:13px;">
-            <div id="paginationInfo"></div>
-            <div id="paginationBtns" class="pagination-btns"></div>
         </div>
     </div>
-</div>
 <script>
     let allRecords = [];
     let filteredRecords = [];
@@ -424,21 +434,56 @@
         }
     }
 
-    // --- Generic Sit-In Logic ---
+// --- Updated Generic Sit-In Logic ---
     function openGenericSitInForm() { 
         // Clear previous inputs when opening a blank form
         document.getElementById('genIdNumber').value = "";
         document.getElementById('genFullName').value = "";
-        document.getElementById('genLab').value = "";
-        document.getElementById('genRemaining').value = "30";
+        document.getElementById('genLab').value = "524"; // Default value for dropdown
+        document.getElementById('genRemaining').value = "";
         openModal('genericSitInModal'); 
+    }
+
+    // NEW: Auto-fill function to show Name and Sessions as you type the ID
+    async function autoFillStudent() {
+        const idInput = document.getElementById('genIdNumber');
+        const nameInput = document.getElementById('genFullName');
+        const sessionInput = document.getElementById('genRemaining');
+        
+        const idNumber = idInput.value.trim();
+
+        // LIVE CLEAR: If the user backspaces and the field is empty, clear everything
+        if (idNumber === "") {
+            nameInput.value = "";
+            sessionInput.value = "";
+            return;
+        }
+
+        try {
+            // Fetch from your server.js endpoint
+            const res = await fetch(`http://localhost:3000/get-student/${idNumber}`);
+            
+            if (res.ok) {
+                const data = await res.json();
+                // LIVE MATCH: If a student is found, display details
+                nameInput.value = `${data.firstName} ${data.lastName}`;
+                sessionInput.value = data.remainingSession ?? 30;
+            } else {
+                // LIVE DISAPPEAR: If the ID is partial or wrong, keep fields empty
+                nameInput.value = "";
+                sessionInput.value = "";
+            }
+        } catch (e) {
+            // We stay silent during live typing to avoid error popups for every keystroke
+            console.error("Live search error:", e);
+        }
     }
 
     async function submitGenericSitIn() {
         const payload = {
             idNumber: document.getElementById('genIdNumber').value.trim(),
             purpose: document.getElementById('genPurpose').value,
-            lab: document.getElementById('genLab').value.trim()
+            lab: document.getElementById('genLab').value // Now pulls from your <select>
         };
 
         if (!payload.idNumber || !payload.lab) {
@@ -446,7 +491,6 @@
         }
 
         try {
-            // Matches the endpoint from your previous code
             const res = await fetch('http://localhost:3000/sit-in', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -456,7 +500,7 @@
             if (res.ok) {
                 Swal.fire({ icon: 'success', title: 'Sit-in recorded!', timer: 1500, showConfirmButton: false });
                 closeModal('genericSitInModal');
-                fetchSitIns(); // Refresh the table automatically
+                fetchSitIns(); // Refresh the table
             } else {
                 const txt = await res.text();
                 Swal.fire('Error', txt, 'error');

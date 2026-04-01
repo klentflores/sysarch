@@ -229,6 +229,18 @@ app.post("/admin/reset-single-student", (req, res) => {
     });
 });
 
+app.get("/get-student/:idNumber", (req, res) => {
+    const id = req.params.idNumber;
+    db.get(`SELECT firstName, lastName, remainingSession FROM users WHERE idNumber = ?`, [id], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (row) {
+            res.json(row);
+        } else {
+            res.status(404).json({ message: "Not found" });
+        }
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

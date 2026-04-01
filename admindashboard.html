@@ -9,19 +9,50 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .admin-container {
-            padding: 40px;
+            padding: 50px;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
-            max-width: 1400px;
+            max-width: 1500px;
             margin: auto;
         }
 
+        /* SB Admin Style Cards */
         .card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background: #fff;
+            border: 1px solid #e3e6f0;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* The Blue Header from your image */
+        .card-header {
+            background-color: #4e73df; /* Primary Blue */
+            padding: 12px 20px;
+            border-bottom: 1px solid #e3e6f0;
+        }
+
+        .card-header h2 {
+            color: #ffffff !important;
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0;
+            text-transform: none; /* Matches the screenshot */
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px; /* Makes the circle "Big" */
+            width: 100%;
         }
 
         .stats-grid {
@@ -33,8 +64,9 @@
 
         .stat-item h3 { 
             color: #0056b3; 
-            font-size: 2.5em; 
-            margin: 5px 0; 
+            font-size: 2.3em; 
+            margin: 5px;
+            margin-top: 15px; 
         }
 
         .stat-item p { 
@@ -63,7 +95,7 @@
             width: 450px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             overflow: hidden;
-            animation: slideDown 0.3s ease-out;
+            animation: slideDown 0.5s ease-out;
         }
 
         .modal-header {
@@ -133,12 +165,12 @@
         }
 
         .btn-confirm { 
-            background-color: #007bff; 
+            background-color: #4e73df; 
             color: white; 
         }
 
         .btn-cancel {
-            background-color: #007bff; 
+            background-color: #4e73df; 
             color: white; 
         }
 
@@ -173,6 +205,7 @@
             width: 100px; 
             display: inline-block; 
         }
+
     </style>
 </head>
 <body>
@@ -191,37 +224,51 @@
         </ul>
     </nav>
 
-    <div class="admin-container">
-        <div class="left-pane">
-            <div class="card">
+<div class="admin-container">
+    <div class="left-pane">
+        <div class="card">
+            <div class="card-header">
                 <h2>Laboratory Statistics</h2>
+            </div>
+            <div class="card-body">
                 <div class="stats-grid">
-                    <div class="stat-item"><h3 id="totalRegistered">0</h3> <p>Registered</p></div>
+                    <div class="stat-item"><h3 id="totalRegistered">0</h3> <p>Students Registered</p></div>
                     <div class="stat-item"><h3 id="currentSitIn">0</h3><p>Current Sit-in</p></div>
                     <div class="stat-item"><h3 id="totalSitInCount">0</h3> <p>Total Sit-in</p></div>
                 </div>
-                <div style="height: 250px;"><canvas id="statsChart"></canvas></div>
+                <div class="chart-container">
+                    <canvas id="statsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="right-pane">
+        <div class="card">
+            <div class="card-header">
+                <h2>📢 Create Announcement</h2>
+            </div>
+            <div class="card-body">
+                <textarea id="announcementText" style="width:100%; height:80px; padding:10px; border:1px solid #d1d3e2; border-radius:5px;" placeholder="What's happening in the lab?"></textarea>
+                <button style="margin-top:15px; width:100%; padding:10px; background:#4e73df; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;" onclick="postAnnouncement()">Broadcast</button>
             </div>
         </div>
 
-        <div class="right-pane">
-            <div class="card">
-                <h2>📢 Create Announcement</h2>
-                <textarea id="announcementText" style="width:100%; height:100px; padding:10px; margin-top:10px; border:1px solid #ccc; border-radius:5px;" placeholder="What's happening in the lab?"></textarea>
-                <button style="margin-top:15px; width:100%; padding:10px; background:#0056b3; color:white; border:none; border-radius:5px; cursor:pointer;" onclick="postAnnouncement()">Broadcast Announcement</button>
-            </div>
-
-            <div class="card" style="margin-top: 20px;">
+        <div class="card">
+            <div class="card-header">
                 <h2>Recent Updates</h2>
-                <div id="announcementList" style="margin-top:15px;">
+            </div>
+            <div class="card-body">
+                <div id="announcementList">
                     <div class="announcement-item">
-                        <small>CCS Admin | 2026-Feb-11</small>
-                        <p>Welcome to the CCS Sit-in Monitoring System.</p>
+                        <small style="color: #4e73df; font-weight: bold;">CCS Admin | 2026-Feb-11</small>
+                        <p style="margin-top: 5px;">Welcome to the CCS Sit-in Monitoring System.</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <div id="searchModal" class="modal-overlay">
         <div class="modal-content">
@@ -255,23 +302,41 @@
     <div id="genericSitInModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Sit-In Entry Form</h2>
+                <h2>Confirm Sit-In for <span id="displayStudentName">Student</span></h2>
                 <button class="close-btn" onclick="closeModal('genericSitInModal')">❌</button>
             </div>
             <div class="modal-body">
-                <div class="form-row"><label>ID Number:</label><input type="text" id="genIdNumber" placeholder="Enter ID"></div>
-                <div class="form-row"><label>Full Name:</label><input type="text" id="genFullName" placeholder="Enter Name"></div>
+                <div class="form-row">
+                    <label>ID Number:</label>
+                    <input type="text" id="genIdNumber" placeholder="Enter ID Number" oninput="autoFillStudent()">
+                </div>
+                <div class="form-row">
+                    <label>Full Name:</label>
+                    <input type="text" id="genFullName" placeholder="Student Name" readonly>
+                </div>
                 <div class="form-row">
                     <label>Purpose:</label>
                     <select id="genPurpose">
-                        <option>C Programming</option>
-                        <option>Java Projects</option>
-                        <option>Python/Data Science</option>
-                        <option>Web Development</option>
+                        <option value="C Programming">C Programming</option>
+                        <option value="Java Projects">Java Projects</option>
+                        <option value="Python/Data Science">Python/Data Science</option>
+                        <option value="Web Development">Web Development</option>
                     </select>
                 </div>
-                <div class="form-row"><label>Laboratory:</label><input type="text" id="genLab" placeholder="e.g. 524"></div>
-                <div class="form-row"><label>Sessions Left:</label><input type="text" id="genRemaining" placeholder="e.g. 30"></div>
+                <div class="form-row">
+                    <label>Laboratory:</label>
+                    <select id="genLab">
+                        <option value="524">524</option>
+                        <option value="525">525</option>
+                        <option value="526">526</option>
+                        <option value="527">527</option>
+                        <option value="528">528</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Sessions Left:</label>
+                    <input type="text" id="genRemaining" placeholder="30" readonly>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal('genericSitInModal')">Cancel</button>
@@ -281,13 +346,15 @@
     </div>
 
 <script>
-    let myChart = null;
+let myChart = null;
 
     // --- Core Data Loading ---
     async function loadDashboardStats() {
         try {
             const response = await fetch('http://localhost:3000/admin/dashboard-data');
             const data = await response.json();
+            
+            // Keep your existing ID updates
             document.getElementById('totalRegistered').innerText = data.registered || 0;
             document.getElementById('currentSitIn').innerText = data.currentSitin || 0;
             document.getElementById('totalSitInCount').innerText = data.totalSitin || 0;
@@ -295,14 +362,46 @@
             const labels = data.chartData.length > 0 ? data.chartData.map(item => item.purpose) : ['No Data'];
             const counts = data.chartData.length > 0 ? data.chartData.map(item => item.count) : [1];
 
+            // Inside your loadDashboardStats function:
             const ctx = document.getElementById('statsChart').getContext('2d');
             if (myChart) myChart.destroy();
+
+            // Create a horizontal gradient (Left to Right)
+            const gradient = ctx.createLinearGradient(0, 0, 500, 0);
+            gradient.addColorStop(0, '#4e73df');   // Start: Blue
+            gradient.addColorStop(1, '#224abe');   // End: Darker Blue
+
             myChart = new Chart(ctx, {
                 type: 'doughnut',
-                data: { labels: labels, datasets: [{ data: counts, backgroundColor: ['#0056b3', '#ffc107', '#28a745', '#dc3545', '#17a2b8'] }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                data: { 
+                    labels: labels, 
+                    datasets: [{ 
+                        data: counts, 
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e'],
+                        hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#f4b619'],
+                        hoverBorderColor: "rgba(234, 236, 244, 1)",
+                        borderWidth: 1,
+                    }] 
+                },
+                options: { 
+                    maintainAspectRatio: false,
+                    cutout: '80%', // This creates that thin, modern "Big Circle" look
+                    plugins: { 
+                        legend: { 
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: { family: "'Nunito', sans-serif", size: 13 }
+                            }
+                        }
+                    }
+                }
             });
-        } catch (error) { console.error("Stats Error:", error); }
+        } catch (error) { 
+            console.error("Stats Error:", error); 
+        }
     }
 
     // --- Generic Modal Controls ---
@@ -342,43 +441,79 @@
     }
 
     // --- Generic Sit-In Logic (Matches Image) ---
-    function openGenericSitInForm() { openModal('genericSitInModal'); }
+    function openGenericSitInForm() { 
+        // Clear previous inputs when opening a blank form
+        document.getElementById('genIdNumber').value = "";
+        document.getElementById('genFullName').value = "";
+        document.getElementById('genLab').value = "524"; // Default value for dropdown
+        document.getElementById('genRemaining').value = "";
+        openModal('genericSitInModal'); 
+    }
+
+    // NEW: Auto-fill function to show Name and Sessions as you type the ID
+    async function autoFillStudent() {
+        const idInput = document.getElementById('genIdNumber');
+        const nameInput = document.getElementById('genFullName');
+        const sessionInput = document.getElementById('genRemaining');
+        
+        const idNumber = idInput.value.trim();
+
+        // LIVE CLEAR: If the user backspaces and the field is empty, clear everything
+        if (idNumber === "") {
+            nameInput.value = "";
+            sessionInput.value = "";
+            return;
+        }
+
+        try {
+            // Fetch from your server.js endpoint
+            const res = await fetch(`http://localhost:3000/get-student/${idNumber}`);
+            
+            if (res.ok) {
+                const data = await res.json();
+                // LIVE MATCH: If a student is found, display details
+                nameInput.value = `${data.firstName} ${data.lastName}`;
+                sessionInput.value = data.remainingSession ?? 30;
+            } else {
+                // LIVE DISAPPEAR: If the ID is partial or wrong, keep fields empty
+                nameInput.value = "";
+                sessionInput.value = "";
+            }
+        } catch (e) {
+            // We stay silent during live typing to avoid error popups for every keystroke
+            console.error("Live search error:", e);
+        }
+    }
 
     async function submitGenericSitIn() {
         const payload = {
             idNumber: document.getElementById('genIdNumber').value.trim(),
             purpose: document.getElementById('genPurpose').value,
-            lab: document.getElementById('genLab').value.trim(),
-            // Adding date/time internally for database compatibility
-            date: new Date().toLocaleDateString(),
-            timeIn: new Date().toLocaleTimeString()
+            lab: document.getElementById('genLab').value // Now pulls from your <select>
         };
 
-        // Basic validation matching manual entry
         if (!payload.idNumber || !payload.lab) {
             return Swal.fire('Warning', 'ID Number and Lab are required.', 'warning');
         }
 
         try {
-            // Using existing make-reservation endpoint
-            const res = await fetch('http://localhost:3000/make-reservation', {
+            const res = await fetch('http://localhost:3000/sit-in', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
             if (res.ok) {
-                Swal.fire('Success', 'Sit-in recorded!', 'success');
+                Swal.fire({ icon: 'success', title: 'Sit-in recorded!', timer: 1500, showConfirmButton: false });
                 closeModal('genericSitInModal');
-                // Clear fields
-                document.getElementById('genIdNumber').value = '';
-                document.getElementById('genLab').value = '';
-                loadDashboardStats();
+                fetchSitIns(); // Refresh the table
             } else {
                 const txt = await res.text();
                 Swal.fire('Error', txt, 'error');
             }
-        } catch (e) { Swal.fire('Error', 'Connection failed.', 'error'); }
+        } catch (e) { 
+            Swal.fire('Error', 'Connection failed.', 'error'); 
+        }
     }
 
     // --- Announcement ---

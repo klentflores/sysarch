@@ -96,12 +96,12 @@
         }
 
         .btn-confirm { 
-            background-color: #007bff; 
+            background-color: #4e73df; 
             color: white; 
         }
 
         .btn-cancel {
-            background-color: #007bff; 
+            background-color: #4e73df; 
             color: white; 
         }
 
@@ -115,12 +115,13 @@
         }
 
         .admin-table-container { 
-            padding: 40px; 
+            padding: 20px; 
             max-width: 1200px; 
             margin: 20px auto; 
             background: white; 
             border-radius: 12px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            margin-top: 50px;
         }
         table { 
             width: 100%; 
@@ -240,23 +241,41 @@
     <div id="genericSitInModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Sit-In Entry Form</h2>
+                <h2>Confirm Sit-In for <span id="displayStudentName">Student</span></h2>
                 <button class="close-btn" onclick="closeModal('genericSitInModal')">❌</button>
             </div>
             <div class="modal-body">
-                <div class="form-row"><label>ID Number:</label><input type="text" id="genIdNumber" placeholder="Enter ID"></div>
-                <div class="form-row"><label>Full Name:</label><input type="text" id="genFullName" placeholder="Enter Name"></div>
+                <div class="form-row">
+                    <label>ID Number:</label>
+                    <input type="text" id="genIdNumber" placeholder="Enter ID Number" oninput="autoFillStudent()">
+                </div>
+                <div class="form-row">
+                    <label>Full Name:</label>
+                    <input type="text" id="genFullName" placeholder="Student Name" readonly>
+                </div>
                 <div class="form-row">
                     <label>Purpose:</label>
                     <select id="genPurpose">
-                        <option>C Programming</option>
-                        <option>Java Projects</option>
-                        <option>Python/Data Science</option>
-                        <option>Web Development</option>
+                        <option value="C Programming">C Programming</option>
+                        <option value="Java Projects">Java Projects</option>
+                        <option value="Python/Data Science">Python/Data Science</option>
+                        <option value="Web Development">Web Development</option>
                     </select>
                 </div>
-                <div class="form-row"><label>Laboratory:</label><input type="text" id="genLab" placeholder="e.g. 524"></div>
-                <div class="form-row"><label>Sessions Left:</label><input type="text" id="genRemaining" placeholder="e.g. 30"></div>
+                <div class="form-row">
+                    <label>Laboratory:</label>
+                    <select id="genLab">
+                        <option value="524">524</option>
+                        <option value="525">525</option>
+                        <option value="526">526</option>
+                        <option value="527">527</option>
+                        <option value="528">528</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Sessions Left:</label>
+                    <input type="text" id="genRemaining" placeholder="30" readonly>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal('genericSitInModal')">Cancel</button>
@@ -264,10 +283,10 @@
             </div>
         </div>
     </div>
-
+    
     <div class="admin-table-container">
-        <h1>Students Information</h1>
-        <div style="margin-bottom: 20px;">
+        <center><h1 style="margin-bottom: 20px;">Students Information</h1></center>
+        <div style="margin-bottom: 30px;">
             <button class="btn-add" onclick="Swal.fire('Info','Redirecting to registration...','info')">Add Student</button>
             <button class="btn-reset" onclick="resetAllSessions()">Reset All Sessions</button>
             <input type="text" class="search-box" id="tableSearch" placeholder="Filter table..." onkeyup="filterTable()">
@@ -318,16 +337,55 @@
         } catch (e) { Swal.fire('Error', 'Server Error', 'error'); }
     }
 
-    // --- Generic Sit-In Logic (Matches Dashboard image style) ---
-    function openGenericSitInForm() { openModal('genericSitInModal'); }
+function openGenericSitInForm() { 
+        // Clear previous inputs when opening a blank form
+        document.getElementById('genIdNumber').value = "";
+        document.getElementById('genFullName').value = "";
+        document.getElementById('genLab').value = "524"; // Default value for dropdown
+        document.getElementById('genRemaining').value = "";
+        openModal('genericSitInModal'); 
+    }
+
+    // NEW: Auto-fill function to show Name and Sessions as you type the ID
+    async function autoFillStudent() {
+        const idInput = document.getElementById('genIdNumber');
+        const nameInput = document.getElementById('genFullName');
+        const sessionInput = document.getElementById('genRemaining');
+        
+        const idNumber = idInput.value.trim();
+
+        // LIVE CLEAR: If the user backspaces and the field is empty, clear everything
+        if (idNumber === "") {
+            nameInput.value = "";
+            sessionInput.value = "";
+            return;
+        }
+
+        try {
+            // Fetch from your server.js endpoint
+            const res = await fetch(`http://localhost:3000/get-student/${idNumber}`);
+            
+            if (res.ok) {
+                const data = await res.json();
+                // LIVE MATCH: If a student is found, display details
+                nameInput.value = `${data.firstName} ${data.lastName}`;
+                sessionInput.value = data.remainingSession ?? 30;
+            } else {
+                // LIVE DISAPPEAR: If the ID is partial or wrong, keep fields empty
+                nameInput.value = "";
+                sessionInput.value = "";
+            }
+        } catch (e) {
+            // We stay silent during live typing to avoid error popups for every keystroke
+            console.error("Live search error:", e);
+        }
+    }
 
     async function submitGenericSitIn() {
         const payload = {
             idNumber: document.getElementById('genIdNumber').value.trim(),
             purpose: document.getElementById('genPurpose').value,
-            lab: document.getElementById('genLab').value.trim(),
-            date: new Date().toLocaleDateString(),
-            timeIn: new Date().toLocaleTimeString()
+            lab: document.getElementById('genLab').value // Now pulls from your <select>
         };
 
         if (!payload.idNumber || !payload.lab) {
@@ -335,21 +393,23 @@
         }
 
         try {
-            const res = await fetch('http://localhost:3000/make-reservation', {
+            const res = await fetch('http://localhost:3000/sit-in', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
             if (res.ok) {
-                Swal.fire('Success', 'Sit-in recorded!', 'success');
+                Swal.fire({ icon: 'success', title: 'Sit-in recorded!', timer: 1500, showConfirmButton: false });
                 closeModal('genericSitInModal');
-                fetchStudents(); // Refresh table
+                fetchSitIns(); // Refresh the table
             } else {
                 const txt = await res.text();
                 Swal.fire('Error', txt, 'error');
             }
-        } catch (e) { Swal.fire('Error', 'Connection failed.', 'error'); }
+        } catch (e) { 
+            Swal.fire('Error', 'Connection failed.', 'error'); 
+        }
     }
 
     // --- Table Data Logic ---
