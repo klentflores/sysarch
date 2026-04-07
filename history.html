@@ -6,6 +6,8 @@
     <title>History Information - CCS Portal</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         .history-container {
             padding: 40px;
@@ -19,22 +21,46 @@
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            
         }
+        .card-header {
+            background: #2c3e70;
+            color: white;
+            padding: 15px;
+            font-size: 25px;
+            font-weight: 600;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: -30px -30px 20px -30px;
+            border-radius: 12px 12px 0 0;
+        }
+        
         .styled-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
             font-size: 0.9em;
+            
         }
         .styled-table thead tr {
-            background-color: #4e73df;
+            
+            background-color: #2c3e70;
             color: #ffffff;
             text-align: left;
+            
         }
         .styled-table th, .styled-table td {
             padding: 12px 15px;
             border-bottom: 1px solid #dddddd;
         }
+
+        .styled-table td {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        
         .styled-table tbody tr:nth-of-type(even) {
             background-color: #f3f3f3;
         }
@@ -43,9 +69,10 @@
             color: white;
             border: none;
             padding: 8px 12px;
-            border-radius: 4px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
         .feedback-btn:hover {
             background-color: #218838;
@@ -62,7 +89,11 @@
             cursor: pointer;
             user-select: none;
         }
-        .sort-icon { margin-left: 4px; font-size: 0.75em; opacity: 0.6; }
+        .sort-icon { 
+            margin-left: 4px; 
+            font-size: 0.75em; 
+            opacity: 0.6; 
+        }
         .sort-icon.asc::after  { content: '▲'; opacity: 1; }
         .sort-icon.desc::after { content: '▼'; opacity: 1; }
         .sort-icon:not(.asc):not(.desc)::after { content: '⇅'; }
@@ -76,42 +107,63 @@
             flex-wrap: wrap;
             gap: 8px;
         }
-        #entryInfo { font-size: 0.88em; color: #555; }
+        #entryInfo { 
+            font-size: 15px; color: #555; 
+        }
 
-        .pagination { display: flex; gap: 4px; }
+        .pagination { 
+            display: flex; 
+            gap: 5px; 
+        }
         .pagination button {
             min-width: 32px;
             height: 32px;
             border: 1px solid #dee2e6;
             background: white;
             color: #333;
-            border-radius: 4px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 0.85em;
         }
-        .pagination button:hover:not(:disabled) { background: #e9ecef; }
-        .pagination button.active { background: #4e73df; color: white; border-color: #4e73df; }
-        .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .pagination button:hover:not(:disabled) { 
+            background: #218838; 
+        }
+        .pagination button.active { 
+            background: #28a745; 
+            color: white; 
+        }
+        .pagination button:disabled { 
+            opacity: 0.4; 
+            cursor: not-allowed; 
+        }
 
-        .empty-row td { text-align: center; color: #888; padding: 30px; }
+        .empty-row td { 
+            text-align: center; 
+            color: #888; 
+            padding: 30px; 
+        }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo-text">History</div>
+        <div class="logo-text"><i class="fa fa-history"></i> Student History</div>
         <ul class="nav-links">
-            <li><a href="#">✉ Notification 🔻</a></li>
-            <li><a href="dashboard.html">🏠︎ Dashboard</a></li>
-            <li><a href="editprofile.html">✎ Edit Profile</a></li>
-            <li><a href="history.html" class="active">🕮 History</a></li>
-            <li><a href="reservation.html">🗒 Reservation</a></li>
-            <li><a href="javascript:void(0)" onclick="logout()" class="logout">➜] Logout</a></li>
+            <li><a href="#"><i class="fa fa-bell"></i> Notifications</a></li>
+            <li><a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a></li>
+            <li><a href="editprofile.html"><i class="fa fa-pencil"></i> Edit Profile</a></li>
+            <li><a href="history.html" class="active"><i class="fa fa-history"></i> History</a></li>
+            <li><a href="reservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Logout</a></li>
         </ul>
     </nav>
 
     <div class="history-container">
         <div class="history-card">
-            <center><h1>History Information</h1></center>
+
+            <div class="card-header">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>History Information</span>
+            </div>
 
             <div class="table-header-actions">
                 <div class="entries-control">

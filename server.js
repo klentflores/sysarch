@@ -33,7 +33,8 @@ db.serialize(() => {
         email TEXT,
         password TEXT,
         address TEXT,
-        profilePhoto TEXT
+        profilePhoto TEXT,
+        remainingSession INTEGER DEFAULT 30
     )`);
 
     db.run(`CREATE TABLE IF NOT EXISTS reservations (
@@ -199,6 +200,20 @@ app.post("/admin/announcement", (req, res) => {
     });
 });
 
+app.delete("/admin/announcement/:id", (req, res) => {
+    const id = req.params.id;
+
+    db.run(`DELETE FROM announcements WHERE id = ?`, [id], function (err) {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ message: "Announcement not found" });
+        }
+        res.json({ message: "Announcement deleted successfully" });
+    });
+});
+
 app.get("/admin/students", (req, res) => {
     db.all(`SELECT idNumber, firstName, lastName, course, yearLevel, remainingSession FROM users WHERE idNumber != 'Admin' ORDER BY lastName ASC`, (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -206,10 +221,21 @@ app.get("/admin/students", (req, res) => {
     });
 });
 
-app.delete("/admin/student/:idNumber", (req, res) => {
-    db.run(`DELETE FROM users WHERE idNumber = ?`, [req.params.idNumber], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Deleted" });
+
+app.use(cors());
+
+app.delete("/admin/students/:idNumber", (req, res) => {
+    const idNumber = req.params.idNumber;
+    console.log("Delete request received for ID:", idNumber);
+
+    db.run(`DELETE FROM users WHERE idNumber = ?`, [idNumber], function (err) {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+        res.json({ message: "Student deleted successfully" });
     });
 });
 

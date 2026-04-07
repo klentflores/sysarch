@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet"> 
+</head>
     <style>
         .admin-container {
             padding: 50px;
@@ -17,31 +20,29 @@
             margin: auto;
         }
 
-        /* SB Admin Style Cards */
         .card {
             background: #fff;
             border: 1px solid #e3e6f0;
-            border-radius: 0.35rem;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             margin-bottom: 24px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
 
-        /* The Blue Header from your image */
         .card-header {
-            background-color: #4e73df; /* Primary Blue */
+            background: #2c3e70;
             padding: 12px 20px;
             border-bottom: 1px solid #e3e6f0;
         }
 
-        .card-header h2 {
-            color: #ffffff !important;
+        .card-header span {
+            color: #ffffff;
             font-size: 1rem;
             font-weight: 700;
             margin: 0;
-            text-transform: none; /* Matches the screenshot */
+            text-transform: none;
             font-family: 'Nunito', sans-serif;
         }
 
@@ -51,7 +52,7 @@
 
         .chart-container {
             position: relative;
-            height: 320px; /* Makes the circle "Big" */
+            height: 350px;
             width: 100%;
         }
 
@@ -86,7 +87,7 @@
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(5px);
-            background-color: rgba(0,0,0,0.4); /* Fixed background */
+            background-color: rgba(0,0,0,0.4);
         }
 
         .modal-content {
@@ -95,11 +96,11 @@
             width: 450px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             overflow: hidden;
-            animation: slideDown 0.5s ease-out;
+            animation: slideDown 0.3s ease-out;
         }
 
         .modal-header {
-            background: #0056b3;
+            background: #2c3e70;
             color: white;
             padding: 15px 20px;
             display: flex;
@@ -121,7 +122,7 @@
         }
 
         .modal-body { 
-            padding: 25px; 
+            padding: 25px;
         }
 
         .form-row { 
@@ -134,13 +135,15 @@
             width: 150px; 
             font-weight: bold; 
             color: #333; 
-            font-size: 14px; 
+            font-size: 14px;
+            
         }
         .form-row input, .form-row select { 
             flex: 1; 
             padding: 10px; 
             border: 1px solid #ccc; 
-            border-radius: 5px; 
+            border-radius: 5px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         input[readonly] { 
@@ -159,45 +162,57 @@
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
-            transition: background-color 1s;
         }
 
         .btn-confirm { 
-            background-color: #4e73df; 
-            color: white; 
+            background-color: #2c3e70; 
+            color: #fff; 
+            font-weight: 700;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .btn-confirm:hover {
+            background: #2d2d4e;
+            transform: translateY(-1px);
         }
 
         .btn-cancel {
-            background-color: #4e73df; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #2c3e70;
+            font-weight: 700; 
             color: white; 
         }
 
-        .modal-footer button:hover {
-            background-color: #da0ca6;
+        .btn-cancel:hover {
+            background: #2d2d4e;
+            transform: translateY(-1px);
         }
 
+
+
+        
         @keyframes slideDown {
             from { transform: translateY(-50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
 
         .announcement-item {
-            background: white;
-            border-left: 5px solid #ffc107;
+            background: #f6f6f6;
             padding: 15px;
             margin-bottom: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-radius: 15px;
+            border: 1px solid #ccc;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
         }
         
-        /* Layout fix for Student Information Modal */
         #infoBody p { 
             margin: 10px 0; 
             font-size: 14px; 
             border-bottom: 1px solid #eee; 
-            padding-bottom: 5px; 
+            padding-bottom: 5px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         #infoBody b { 
@@ -206,30 +221,69 @@
             display: inline-block; 
         }
 
+        .broadcast-btn {
+            width: 100%;
+            background: #2c3e70;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 15px 25px;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+        .broadcast-btn:hover {
+            background: #2d2d4e;
+            transform: translateY(-1px);
+        }
+
+        .delete-btn {
+            margin-top: 10px;
+            background: #e74a3b;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+
+
     </style>
-</head>
 <body>
 
     <nav class="navbar">
-        <div class="logo-text">College of Computer Studies Admin</div>
+        <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
         <ul class="nav-links">
-            <li><a href="admindashboard.html" class="active">🏠︎ Home</a></li>
-            <li><a href="javascript:void(0)" onclick="openSearchModal()">🔎︎ Search</a></li>
-            <li><a href="studentlist.html">👤 Students</a></li>
-            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()">🧑‍💻 Sit-in</a></li>
-            <li><a href="viewsitin.html">📄 View Sit-in Records</a></li>
-            <li><a href="viewrecords.html">📁 Sit-in Reports</a></li>
-            <li><a href="viewrecords.html">📝 Feedback Reports</a></li>
-            <li><a href="javascript:void(0)" onclick="logout()" class="logout">➜] Log out</a></li>
+            <li><a href="admindashboard.html" class="active"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="javascript:void(0)" onclick="openSearchModal()"><i class="fa fa-search"></i> Search</a></li>
+            <li><a href="studentlist.html"><i class="fa fa-users"></i> Students</a></li>
+            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
+            <li><a href="viewsitin.html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
+            <li><a href="viewrecords.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+            <li><a href="viewrecords.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
         </ul>
     </nav>
 
 <div class="admin-container">
     <div class="left-pane">
         <div class="card">
-            <div class="card-header">
-                <h2>Laboratory Statistics</h2>
-            </div>
+
+            <div class="card-header"><i class="fa-solid fa-chart-bar" style="color: white;"></i><span> Laboratory Statistics</span></div>
+            
             <div class="card-body">
                 <div class="stats-grid">
                     <div class="stat-item"><h3 id="totalRegistered">0</h3> <p>Students Registered</p></div>
@@ -245,19 +299,19 @@
 
     <div class="right-pane">
         <div class="card">
-            <div class="card-header">
-                <h2>📢 Create Announcement</h2>
-            </div>
+
+            <div class="card-header"><i class="fa-solid fa-bullhorn" style="color: white;"></i><span> Create Announcement</span></div>
+            
             <div class="card-body">
                 <textarea id="announcementText" style="width:100%; height:80px; padding:10px; border:1px solid #d1d3e2; border-radius:5px;" placeholder="What's happening in the lab?"></textarea>
-                <button style="margin-top:15px; width:100%; padding:10px; background:#4e73df; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;" onclick="postAnnouncement()">Broadcast</button>
+                <button type="button" class="broadcast-btn" onclick="postAnnouncement()"><i class="fa-solid fa-paper-plane"></i> Broadcast</button>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-header">
-                <h2>Recent Updates</h2>
-            </div>
+
+            <div class="card-header"><i class="fa-solid fa-clock-rotate-left" style="color: white;"></i><span> Recent Updates</span></div>
+
             <div class="card-body">
                 <div id="announcementList">
                     <div class="announcement-item">
@@ -280,7 +334,7 @@
                 <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px; box-sizing: border-box;">
             </div>
             <div class="modal-footer">
-                <button class="btn-confirm" onclick="executeSearch()">Search</button>
+                <button type="button" class="btn-confirm" onclick="executeSearch()">Search</button>
             </div>
         </div>
     </div>
@@ -339,8 +393,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn-cancel" onclick="closeModal('genericSitInModal')">Cancel</button>
-                <button class="btn-confirm" onclick="submitGenericSitIn()">Confirm Sit-In</button>
+                <button type="button" class="btn-cancel" onclick="closeModal('genericSitInModal')">Cancel</button>
+                <button type="button" class="btn-confirm" onclick="submitGenericSitIn(event)">Confirm Sit-In</button>
             </div>
         </div>
     </div>
@@ -385,7 +439,7 @@ let myChart = null;
                 },
                 options: { 
                     maintainAspectRatio: false,
-                    cutout: '80%', // This creates that thin, modern "Big Circle" look
+                    cutout: '80%',
                     plugins: { 
                         legend: { 
                             display: true,
@@ -412,6 +466,9 @@ let myChart = null;
     function openSearchModal() { openModal('searchModal'); document.getElementById('modalSearchInput').focus(); }
     
     async function executeSearch() {
+
+        if (event) event.preventDefault();
+
         const id = document.getElementById('modalSearchInput').value.trim();
         if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
 
@@ -422,7 +479,6 @@ let myChart = null;
             if (res.ok) {
                 closeModal('searchModal');
                 
-                // Populate Info Modal
                 const infoBody = document.getElementById('infoBody');
                 infoBody.innerHTML = `
                     <p><b>ID Number:</b> ${data.idNumber}</p>
@@ -485,11 +541,19 @@ let myChart = null;
         }
     }
 
-    async function submitGenericSitIn() {
+    // Add 'e' as a parameter to handle the event
+    async function submitGenericSitIn(e) {
+        // 1. Prevent page reload if called from a form or button click
+        if (e) e.preventDefault();
+
+        const idInput = document.getElementById('genIdNumber');
+        const labInput = document.getElementById('genLab');
+        const purposeInput = document.getElementById('genPurpose');
+
         const payload = {
-            idNumber: document.getElementById('genIdNumber').value.trim(),
-            purpose: document.getElementById('genPurpose').value,
-            lab: document.getElementById('genLab').value // Now pulls from your <select>
+            idNumber: idInput.value.trim(),
+            purpose: purposeInput.value,
+            lab: labInput.value 
         };
 
         if (!payload.idNumber || !payload.lab) {
@@ -504,19 +568,67 @@ let myChart = null;
             });
 
             if (res.ok) {
-                Swal.fire({ icon: 'success', title: 'Sit-in recorded!', timer: 1500, showConfirmButton: false });
+                // 2. Use 'await' so the code pauses while the alert is visible
+                await Swal.fire({ 
+                    icon: 'success', 
+                    title: 'Sit-in recorded!', 
+                    timer: 1500, 
+                    showConfirmButton: false 
+                });
+
                 closeModal('genericSitInModal');
-                fetchSitIns(); // Refresh the table
+                
+                // 3. Optional: Clear inputs after success
+                idInput.value = "";
+                
+                // 4. Check if fetchSitIns exists before calling to avoid errors
+                if (typeof fetchSitIns === "function") {
+                    fetchSitIns(); 
+                }
+                
+                // Refresh stats on dashboard
+                loadDashboardStats(); 
+
             } else {
                 const txt = await res.text();
                 Swal.fire('Error', txt, 'error');
             }
-        } catch (e) { 
-            Swal.fire('Error', 'Connection failed.', 'error'); 
+        } catch (err) { 
+            console.error("Submission error:", err);
+            Swal.fire('Error', 'Connection to server failed.', 'error'); 
         }
     }
 
     // --- Announcement ---
+
+    async function loadAnnouncements() {
+        try {
+            const res = await fetch('http://localhost:3000/announcements');
+            const announcements = await res.json();
+            const list = document.getElementById('announcementList');
+
+            if (announcements.length === 0) {
+                list.innerHTML = '<p style="color:#aaa;">No announcements yet.</p>';
+                return;
+            }
+
+            list.innerHTML = announcements.map(a => `
+            <div class="announcement-item">
+                <small style="color: #4e73df; font-weight: bold;">
+                    ${a.author} | ${a.date}
+                </small>
+                <p style="margin-top: 5px;">${a.content}</p>
+
+                <button class="delete-btn" onclick="deleteAnnouncement('${a.id}')">
+                    <i class="fa fa-trash"></i> Delete
+                </button>
+            </div>
+        `).join('');
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     async function postAnnouncement() {
         const content = document.getElementById('announcementText').value.trim();
         if (!content) return Swal.fire('Error', 'Cannot post empty announcement', 'error');
@@ -526,28 +638,62 @@ let myChart = null;
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content })
             });
-            if (res.ok) { Swal.fire('Posted!', '', 'success'); document.getElementById('announcementText').value = ''; }
+            if (res.ok) {
+                Swal.fire('Posted!', '', 'success');
+                document.getElementById('announcementText').value = '';
+                loadAnnouncements(); // ← refresh the list
+            }
         } catch (e) { console.error(e); }
     }
 
-    // --- Initialization & Welcome Alert ---
-window.onload = function() {
-        loadDashboardStats(); // Your existing function to load stats
+        async function deleteAnnouncement(id) {
+        const confirm = await Swal.fire({
+            title: 'Delete this announcement?',
+            text: "This action cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it'
+        });
 
-        // Check if we just logged in
-        if (!sessionStorage.getItem("adminWelcomeShown")) {
-            Swal.fire({
-                title: 'Welcome, Admin!',
-                text: 'System analytics and student records are ready.',
-                icon: 'success',
-                confirmButtonColor: '#0056b3',
-                background: '#fff',
-                timer: 3000
+        if (!confirm.isConfirmed) return;
+
+        try {
+            const res = await fetch(`http://localhost:3000/admin/announcement/${id}`, {
+                method: 'DELETE'
             });
-            // Mark as shown so it doesn't pop up every time you click "Home"
-            sessionStorage.setItem("adminWelcomeShown", "true");
+
+            if (res.ok) {
+                Swal.fire('Deleted!', 'Announcement removed.', 'success');
+                loadAnnouncements(); // refresh list
+            } else {
+                Swal.fire('Error', 'Failed to delete announcement', 'error');
+            }
+        } catch (err) {
+            console.error(err);
+            Swal.fire('Error', 'Server error', 'error');
         }
-    };
+    }
+
+    // --- Initialization & Welcome Alert ---
+    window.onload = function() {
+            loadDashboardStats();
+            loadAnnouncements(); // Your existing function to load stats
+
+            // Check if we just logged in
+            if (!sessionStorage.getItem("adminWelcomeShown")) {
+                Swal.fire({
+                    title: 'Welcome, Admin!',
+                    text: 'System analytics and student records are ready.',
+                    icon: 'success',
+                    confirmButtonColor: '#0056b3',
+                    background: '#fff',
+                });
+                // Mark as shown so it doesn't pop up every time you click "Home"
+                sessionStorage.setItem("adminWelcomeShown", "true");
+            }
+        };
 
     // --- ADMIN SPECIFIC LOGOUT ---
     function logout() {

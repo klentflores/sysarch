@@ -6,132 +6,470 @@
     <title>Edit Profile - CCS Portal</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>   
-    .profile-image {
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 15px;
-        border: 1px solid #4e73df;
-        object-fit: cover;
-        background-color: #f0f0f0;
-        margin-bottom: 30px;
-    }    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+ 
+        /* ---- WRAPPER ---- */
+        .register-wrapper {
+            display: flex;
+            justify-content: center;
+            padding: 40px 25px 60px;
+            min-height: calc(100vh - 65px);
+        }
+ 
+        /* ---- MAIN LAYOUT ---- */
+        .register-container {
+            width: 100%;
+            max-width: 950px;
+            display: flex;
+            gap: 25px;
+            align-items: flex-start;
+        }
+ 
+        /* ---- LEFT SIDEBAR ---- */
+        .profile-sidebar {
+            width: 250px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-    .register-wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        padding: 20px;
-    }
+        .profile-avatar-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 30px 25px 25px;
+            text-align: center;
+        }
+ 
+        .avatar-wrap {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 15px;
+            cursor: pointer;
+        }
 
-    .register-container {
-        width: 100%;
-        max-width: 900px;
-        margin: auto;
-    }
-    
-    input[readonly] {
-        background-color: #f0f0f0;
-        cursor: not-allowed;
-        color: #777;
-    }
+        .avatar-wrap:hover .avatar-overlay { 
+            opacity: 1; 
+        }
+ 
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #1a1a2e;
+            display: block;
+        }
 
-    body {
-        margin: 0;
-        padding: 0;
-    }
+        .avatar-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            color: #fff;
+            font-size: 15px;
+        }
+ 
+        .avatar-hint {
+            font-size: 11px;
+            color: #bbb;
+            margin-bottom: 10px;
+        }
+ 
+        .profile-name {
+            font-family: 'Sora', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+            min-height: 20px;
+        }
+
+        .profile-badge {
+            display: inline-block;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+ 
+        /* ---- RIGHT FORM CARD ---- */
+        .form-card {
+            flex: 1;
+            background: #fff;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 35px 35px 30px;
+        }
+ 
+        .form-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .form-card-icon {
+            width: 41px;
+            height: 41px;
+            background: #1a1a2e;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .form-card-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 25px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .form-card-sub {
+            font-size: 15px;
+            color: #999;
+            margin-top: 2px;
+        }
+ 
+        .section-label {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #bbb;
+            margin-bottom: 10px;
+            margin-top: 18px;
+        }
+
+        .uc-card {
+            background: #1a1a2e;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .uc-card::before {
+            content: '';
+            position: absolute;
+            width: 170px; height: 170px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            top: -50px; right: -50px;
+        }
+
+        .uc-card::after {
+            content: '';
+            position: absolute;
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            bottom: -30px; left: -30px;
+        }
+
+        .uc-card img {
+            width: 100%;
+            max-width: 150px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 6px 16px rgba(0,0,0,0.3));
+        }
+
+        .uc-card-label {
+            font-family: 'Sora', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 12px;
+            position: relative;
+            z-index: 1;
+        }
+ 
+        /* ---- INPUTS ---- */
+        .reg-input-group {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .reg-input-group input {
+            width: 100%;
+            padding: 15px 45px 15px 35px;
+            border: 1px solid #e2e2e2;
+            border-radius: 10px;
+            outline: none;
+            font-size: 15px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.25s ease;
+            background: #f6f6f6;
+            color: #1a1a2e;
+        }
+
+        .reg-input-group input:focus {
+            border-color: #1a1a2e;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,26,46,0.07);
+        }
+
+        .reg-input-group input::placeholder { 
+            color: #aaa; 
+        }
+
+        .reg-input-group input[readonly] {
+            background: #f4f4f6;
+            color: #999;
+            cursor: not-allowed;
+            border-color: #eee;
+        }
+ 
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #bbb;
+            font-size: 13px;
+            pointer-events: none;
+        }
+ 
+        /* Dropdown */
+        .reg-input-group.dropdown-group::after {
+            content: '';
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0; height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 5px solid #bbb;
+            pointer-events: none;
+        }
+        .dropdown-input {
+            width: 100%;
+            padding: 13px 45px 13px 35px;
+            border: 1px solid #e2e2e2;
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.25s ease;
+            background: #f9f9fb;
+            cursor: pointer;
+            box-sizing: border-box;
+            color: #aaa;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+        .dropdown-input:focus {
+            border-color: #1a1a2e;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,26,46,0.07);
+            color: #1a1a2e;
+        }
+        .dropdown-input option { color: #1a1a2e; }
+ 
+        .row-group { 
+            display: flex; gap: 12px; 
+        }
+        .row-group .reg-input-group { 
+            flex: 1; 
+        }
+ 
+        /* ---- BUTTONS ---- */
+        .btn-center {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 22px;
+            gap: 10px;
+        }
+        .cancel-btn {
+            background: transparent;
+            color: #999;
+            border: 1px solid #e2e2e2;
+            border-radius: 12px;
+            padding: 12px 22px;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .cancel-btn:hover { 
+            background: #f4f4f6; 
+            color: #555; 
+        }
+ 
+        .reg-submit-btn {
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 28px;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reg-submit-btn:hover {
+            background: #2d2d4e;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body>
-        <nav class="navbar">
-        <div class="logo-text">Edit Profile Students</div>
+ 
+    <nav class="navbar">
+        <div class="logo-text"><i class="fa fa-pencil"></i> Edit Profile Students</div>
         <ul class="nav-links">
-            <li><a href="#">✉ Notification 🔻</a></li>
-            <li><a href="dashboard.html">🏠︎ Dashboard</a></li>
-            <li><a href="editprofile.html" class="active">✎ Edit Profile</a></li>
-            <li><a href="history.html">🕮 History</a></li>
-            <li><a href="reservation.html">🗒 Reservation</a></li>
-            <li><a href="javascript:void(0)" onclick="logout()" class="logout">➜] Logout</a></li>
+            <li><a href="#"><i class="fa fa-bell"></i> Notifications</a></li>
+            <li><a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a></li>
+            <li><a href="editprofile.html" class="active"><i class="fa fa-pencil"></i> Edit Profile</a></li>
+            <li><a href="history.html"><i class="fa fa-history"></i> History</a></li>
+            <li><a href="reservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Logout</a></li>
         </ul>
     </nav>
-
-    <div class="register-wrapper"> 
+ 
+    <div class="register-wrapper">
         <div class="register-container">
-            <div class="register-content">
-                
-                <div class="form-column">
-                    <div class="reg-header">
-                        <div style="text-align: center; cursor: pointer;" onclick="document.getElementById('photoUpload').click()">
-                            <div id="noPhotoPlaceholder" class="profile-image"></div>
-                            <img id="profilePhoto" src="" alt="Student Photo" class="profile-image" style="display: none;">
+ 
+            <!-- LEFT: PROFILE SIDEBAR -->
+            <div class="profile-sidebar">
+ 
+                <div class="profile-avatar-card">
+                    <div class="avatar-wrap" onclick="document.getElementById('photoUpload').click()">
+                        <div id="noPhotoPlaceholder">
+                            <i class="fa fa-user"></i>
+                        </div>
+                        <img id="profilePhoto" src="" alt="Student Photo" class="profile-image" style="display:none;">
+                        <div class="avatar-overlay">
+                            <i class="fa fa-camera"></i>
                         </div>
                     </div>
 
-                    <input type="file" id="photoUpload" accept="image/*" style="display: none;">
-
-                    <form id="editProfileForm">
-                        <div class="reg-input-group">
-                            <input type="text" id="edit-id" placeholder="🪪 ID Number" required>
-                        </div>
-
-                        <div class="reg-input-group">
-                            <input type="text" id="edit-lastName" placeholder="👤 Last Name" required>
-                        </div>
-
-                        <div class="reg-input-group">
-                            <input type="text" id="edit-firstName" placeholder="👤 First Name" required>
-                        </div>
-
-                        <div class="reg-input-group">
-                            <input type="text" id="edit-middleName" placeholder="👤 Middle Name">
-                        </div>
-
-                        <div class="row-group">
-                            <div class="reg-input-group">
-                                <input id="edit-yearLevel" list="course-levels" placeholder="🧑‍🎓 Year Level" required>
-                                <datalist id="course-levels">
-                                    <option value="1st year">
-                                    <option value="2nd year">
-                                    <option value="3rd year">
-                                    <option value="4th year">
-                                </datalist>
-                            </div>
-
-                            <div class="reg-input-group">
-                                <input id="edit-course" list="courses" placeholder="📚 Course" required>
-                                <datalist id="courses">
-                                    <option value="BSIT">
-                                    <option value="BSCS">
-                                    <option value="BSCE">
-                                    <option value="ACT">
-                                </datalist>
-                            </div>
-                        </div>
-
-                        <div class="reg-input-group">
-                            <input type="email" id="edit-email" placeholder="✉️ Email" required>
-                        </div>
-
-                        <div class="reg-input-group">
-                            <input type="text" id="edit-address" placeholder="🏠 Address" required>
-                        </div>
-
-                        <div class="btn-center">
-                            <button type="submit" id="saveBtn" class="reg-submit-btn">Save</button>
-                        </div>
-                    </form>
+                    <span class="profile-badge">Student</span>
                 </div>
 
-                <div class="image-column">
-                    <img src="images/uc.png" alt="Edit Illustration">
+                <div class="uc-card">
+                    <img src="images/uc.png" alt="UC Logo">
+                    <div class="uc-card-label">CCS Portal</div>
                 </div>
-                
+ 
             </div>
+ 
+            <!-- RIGHT: FORM CARD -->
+            <div class="form-card">
+ 
+                <div class="form-card-header">
+                    <div class="form-card-icon">
+                        <i class="fa fa-user-pen"></i>
+                    </div>
+                    <div>
+                        <div class="form-card-title">Edit Profile</div>
+                        <div class="form-card-sub">Update your personal information below.</div>
+                    </div>
+                </div>
+ 
+                <!-- original hidden file input -->
+                <input type="file" id="photoUpload" accept="image/*" style="display:none;">
+ 
+                <form id="editProfileForm">
+ 
+                    <div class="section-label">Personal Information</div>
+ 
+                    <div class="reg-input-group">
+                        <i class="fa fa-id-card input-icon"></i>
+                        <input type="text" id="edit-id" placeholder="ID Number" required>
+                    </div>
+ 
+                    <div class="row-group">
+                        <div class="reg-input-group">
+                            <i class="fa fa-user input-icon"></i>
+                            <input type="text" id="edit-lastName" placeholder="Last Name" required>
+                        </div>
+                        <div class="reg-input-group">
+                            <i class="fa fa-user input-icon"></i>
+                            <input type="text" id="edit-firstName" placeholder="First Name" required>
+                        </div>
+                    </div>
+ 
+                    <div class="reg-input-group">
+                        <i class="fa fa-user input-icon"></i>
+                        <input type="text" id="edit-middleName" placeholder="Middle Name">
+                    </div>
+ 
+                    <div class="section-label">Academic Details</div>
+ 
+                    <div class="row-group">
+                        <div class="reg-input-group dropdown-group">
+                            <i class="fa fa-graduation-cap input-icon"></i>
+                            <select id="edit-yearLevel" class="dropdown-input" required>
+                                <option value="" disabled selected hidden>Year Level</option>
+                                <option value="1st year">1st Year</option>
+                                <option value="2nd year">2nd Year</option>
+                                <option value="3rd year">3rd Year</option>
+                                <option value="4th year">4th Year</option>
+                            </select>
+                        </div>
+                        <div class="reg-input-group dropdown-group">
+                            <i class="fa fa-book input-icon"></i>
+                            <select id="edit-course" class="dropdown-input" required>
+                                <option value="" disabled selected hidden>Course</option>
+                                <option value="BSIT">BSIT</option>
+                                <option value="BSCS">BSCS</option>
+                                <option value="BSCE">BSCE</option>
+                                <option value="ACT">ACT</option>
+                            </select>
+                        </div>
+                    </div>
+ 
+                    <div class="section-label">Contact Details</div>
+ 
+                    <div class="reg-input-group">
+                        <i class="fa fa-envelope input-icon"></i>
+                        <input type="email" id="edit-email" placeholder="Email" required>
+                    </div>
+ 
+                    <div class="reg-input-group">
+                        <i class="fa fa-home input-icon"></i>
+                        <input type="text" id="edit-address" placeholder="Address" required>
+                    </div>
+ 
+                    <div class="btn-center">
+                        <button type="submit" id="saveBtn" class="reg-submit-btn"><i class="fa fa-floppy-disk" style="margin-right:7px;"></i>Save Changes</button>
+                        <button type="button" class="cancel-btn" onclick="history.back()">Cancel</button>
+                    </div>
+ 
+                </form>
+            </div>
+ 
         </div>
     </div>
 

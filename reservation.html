@@ -6,6 +6,8 @@
     <title>Reservation - CCS Sit-in Monitoring</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
     .reservation-container {
         display: flex;
@@ -22,11 +24,22 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         width: 100%;
         max-width: 800px;
+        overflow: hidden;
     }
 
-    .reservation-card h1 {
+    .card-header {
+        background: #2c3e70;
+        color: white;
+        padding: 15px;
+        font-size: 25px;
+        font-weight: 600;
         text-align: center;
-        margin-bottom: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin: -30px -30px 20px -30px;
+        margin-bottom: 35px;
     }
 
     .reservation-card .input-group {
@@ -63,17 +76,19 @@
     }
 
     .reserve-button {
-        background-color: #4e73df;
+        background-color: #28a745;
         color: white;
         border: none;
         padding: 10px 20px;
-        border-radius: 5px;
+        border-radius: 12px;
         cursor: pointer;
         margin-top: 20px;
         transition: background-color 0.3s;
+        font-weight: bold;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
     .reserve-button:hover {
-        background-color: #da0ca6;
+        background-color: #218838;
     }
 
     .mt-20 { 
@@ -83,49 +98,50 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo-text">Reservation</div>
+        <div class="logo-text"><i class="fa fa-calendar"></i> Student Reservation</div>
         <ul class="nav-links">
-            <li><a href="javascript:void(0)">✉ Notification 🔻</a></li>
-            <li><a href="dashboard.html">🏠︎ Dashboard</a></li>
-            <li><a href="editprofile.html">✎ Edit Profile</a></li>
-            <li><a href="history.html">🕮 History</a></li>
-            <li><a href="javascript:void(0)" class="active">🗒 Reservation</a></li>
-            <li><a href="javascript:void(0)" onclick="logout(event)" class="logout">⏻ Logout</a></li>
+            <li><a href="#"><i class="fa fa-bell"></i> Notifications</a></li>
+            <li><a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a></li>
+            <li><a href="editprofile.html"><i class="fa fa-pencil"></i> Edit Profile</a></li>
+            <li><a href="history.html"><i class="fa fa-history"></i> History</a></li>
+            <li><a href="javascript:void(0)" class="active"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="javascript:void(0)" onclick="logout(event)" class="logout"><i class="fa fa-sign-in"></i> Logout</a></li>
         </ul>
     </nav>
 
     <div class="reservation-container">
         <div class="reservation-card">
-            <h1 style="font-size: 40px;">Reservation</h1>
+
+            <div class="card-header"><i class="fa-solid fa-calendar-check"></i> <span>Reservation</span></div>
 
             <div id="reservationForm">
                 <div class="input-group">
-                    <label style="font-size: 15px;">ID Number:</label>
+                    <label style="font-size: 15px;"><i class="fa-solid fa-id-card"></i> ID Number:</label>
                     <input type="text" id="res-id" placeholder="Your ID Number">
                 </div>
                 <div class="input-group">
-                    <label style="font-size: 15px;">Student Name:</label>
+                    <label style="font-size: 15px;"><i class="fa-solid fa-user"></i> Student Name:</label>
                     <input type="text" id="res-name" placeholder="Student Name">
                 </div>
-                <div class="input-group">
-                    <label style="font-size: 15px;">Purpose:</label>
+                <div class="input-group" style="margin-top: 40px;">
+                    <label style="font-size: 15px;"><i class="fa-solid fa-bullseye"></i> Purpose:</label>
                     <input type="text" id="res-purpose" placeholder="e.g. C Programming">
                 </div>
                 <div class="input-group">
-                    <label style="font-size: 15px;">Lab:</label>
+                    <label style="font-size: 15px;"><i class="fa-solid fa-computer"></i> Lab:</label>
                     <input type="text" id="res-lab" placeholder="e.g. 524">
                 </div>
                 
-                <div class="input-group mt-20">
-                    <label style="font-size: 15px;">Time In:</label>
+                <div class="input-group mt-20" style="margin-top: 40px;">
+                    <label style="font-size: 15px;"><i class="fa-solid fa-clock"></i> Time In:</label>
                     <input type="time" id="res-time">
                 </div>
                 <div class="input-group">
-                    <label style="font-size: 15px;">Date:</label>
+                    <label style="font-size: 15px;"><i class="fa-solid fa-calendar-days"></i> Date:</label>
                     <input type="date" id="res-date">
                 </div>
                 <div class="input-group">
-                    <label style="font-size: 15px;">Remaining Session:</label>
+                    <label style="font-size: 15px;"><i class="fa-solid fa-hourglass-half"></i> Remaining Session:</label>
                     <input type="text" id="res-sessions" value=" ">
                 </div>
 
@@ -139,18 +155,16 @@
     async function handleReservation(e) {
         if (e) e.preventDefault();
 
-        // Gather Data from the inputs
         const reservationData = {
             idNumber: document.getElementById("res-id").value,
-            studentName: document.getElementById("res-name").value, // Added name
+            studentName: document.getElementById("res-name").value,
             purpose:  document.getElementById("res-purpose").value,
             lab:      document.getElementById("res-lab").value,
             timeIn:   document.getElementById("res-time").value,
             date:     document.getElementById("res-date").value,
-            remainingSession: document.getElementById("res-sessions").value // Added sessions
+            remainingSession: document.getElementById("res-sessions").value
         };
 
-        // Manual Validation: Ensure nothing is blank
         if (!reservationData.purpose || !reservationData.lab || !reservationData.timeIn || !reservationData.date) {
             Swal.fire('Wait!', 'Please fill in all the reservation details.', 'warning');
             return; 
@@ -178,7 +192,7 @@
                     }
                 });
             } else {
-                // Shows the actual error message from your server.js
+
                 Swal.fire('Error', resultData.message || 'Could not save reservation. Try again.', 'error');
             }
         } catch (error) {

@@ -6,11 +6,13 @@
     <title>Dashboard - CCS Sit-in Monitoring</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">    
 </head>
 <style>
         .dashboard-container {
             display: grid;
-            grid-template-columns: 1fr 1.4fr 1.5fr;
+            grid-template-columns: 1fr 1.3fr 1.5fr;
             gap: 20px;
             padding: 20px;
             margin-top: 20px;
@@ -18,13 +20,13 @@
         }
         .dash-card {
             background: white;
-            border-radius: 8px;
+            border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             border: 1px solid #ddd;
         }
         .card-header {
-            background-color: #4e73df;
+            background: #2c3e70;
             color: white;
             padding: 12px 15px;
             font-weight: bold;
@@ -46,12 +48,12 @@
             background-color: #f0f0f0;
         }
         .info-row {
-            margin-top: 20px;
+            margin-top: 25px;
             margin-bottom: 10px;
             font-size: 15px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
         .announcement-item {
             border-bottom: 1px solid black;
@@ -72,116 +74,79 @@
         #sessionTimerBox {
             margin-top: 20px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 10px;
 
-            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);;
-            color: white;
-            padding: 10px 16px;
-            border-radius: 12px;
-
-            width: 100%;
-            margin-left: auto;
-            margin-right: auto;
-
+            color: #d4a017;
             font-weight: bold;
-
-            /* 🔥 effects */
-            box-shadow: 0 0 25px rgba(78, 115, 223, 0.6);
-            animation: pulseGlow 2s infinite;
-
-            transition: all 0.3s ease;
-            cursor: default;
+            font-size: 18px;
         }
 
-        #sessionTimerBox:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 25px rgba(78, 115, 223, 0.6);
+        #sessionTimerBox i {
+            font-size: 20px;
+            animation: flipSand 5s infinite linear;
         }
 
-        @keyframes pulseGlow {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 25px rgba(78, 115, 223, 0.6);
-            }
-            50% {
-                transform: scale(1.03);
-                box-shadow: 0 0 25px rgba(78, 115, 223, 0.6);
-            }
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 25px rgba(78, 115, 223, 0.6);
-            }
-        }
-
-        .session-label {
-            font-size: 14px;
-            opacity: 0.9;
-            letter-spacing: 1px;
+        @keyframes flipSand {
+            0%   { transform: rotate(0deg); }
+            50%  { transform: rotate(180deg); }
+            100% { transform: rotate(360deg); }
         }
 
         #sessionTimer {
-            font-size: 15px;
-            font-weight: bold;
+            font-family: monospace;
+            letter-spacing: 1px;
         }
 </style>
 <body>
 
 <nav class="navbar">
-    <div class="logo-text">Dasboard</div>
+    <div class="logo-text"><i class="fa fa-home"></i> Student Dasboard</div>
     <ul class="nav-links">
-        <li><a href="#">✉ Notification 🔻</a></li>
-        <li><a href="dashboard.html" class="active">🏠︎ Dashboard</a></li>
-        <li><a href="editprofile.html">✎ Edit Profile</a></li>
-        <li><a href="history.html">🕮 History</a></li>
-        <li><a href="reservation.html">🗒 Reservation</a></li>
-        <li><a href="javascript:void(0)" onclick="logout()" class="logout">➜] Logout</a></li>
+        <li><a href="#"><i class="fa fa-bell"></i> Notifications</a></li>
+        <li><a href="dashboard.html" class="active"><i class="fa fa-home"></i> Dashboard</a></li>
+        <li><a href="editprofile.html"><i class="fa fa-pencil"></i> Edit Profile</a></li>
+        <li><a href="history.html"><i class="fa fa-history"></i> History</a></li>
+        <li><a href="reservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+        <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Logout</a></li>
     </ul>
 </nav>
 
     <div class="dashboard-container">
         
         <div class="dash-card">
-            <div class="card-header">📋 Student Information</div>
+            <div class="card-header"><i class="fa-solid fa-id-badge"></i> Student Information</div>
             <div class="card-body">
-                <div style="text-align: center;">
+                <div style="text-align: center; border-bottom: 1px solid black;">
                     <div id="noPhotoPlaceholder" class="profile-img"></div>
                     <img id="profilePhoto" src="" alt="Student Photo" class="profile-img" style="display: none;">
                 </div>
                 
-                <div class="info-row"><b>🪪 ID Number:</b> <span id="display-id">Loading...</span></div>
-                <div class="info-row"><b>👤 Name:</b> <span id="display-name">Loading...</span></div>
-                <div class="info-row"><b>🎓 Course:</b> <span id="display-course">Loading...</span></div>
-                <div class="info-row"><b>✉️ Email:</b> <span id="display-email">Loading...</span></div>
-                <div class="info-row"><b>📈 Year:</b> <span id="display-yearLevel">Loading...</span></div>
-                <div class="info-row"><b>🏠 Address:</b> <span id="display-address">Loading...</span></div>
-                <div id="sessionTimerBox">
-                    <span class="session-label">Session</span>
-                    <span id="sessionTimer"></span>
-                </div>
+                <div class="info-row"><i class="fa-solid fa-id-card"></i><b> ID Number:</b> <span id="display-id">Loading...</span></div>
+                <div class="info-row"><i class="fa-solid fa-user"></i><b> Name:</b> <span id="display-name">Loading...</span></div>
+                <div class="info-row"><i class="fa-solid fa-graduation-cap"></i><b> Course:</b> <span id="display-course">Loading...</span></div>
+                <div class="info-row"><i class="fa-solid fa-envelope"></i><b> Email:</b> <span id="display-email">Loading...</span></div>
+                <div class="info-row"><i class="fa-solid fa-chart-line"></i><b> Year:</b> <span id="display-yearLevel">Loading...</span></div>
+                <div class="info-row"><i class="fa-solid fa-house"></i><b> Address:</b> <span id="display-address">Loading...</span></div>
+                <div class="info-row"><i class="fa-solid fa-clock"></i><b> Session:</b> <span id="display-session">Loading...</span></div>
+                <div id="sessionTimerBox"><i class="fa fa-hourglass-half"></i><span id="sessionTimer"></span></div>
             </div>
 
         </div>
 
         <div class="dash-card">
-            <div class="card-header">📢 Announcement</div>
+            <div class="card-header"><i class="fa-solid fa-bullhorn"></i> Announcement</div>
             <div class="card-body">
-                <div class="announcement-item">
+                <div id="announcementList">
                     <div class="announcement-date">CCS Admin 2025 - 2026</div>
-                    <p style="font-size: 17px; margin-top: 10px;"><b>Welcome to the New Semester, College of Computer Studies‼️</b></p>
-                    <p style="font-size: 15px; margin-top: 10px;">We’re excited to begin a new academic journey filled with learning, innovation, and success.🚀📚</p>
-                </div>
-                <div class="announcement-item">
-                    <div class="announcement-date">CCS Admin</div>
-                    <p style="font-size: 20px; margin-top: 10px;"><b>📢 Important Announcement‼️</b></p>
-                    <p style="font-size: 15px; margin-top: 10px;">We are excited to announce the launch of our new website 🎉 Explore our latest features, services, and updates designed to give you a better and more efficient experience. 🚀💻</p>
+                    <p style="color:#aaa; text-align:center;">Loading announcements...</p>
                 </div>
             </div>
         </div>
 
         <div class="dash-card">
-            <div class="card-header">📖 Rules and Regulation</div>
+            <div class="card-header"><i class="fa-solid fa-book"></i> Rules and Regulation</div>
             <div class="card-body">
                 <div class="rules-text">
                     <center><b style="font-size: 30px;">University of Cebu</b><br><b>COLLEGE OF INFORMATION & COMPUTER STUDIES</b></center><br>
@@ -214,6 +179,29 @@
     </div>
 
 <script>
+
+async function loadAnnouncements() {
+    try {
+        const res = await fetch('http://localhost:3000/announcements');
+        const announcements = await res.json();
+        const list = document.getElementById('announcementList');
+
+        if (announcements.length === 0) {
+            list.innerHTML = '<p style="color:#aaa; text-align:center;">No announcements yet.</p>';
+            return;
+        }
+
+        list.innerHTML = announcements.map(a => `
+            <div class="announcement-item">
+                <small style="color: #4e73df; font-weight: bold;">${a.author} | ${a.date}</small>
+                <p style="margin-top: 5px;">${a.content}</p>
+            </div>
+        `).join('');
+    } catch (err) {
+        console.error('Failed to load announcements:', err);
+    }
+}
+
 async function logout() {
     const result = await Swal.fire({
         title: 'Logout?',
@@ -265,6 +253,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             window.location.href = "index.html";
             return;
         }
+
+         loadAnnouncements();
 
 
 // ✅ LOGIN POPUP & RECORD HISTORY
@@ -331,6 +321,25 @@ const justLoggedIn = sessionStorage.getItem("justLoggedIn");
         document.getElementById("display-email").textContent = user.email;
         document.getElementById("display-yearLevel").textContent = user.yearLevel;
         document.getElementById("display-address").textContent = user.address;
+        
+        // 1. Calculate the value
+        const totalSession = user.session || 0;
+        const usedSession = user.usedSession || 0;
+        const remainingSession = Math.max(0, totalSession - usedSession);
+
+        // 2. Target the HTML element (ensure ID matches 'display-session')
+        const sessionDisplay = document.getElementById("display-session");
+
+        if (sessionDisplay) {
+            // 3. Update the text on the screen
+            sessionDisplay.textContent = remainingSession;
+            
+            // Optional: Visual cue if they are out of sessions
+            if (remainingSession === 0) {
+                sessionDisplay.style.color = "red";
+                sessionDisplay.innerHTML = "0 (Remaining)";
+            }
+        }
         
         // Also display remaining sessions if you have that element
         if(document.getElementById("display-sessions")){
