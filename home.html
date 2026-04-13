@@ -44,32 +44,44 @@
             margin-bottom: 30px;
         }
         .btn-start {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: linear-gradient(135deg, #d4a017, #4a235a);
+            padding: 15px 25px;
+            background: #1a1a2e;
             color: #fff;
-            padding: 15px 30px;
-            text-decoration: none;
-            font-size: 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
             font-weight: 600;
-            border-radius: 10px;
-
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            cursor: pointer;
             transition: all 0.25s ease;
-            box-shadow: 0 6px 15px rgba(78, 115, 223, 0.3);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow: hidden;
+            position: relative;
+            text-decoration: none;
+            display: inline-block;
         }
+
         .btn-start:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(78, 115, 223, 0.4);
+            background: #2d2d4e;
+            transform: translateY(-1px);
         }
+
         .btn-start:active {
             transform: translateY(0);
         }
-        .btn-start i {
-            transition: transform 0.2s ease;
+
+        .btn-start::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
         }
-        .btn-start:hover i {
-            transform: translateX(4px);
+
+        .btn-start:hover::after { 
+            transform: translateX(100%); 
         }
     </style>
 </head>

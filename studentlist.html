@@ -200,6 +200,7 @@
             width: 100px; 
             display: inline-block; 
         }
+
     </style>
 <body>
 
@@ -211,8 +212,9 @@
             <li><a href="studentlist.html" class="active"><i class="fa fa-users"></i> Students</a></li>
             <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
             <li><a href="viewsitin.html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
-            <li><a href="viewrecords.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
-            <li><a href="viewrecords.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+            <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+            <li><a href="feedback.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+            <li><a href="adminreservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
             <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
         </ul>
     </nav>
@@ -221,7 +223,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Search Student</h2>
-                <button class="close-btn" onclick="closeModal('searchModal')">❌</button>
+                <button class="close-btn" onclick="closeModal('searchModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
             </div>
             <div class="modal-body">
                 <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px; box-sizing: border-box;">
@@ -236,7 +238,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Student Information</h2>
-                <button class="close-btn" onclick="closeModal('studentInfoModal')">❌</button>
+                <button class="close-btn" onclick="closeModal('studentInfoModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
             </div>
             <div class="modal-body" id="infoBody">
                 </div>
@@ -250,7 +252,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Confirm Sit-In for <span id="displayStudentName">Student</span></h2>
-                <button class="close-btn" onclick="closeModal('genericSitInModal')">❌</button>
+                <button class="close-btn" onclick="closeModal('genericSitInModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-row">
@@ -291,11 +293,111 @@
             </div>
         </div>
     </div>
+
+    <div id="addStudentModal" class="modal-overlay">
+        <div class="modal-content" style="width: 550px; border-radius: 15px; overflow: hidden;">
+            <div class="modal-header" style="background: #1a1a2e; padding: 20px;">
+                <h2 style="color: white; margin: 0; font-family: 'Sora', sans-serif; font-size: 18px;">
+                    <i class="fa fa-user-plus"></i> Add New Student
+                </h2>
+                <button class="close-btn" onclick="closeModal('addStudentModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
+            </div>
+            
+            <form id="addStudentForm">
+                <div class="modal-body" style="padding: 25px; max-height: 70vh; overflow-y: auto; background: white;">
+                    
+                    <p style="font-size: 10.5px; margin-bottom: 12px; color: #888; letter-spacing: 0.1em; font-weight: bold;">PERSONAL INFORMATION</p>
+                    
+                    <div class="reg-input-group">
+                        <i class="fa fa-id-card input-icon"></i>
+                        <input type="text" name="idNumber" placeholder="ID Number" required>
+                    </div>
+
+                    <div class="row-group">
+                        <div class="reg-input-group">
+                            <i class="fa fa-user input-icon"></i>
+                            <input type="text" name="firstName" placeholder="First Name" required>
+                        </div>
+                        <div class="reg-input-group">
+                            <i class="fa fa-user input-icon"></i>
+                            <input type="text" name="lastName" placeholder="Last Name" required>
+                        </div>
+                    </div>
+
+                    <div class="reg-input-group">
+                        <i class="fa fa-user input-icon"></i>
+                        <input type="text" name="middleName" placeholder="Middle Name">
+                    </div>
+
+                    <p style="font-size: 10.5px; margin-bottom: 12px; margin-top: 20px; color: #888; letter-spacing: 0.1em; font-weight: bold;">ACADEMIC DETAILS</p>
+                    
+                    <div class="row-group">
+                        <div class="reg-input-group dropdown-group">
+                            <i class="fa fa-graduation-cap input-icon"></i>
+                            <select name="yearLevel" class="dropdown-input" required>
+                                <option value="" disabled selected hidden>Year Level</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                            </select>
+                        </div>
+                        <div class="reg-input-group dropdown-group">
+                            <i class="fa fa-book input-icon"></i>
+                            <select name="course" class="dropdown-input" required>
+                                <option value="" disabled selected hidden>Course</option>
+                                <option value="BSCS">BSCS</option>
+                                <option value="BSIT">BSIT</option>
+                                <option value="ACT">ACT</option>
+                                <option value="BSIS">BSIS</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 10.5px; margin-bottom: 12px; margin-top: 20px; color: #888; letter-spacing: 0.1em; font-weight: bold;">ACCOUNT SECURITY</p>
+                    
+                    <div class="row-group">
+                        <div class="reg-input-group">
+                            <i class="fa fa-lock input-icon"></i>
+                            <input type="password" name="password" id="addPass" placeholder="Password" required>
+                            <span class="password-toggle" onclick="togglePass('addPass')">
+                                <i class="fa fa-eye"></i>
+                            </span>
+                        </div>
+                        <div class="reg-input-group">
+                            <i class="fa fa-lock input-icon"></i>
+                            <input type="password" name="confirmPassword" id="addConfirm" placeholder="Confirm Password" required>
+                            <span class="password-toggle" onclick="togglePass('addConfirm')">
+                                <i class="fa fa-eye"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 10.5px; margin-bottom: 12px; margin-top: 20px; color: #888; letter-spacing: 0.1em; font-weight: bold;">CONTACT DETAILS</p>
+                    
+                    <div class="reg-input-group">
+                        <i class="fa fa-envelope input-icon"></i>
+                        <input type="email" name="email" placeholder="Email" required>
+                    </div>
+                    
+                    <div class="reg-input-group">
+                        <i class="fa fa-home input-icon"></i>
+                        <input type="text" name="address" placeholder="Address" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding: 20px; background: #f9f9f9; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #eee;">
+                    <button type="button" onclick="closeModal('addStudentModal')" style="padding: 12px 22px; border-radius: 12px; border: 1px solid #ccc; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600;">Cancel</button>
+                    <button type="submit" class="reg-submit-btn" style="width: auto; padding: 12px 30px; border-radius: 12px; margin-top: 0; color: white;">Create Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
     
     <div class="admin-table-container">
         <center><h1 style="margin-bottom: 20px;">Students Information</h1></center>
         <div style="margin-bottom: 30px;">
-            <button class="btn-add" onclick="Swal.fire('Info','Redirecting to registration...','info')">Add Student</button>
+            <button class="btn-add" onclick="openModal('addStudentModal')">Add Student</button>
             <button class="btn-reset" onclick="resetAllSessions()">Reset All Sessions</button>
             <input type="text" class="search-box" id="tableSearch" placeholder="Filter table..." onkeyup="filterTable()">
         </div>
@@ -311,6 +413,21 @@
     </div>
 
 <script>
+    function togglePass(id) {
+        const input = document.getElementById(id);
+        const icon = input.nextElementSibling.querySelector("i");
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+
     // --- Modal Controls ---
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -345,7 +462,7 @@
         } catch (e) { Swal.fire('Error', 'Server Error', 'error'); }
     }
 
-function openGenericSitInForm() { 
+    function openGenericSitInForm() { 
         // Clear previous inputs when opening a blank form
         document.getElementById('genIdNumber').value = "";
         document.getElementById('genFullName').value = "";
@@ -420,6 +537,82 @@ function openGenericSitInForm() {
         }
     }
 
+    document.getElementById('addStudentForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+
+        // Password validation
+        if (data.password !== data.confirmPassword) {
+            return Swal.fire('Error', 'Passwords do not match!', 'error');
+        }
+
+        // Show loading
+        Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        try {
+            const response = await fetch("http://localhost:3000/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                Swal.fire('Success', 'Student added successfully!', 'success');
+                closeModal('addStudentModal');
+                this.reset(); // Clear form
+                fetchStudents(); // Refresh the table
+            } else {
+                const err = await response.json();
+                Swal.fire('Failed', err.error || 'Could not add student', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'Server connection failed', 'error');
+        }
+    });
+
+    async function resetAllSessions() {
+        // 1. Ask for confirmation first
+        const result = await Swal.fire({
+            title: 'Reset All Sessions?',
+            text: "This will set all students' remaining sessions back to 30. This cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, reset all!'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                // 2. Call your backend route
+                const response = await fetch('http://localhost:3000/admin/reset-sessions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'All student sessions have been reset to 30.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    // 3. Refresh the table to show the new values
+                    fetchStudents(); 
+                } else {
+                    const errData = await response.json();
+                    Swal.fire('Error', errData.error || 'Failed to reset sessions.', 'error');
+                }
+            } catch (error) {
+                console.error("Reset Error:", error);
+                Swal.fire('Error', 'Server connection failed.', 'error');
+            }
+        }
+    }
+
     // --- Table Data Logic ---
     async function fetchStudents() {
         try {
@@ -491,9 +684,10 @@ function openGenericSitInForm() {
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
             confirmButtonText: 'Yes, logout admin!',
-            cancelButtonText: 'Cancel'
+            cancelButtonText: 'Stay logged in'
         }).then((result) => {
             if (result.isConfirmed) {
+                // Clear admin session data
                 sessionStorage.removeItem("adminWelcomeShown");
                 window.location.href = "index.html";
             }

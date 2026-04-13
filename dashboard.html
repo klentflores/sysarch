@@ -130,7 +130,6 @@
                 <div class="info-row"><i class="fa-solid fa-chart-line"></i><b> Year:</b> <span id="display-yearLevel">Loading...</span></div>
                 <div class="info-row"><i class="fa-solid fa-house"></i><b> Address:</b> <span id="display-address">Loading...</span></div>
                 <div class="info-row"><i class="fa-solid fa-clock"></i><b> Session:</b> <span id="display-session">Loading...</span></div>
-                <div id="sessionTimerBox"><i class="fa fa-hourglass-half"></i><span id="sessionTimer"></span></div>
             </div>
 
         </div>
@@ -238,16 +237,17 @@ async function logout() {
 document.addEventListener("DOMContentLoaded", async () => {
 
     const idNumber = localStorage.getItem("loggedInId");
-    const expiryTime = parseInt(localStorage.getItem("sessionExpiry"));
 
-    if (!idNumber || !expiryTime) {
-        window.location.href = "index.html";
-        return;
-    }
+        if (!idNumber) {
+            window.location.href = "index.html";
+            return;
+        }
 
     try {
         const res = await fetch(`http://localhost:3000/student/${idNumber}`);
         const user = await res.json();
+
+        console.log(user);
 
         if (!res.ok) {
             window.location.href = "index.html";
@@ -322,22 +322,16 @@ const justLoggedIn = sessionStorage.getItem("justLoggedIn");
         document.getElementById("display-yearLevel").textContent = user.yearLevel;
         document.getElementById("display-address").textContent = user.address;
         
-        // 1. Calculate the value
-        const totalSession = user.session || 0;
-        const usedSession = user.usedSession || 0;
-        const remainingSession = Math.max(0, totalSession - usedSession);
-
-        // 2. Target the HTML element (ensure ID matches 'display-session')
         const sessionDisplay = document.getElementById("display-session");
 
         if (sessionDisplay) {
-            // 3. Update the text on the screen
-            sessionDisplay.textContent = remainingSession;
-            
-            // Optional: Visual cue if they are out of sessions
-            if (remainingSession === 0) {
+            const totalSession = user.remainingSession || 0;
+
+            sessionDisplay.textContent = `${totalSession} Sessions`;
+
+            if (totalSession === 0) {
                 sessionDisplay.style.color = "red";
-                sessionDisplay.innerHTML = "0 (Remaining)";
+                sessionDisplay.textContent = "No Sessions";
             }
         }
         
@@ -356,26 +350,6 @@ const justLoggedIn = sessionStorage.getItem("justLoggedIn");
         console.error(err);
     }
 
-    const timerEl = document.getElementById("sessionTimer");
-
-    function updateTimer() {
-        const remaining = expiryTime - Date.now();
-
-        if (remaining <= 0) {
-            logout(); 
-            return;
-        }
-
-        const minutes = Math.floor(remaining / 60000);
-        const seconds = Math.floor((remaining % 60000) / 1000);
-
-        if (timerEl) {
-            timerEl.textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-        }
-    }
-
-    updateTimer();
-    setInterval(updateTimer, 1000);
 });
 </script>
 </body>

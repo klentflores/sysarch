@@ -246,7 +246,6 @@ app.post("/admin/reset-sessions", (req, res) => {
     });
 });
 
-// Add this to server.js to reset a SINGLE student
 app.post("/admin/reset-single-student", (req, res) => {
     const { idNumber } = req.body;
     db.run(`UPDATE users SET remainingSession = 30 WHERE idNumber = ?`, [idNumber], (err) => {
@@ -264,6 +263,42 @@ app.get("/get-student/:idNumber", (req, res) => {
         } else {
             res.status(404).json({ message: "Not found" });
         }
+    });
+});
+
+// --- SIT-IN REPORTS ENDPOINT ---
+app.get("/admin/reports", (req, res) => {
+    const filterDate = req.query.date; // Captures ?date= from the URL
+    
+    // SQL Logic: Combine 'reservations' (r) and 'users' (u) based on ID Number
+    let sql = `
+        SELECT 
+            r.idNumber, 
+            u.firstName, 
+            u.lastName, 
+            r.purpose, 
+            r.lab, 
+            r.timeIn, 
+            r.timeOut, 
+            r.date 
+        FROM reservations r
+        JOIN users u ON r.idNumber = u.idNumber
+    `;
+    
+    let params = [];
+
+    // Apply date filter if the admin picked a date in the UI
+    if (filterDate) {
+        sql += ` WHERE r.date = ?`;
+        params.push(filterDate);
+    }
+
+    // Sort by latest records first
+    sql += ` ORDER BY r.date DESC, r.timeIn DESC`;
+
+    db.all(sql, params, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows); // Send the combined data back to the browser
     });
 });
 

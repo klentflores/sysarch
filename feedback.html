@@ -3,80 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - CCS Portal</title>
+    <title>Feedback Reports - CCS Admin</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet"> 
-</head>
     <style>
-        .admin-container {
-            padding: 50px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            max-width: 1500px;
-            margin: auto;
-        }
-
-        .card {
-            background: #fff;
-            border: 1px solid #e3e6f0;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            margin-bottom: 24px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-header {
-            background: #2c3e70;
-            padding: 12px 20px;
-            border-bottom: 1px solid #e3e6f0;
-        }
-
-        .card-header span {
-            color: #ffffff;
-            font-size: 1rem;
-            font-weight: 700;
-            margin: 0;
-            text-transform: none;
-            font-family: 'Nunito', sans-serif;
-        }
-
-        .card-body {
-            padding: 20px;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 350px;
-            width: 100%;
-        }
-
-        .stats-grid {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .stat-item h3 { 
-            color: #0056b3; 
-            font-size: 2.3em; 
-            margin: 5px;
-            margin-top: 15px; 
-        }
-
-        .stat-item p { 
-            color: #444; 
-            font-weight: bold; 
-            text-transform: uppercase; 
-            font-size: 12px; 
-        }
-
         .modal-overlay {
             display: none;
             position: fixed;
@@ -195,15 +127,6 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        .announcement-item {
-            background: #f6f6f6;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 15px;
-            border: 1px solid #ccc;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-        }
-        
         #infoBody p { 
             margin: 10px 0; 
             font-size: 14px; 
@@ -218,48 +141,95 @@
             display: inline-block; 
         }
 
-        .broadcast-btn {
-            width: 100%;
-            background: #2c3e70;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            padding: 15px 25px;
-            font-size: 14px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
+        .reports-container { 
+            padding: 30px; 
+            max-width: 1200px; 
+            margin: auto; 
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header-section h1 {
+            font-size: 32px;
+            color: #333;
+        }
+
+        .controls { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            background: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: white; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+
+        th { 
+            background-color: #2c3e70; 
+            color: #fafafa; 
+            padding: 15px; 
+            text-align: left; 
+            font-size: 14px; 
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        td { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid #eee; 
+            font-size: 14px; 
+            color: #555; 
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        .btn-print { 
+            background: #fff; 
+            color: #333; 
+            border: 1px solid #ccc; 
+            padding: 8px 20px; 
+            border-radius: 4px; 
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            margin-top: 15px;
-        }
-        .broadcast-btn:hover {
-            background: #2d2d4e;
-            transform: translateY(-1px);
+            font-weight: 500;
         }
 
-        .delete-btn {
-            margin-top: 10px;
-            background: #e74a3b;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            padding: 8px 12px;
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: 600;
+        #feedbackSearch { 
+            padding: 8px 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            width: 250px;
         }
-
-        .delete-btn:hover {
-            background: #c0392b;
-            transform: translateY(-1px);
-        }
-
-
     </style>
+</head>
 <body>
+    <nav class="navbar">
+        <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
+        <ul class="nav-links">
+            <li><a href="admindashboard.html"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="javascript:void(0)" onclick="openSearchModal()"><i class="fa fa-search"></i> Search</a></li>
+            <li><a href="studentlist.html"><i class="fa fa-users"></i> Students</a></li>
+            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
+            <li><a href="viewsitin.html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
+            <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+            <li><a href="feedback.html" class="active"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+            <li><a href="adminreservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
+        </ul>
+    </nav>
 
     <div id="searchModal" class="modal-overlay">
         <div class="modal-content">
@@ -336,127 +306,35 @@
         </div>
     </div>
 
-    <nav class="navbar">
-        <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
-        <ul class="nav-links">
-            <li><a href="admindashboard.html" class="active"><i class="fa fa-home"></i> Home</a></li>
-            <li><a href="javascript:void(0)" onclick="openSearchModal()"><i class="fa fa-search"></i> Search</a></li>
-            <li><a href="studentlist.html"><i class="fa fa-users"></i> Students</a></li>
-            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
-            <li><a href="viewsitin.html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
-            <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
-            <li><a href="feedback.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
-            <li><a href="adminreservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
-            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
-        </ul>
-    </nav>
-
-    <div class="admin-container">
-        <div class="left-pane">
-            <div class="card">
-
-                <div class="card-header"><i class="fa-solid fa-chart-bar" style="color: white;"></i><span> Laboratory Statistics</span></div>
-                
-                <div class="card-body">
-                    <div class="stats-grid">
-                        <div class="stat-item"><h3 id="totalRegistered">0</h3> <p>Students Registered</p></div>
-                        <div class="stat-item"><h3 id="currentSitIn">0</h3><p>Current Sit-in</p></div>
-                        <div class="stat-item"><h3 id="totalSitInCount">0</h3> <p>Total Sit-in</p></div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="statsChart"></canvas>
-                    </div>
-                </div>
+    <div class="reports-container">
+        <div class="header-section">
+            <h1>Feedback Report</h1>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-print" onclick="window.print()">Print</button>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label for="feedbackSearch">Filter</label>
+                <input type="text" id="feedbackSearch" onkeyup="filterFeedback()">
             </div>
         </div>
 
-        <div class="right-pane">
-            <div class="card">
-
-                <div class="card-header"><i class="fa-solid fa-bullhorn" style="color: white;"></i><span> Create Announcement</span></div>
-                
-                <div class="card-body">
-                    <textarea id="announcementText" style="width:100%; height:80px; padding:10px; border:1px solid #d1d3e2; border-radius:5px;" placeholder="What's happening in the lab?"></textarea>
-                    <button type="button" class="broadcast-btn" onclick="postAnnouncement()"><i class="fa-solid fa-paper-plane"></i> Broadcast</button>
-                </div>
-            </div>
-
-            <div class="card">
-
-                <div class="card-header"><i class="fa-solid fa-clock-rotate-left" style="color: white;"></i><span> Recent Updates</span></div>
-
-                <div class="card-body">
-                    <div id="announcementList">
-                        <div class="announcement-item">
-                            <small style="color: #4e73df; font-weight: bold;">CCS Admin | 2026-Feb-11</small>
-                            <p style="margin-top: 5px;">Welcome to the CCS Sit-in Monitoring System.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <table id="feedbackTable">
+            <thead>
+                <tr>
+                    <th>Student ID Number <i class="fa fa-sort"></i></th>
+                    <th>Laboratory <i class="fa fa-sort"></i></th>
+                    <th>Date <i class="fa fa-sort"></i></th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody id="feedbackBody">
+                </tbody>
+        </table>
     </div>
 
 <script>
-let myChart = null;
 
-    // --- Core Data Loading ---
-    async function loadDashboardStats() {
-        try {
-            const response = await fetch('http://localhost:3000/admin/dashboard-data');
-            const data = await response.json();
-            
-            // Keep your existing ID updates
-            document.getElementById('totalRegistered').innerText = data.registered || 0;
-            document.getElementById('currentSitIn').innerText = data.currentSitin || 0;
-            document.getElementById('totalSitInCount').innerText = data.totalSitin || 0;
-
-            const labels = data.chartData.length > 0 ? data.chartData.map(item => item.purpose) : ['No Data'];
-            const counts = data.chartData.length > 0 ? data.chartData.map(item => item.count) : [1];
-
-            // Inside your loadDashboardStats function:
-            const ctx = document.getElementById('statsChart').getContext('2d');
-            if (myChart) myChart.destroy();
-
-            // Create a horizontal gradient (Left to Right)
-            const gradient = ctx.createLinearGradient(0, 0, 500, 0);
-            gradient.addColorStop(0, '#4e73df');   // Start: Blue
-            gradient.addColorStop(1, '#224abe');   // End: Darker Blue
-
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: { 
-                    labels: labels, 
-                    datasets: [{ 
-                        data: counts, 
-                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e'],
-                        hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#f4b619'],
-                        hoverBorderColor: "rgba(234, 236, 244, 1)",
-                        borderWidth: 1,
-                    }] 
-                },
-                options: { 
-                    maintainAspectRatio: false,
-                    cutout: '80%',
-                    plugins: { 
-                        legend: { 
-                            display: true,
-                            position: 'bottom',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20,
-                                font: { family: "'Nunito', sans-serif", size: 13 }
-                            }
-                        }
-                    }
-                }
-            });
-        } catch (error) { 
-            console.error("Stats Error:", error); 
-        }
-    }
-
-    // --- Generic Modal Controls ---
     function openModal(modalId) { document.getElementById(modalId).style.display = 'flex'; }
     function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
 
@@ -598,108 +476,48 @@ let myChart = null;
         }
     }
 
-    // --- Announcement ---
-
-    async function loadAnnouncements() {
+        // Fetch feedback from the server
+    async function loadFeedback() {
         try {
-            const res = await fetch('http://localhost:3000/announcements');
-            const announcements = await res.json();
-            const list = document.getElementById('announcementList');
+                // Adjust this URL to match your server.js feedback endpoint
+            const res = await fetch("http://localhost:3000/admin/feedback-reports");
+            const data = await res.json();
+            const body = document.getElementById("feedbackBody");
 
-            if (announcements.length === 0) {
-                list.innerHTML = '<p style="color:#aaa;">No announcements yet.</p>';
+            if (data.length === 0) {
+                body.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">No feedback records found.</td></tr>`;
                 return;
             }
 
-            list.innerHTML = announcements.map(a => `
-            <div class="announcement-item">
-                <small style="color: #4e73df; font-weight: bold;">
-                    ${a.author} | ${a.date}
-                </small>
-                <p style="margin-top: 5px;">${a.content}</p>
+            // Inject data into the table
+            body.innerHTML = data.map(f => `
+                <tr>
+                    <td>${f.idNumber}</td>
+                    <td>${f.lab}</td>
+                    <td>${f.date}</td>
+                    <td>${f.message}</td>
+                </tr>
+            `).join("");
 
-                <button class="delete-btn" onclick="deleteAnnouncement('${a.id}')">
-                    <i class="fa fa-trash"></i> Delete
-                </button>
-            </div>
-        `).join('');
         } catch (err) {
-            console.error(err);
+            console.error("Error loading feedback:", err);
         }
     }
 
-    async function postAnnouncement() {
-        const content = document.getElementById('announcementText').value.trim();
-        if (!content) return Swal.fire('Error', 'Cannot post empty announcement', 'error');
-        try {
-            const res = await fetch('http://localhost:3000/admin/announcement', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content })
-            });
-            if (res.ok) {
-                await Swal.fire({
-                    icon: 'success',
-                    title: 'Posted!',
-                    confirmButtonText: 'OK',
-                    allowOutsideClick: false
-                });
-                document.getElementById('announcementText').value = '';
-                loadAnnouncements(); // ← refresh the list
-            }
-        } catch (e) { console.error(e); }
-    }
-
-        async function deleteAnnouncement(id) {
-        const confirm = await Swal.fire({
-            title: 'Delete this announcement?',
-            text: "This action cannot be undone.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it'
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        try {
-            const res = await fetch(`http://localhost:3000/admin/announcement/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (res.ok) {
-                Swal.fire('Deleted!', 'Announcement removed.', 'success');
-                loadAnnouncements(); // refresh list
-            } else {
-                Swal.fire('Error', 'Failed to delete announcement', 'error');
-            }
-        } catch (err) {
-            console.error(err);
-            Swal.fire('Error', 'Server error', 'error');
+        // Live filter for the search box
+    function filterFeedback() {
+        const input = document.getElementById("feedbackSearch").value.toUpperCase();
+        const rows = document.getElementById("feedbackBody").getElementsByTagName("tr");
+            
+        for (let row of rows) {
+            const text = row.innerText.toUpperCase();
+            row.style.display = text.includes(input) ? "" : "none";
         }
     }
 
-    // --- Initialization & Welcome Alert ---
-    window.onload = function() {
-            loadDashboardStats();
-            loadAnnouncements(); // Your existing function to load stats
+        // Initialize on page load
+    document.addEventListener("DOMContentLoaded", loadFeedback);
 
-            // Check if we just logged in
-            if (!sessionStorage.getItem("adminWelcomeShown")) {
-                Swal.fire({
-                    title: 'Welcome, Admin!',
-                    text: 'System analytics and student records are ready.',
-                    icon: 'success',
-                    confirmButtonColor: '#0056b3',
-                    background: '#fff',
-                });
-                // Mark as shown so it doesn't pop up every time you click "Home"
-                sessionStorage.setItem("adminWelcomeShown", "true");
-            }
-        };
-
-    // --- ADMIN SPECIFIC LOGOUT ---
     function logout() {
         Swal.fire({
             title: 'Logout Admin?',

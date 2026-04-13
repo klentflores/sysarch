@@ -67,15 +67,16 @@
             border-collapse: collapse;
         }
     
-        thead tr { background: #f8f9fa; }
+        thead tr { 
+            background: #2c3e70; 
+        }
         
         th {
             padding: 15px;
             text-align: left;
-            color: #0056b3;
+            color: #e9f5ff;
             font-weight: 600;
-            text-transform: uppercase;
-            font-size: 13px;
+            font-size: 14px;
             border-bottom: 2px solid #eee;
         }
 
@@ -236,25 +237,26 @@
     </style>
 <body>
 
-<nav class="navbar">
-    <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
-    <ul class="nav-links">
-        <li><a href="admindashboard.html"><i class="fa fa-home"></i> Home</a></li>
-        <li><a href="javascript:void(0)" onclick="openSearchModal()"><i class="fa fa-search"></i> Search</a></li>
-        <li><a href="studentlist.html"><i class="fa fa-users"></i> Students</a></li>
-        <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
-        <li><a href="viewsitin.html" class="active"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
-        <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
-        <li><a href="feedbackreports.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
-        <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
-    </ul>
-</nav>
+    <nav class="navbar">
+        <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
+        <ul class="nav-links">
+            <li><a href="admindashboard.html"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="javascript:void(0)" onclick="openSearchModal()"><i class="fa fa-search"></i> Search</a></li>
+            <li><a href="studentlist.html"><i class="fa fa-users"></i> Students</a></li>
+            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
+            <li><a href="viewsitin.html" class="active"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
+            <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+            <li><a href="feedback.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+            <li><a href="adminreservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
+        </ul>
+    </nav>
 
     <div id="searchModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Search Student</h2>
-                <button class="close-btn" onclick="closeModal('searchModal')">❌</button>
+                <button class="close-btn" onclick="closeModal('searchModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
             </div>
             <div class="modal-body">
                 <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px; box-sizing: border-box;">
@@ -269,7 +271,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Student Information</h2>
-                <button class="close-btn" onclick="closeModal('studentInfoModal')">❌</button>
+                <button class="close-btn" onclick="closeModal('studentInfoModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
             </div>
             <div class="modal-body" id="infoBody">
                 </div>
@@ -283,7 +285,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Confirm Sit-In for <span id="displayStudentName">Student</span></h2>
-                <button class="close-btn" onclick="closeModal('genericSitInModal')">❌</button>
+                <button class="close-btn" onclick="closeModal('genericSitInModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-row">
@@ -596,13 +598,19 @@
     function logout() {
         Swal.fire({
             title: 'Logout Admin?',
-            text: "You will be returned to the login screen.",
+            text: "Are you sure you want to end your admin session?",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            confirmButtonText: 'Yes, logout'
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, logout admin!',
+            cancelButtonText: 'Stay logged in'
         }).then((result) => {
-            if (result.isConfirmed) window.location.href = "index.html";
+            if (result.isConfirmed) {
+                // Clear admin session data
+                sessionStorage.removeItem("adminWelcomeShown");
+                window.location.href = "index.html";
+            }
         });
     }
 
