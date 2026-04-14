@@ -393,6 +393,71 @@
             </form>
         </div>
     </div>
+
+    <div id="editStudentModal" class="modal-overlay">
+        <div class="modal-content" style="width: 550px; border-radius: 15px; overflow: hidden;">
+            <div class="modal-header" style="background: #1a1a2e; padding: 20px;">
+                <h2 style="color: white; margin: 0; font-family: 'Sora', sans-serif; font-size: 18px;">
+                    <i class="fa fa-user-edit"></i> Edit Student Information
+                </h2>
+                <button class="close-btn" onclick="closeModal('editStudentModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
+            </div>
+            
+            <form id="editStudentForm">
+                <input type="hidden" id="editOriginalId">
+                
+                <div class="modal-body" style="padding: 25px; max-height: 70vh; overflow-y: auto; background: white;">
+                    <p style="font-size: 10.5px; margin-bottom: 12px; color: #888; letter-spacing: 0.1em; font-weight: bold;">UPDATE PERSONAL INFORMATION</p>
+                    
+                    <div class="reg-input-group">
+                        <i class="fa fa-id-card input-icon"></i>
+                        <input type="text" id="editIdNumber" name="idNumber" placeholder="ID Number" required>
+                    </div>
+
+                    <div class="row-group">
+                        <div class="reg-input-group">
+                            <i class="fa fa-user input-icon"></i>
+                            <input type="text" id="editFirstName" name="firstName" placeholder="First Name" required>
+                        </div>
+                        <div class="reg-input-group">
+                            <i class="fa fa-user input-icon"></i>
+                            <input type="text" id="editLastName" name="lastName" placeholder="Last Name" required>
+                        </div>
+                    </div>
+
+                    
+
+                    <p style="font-size: 10.5px; margin-bottom: 12px; margin-top: 20px; color: #888; letter-spacing: 0.1em; font-weight: bold;">ACADEMIC DETAILS</p>
+                    
+                    <div class="row-group">
+                        <div class="reg-input-group dropdown-group">
+                            <i class="fa fa-graduation-cap input-icon"></i>
+                            <select id="editYearLevel" name="yearLevel" class="dropdown-input" required>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                            </select>
+                        </div>
+                        <div class="reg-input-group dropdown-group">
+                            <i class="fa fa-book input-icon"></i>
+                            <select id="editCourse" name="course" class="dropdown-input" required>
+                                <option value="BSCS">BSCS</option>
+                                <option value="BSIT">BSIT</option>
+                                <option value="ACT">ACT</option>
+                                <option value="BSIS">BSIS</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding: 20px; background: #f9f9f9; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #eee;">
+                    <button type="button" onclick="closeModal('editStudentModal')" style="padding: 12px 22px; border-radius: 12px; border: 1px solid #ccc; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600;">Cancel</button>
+                    <button type="submit" class="reg-submit-btn" style="width: auto; padding: 12px 30px; border-radius: 12px; margin-top: 0; background: #2c3e70; color: white;">Update Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
     
     <div class="admin-table-container">
         <center><h1 style="margin-bottom: 20px;">Students Information</h1></center>
@@ -637,35 +702,81 @@
             console.error(error);
         }
     }
-        async function deleteStudent(idNumber) {
-            const result = await Swal.fire({
-                title: 'Are you sure?',
-                text: `Delete student ${idNumber}?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                confirmButtonText: 'Yes, delete!'
+
+    async function editStudent(idNumber) {
+        try {
+            const res = await fetch(`http://localhost:3000/student/${idNumber}`);
+            const data = await res.json();
+
+            if (res.ok) {
+                // Fill the hidden tracker and visible inputs
+                document.getElementById('editOriginalId').value = data.idNumber;
+                document.getElementById('editIdNumber').value = data.idNumber;
+                document.getElementById('editFirstName').value = data.firstName;
+                document.getElementById('editLastName').value = data.lastName;
+                document.getElementById('editYearLevel').value = data.yearLevel;
+                document.getElementById('editCourse').value = data.course;
+
+                openModal('editStudentModal');
+            }
+        } catch (e) {
+            Swal.fire('Error', 'Could not fetch student details', 'error');
+        }
+    }
+
+    // 3. Handle the Update form submission
+    document.getElementById('editStudentForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const originalId = document.getElementById('editOriginalId').value;
+        const formData = new FormData(this);
+        const updatedData = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch(`http://localhost:3000/admin/update-student/${originalId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedData)
             });
 
-            if (result.isConfirmed) {
-                try {
-                    const response = await fetch(`http://127.0.0.1:3000/admin/students/${idNumber}`, {
-                        method: 'DELETE'
-                    });
+            if (response.ok) {
+                Swal.fire('Success', 'Student updated!', 'success');
+                closeModal('editStudentModal');
+                fetchStudents(); // Refresh table immediately
+            }
+        } catch (error) {
+            Swal.fire('Error', 'Update failed', 'error');
+        }
+    });
 
-                    if (response.ok) {
-                        await Swal.fire('Deleted!', 'Student removed.', 'success');
-                        fetchStudents(); // Refresh the table
-                    } else {
-                        const errData = await response.json();
-                        Swal.fire('Error', errData.message || 'Delete failed', 'error');
-                    }
-                } catch (error) {
-                    console.error("Connection Error:", error);
-                    Swal.fire('Error', 'Server is not running or connection failed', 'error');
+    async function deleteStudent(idNumber) {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: `Delete student ${idNumber}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Yes, delete!'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`http://127.0.0.1:3000/admin/students/${idNumber}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    await Swal.fire('Deleted!', 'Student removed.', 'success');
+                    fetchStudents(); // Refresh the table
+                } else {
+                    const errData = await response.json();
+                    Swal.fire('Error', errData.message || 'Delete failed', 'error');
                 }
+            } catch (error) {
+                console.error("Connection Error:", error);
+                Swal.fire('Error', 'Server is not running or connection failed', 'error');
             }
         }
+    }
 
     function filterTable() {
         const val = document.getElementById("tableSearch").value.toLowerCase();

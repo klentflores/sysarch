@@ -27,6 +27,15 @@
         overflow: hidden;
     }
 
+    .reservation-card select {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
     .card-header {
         background: #2c3e70;
         color: white;
@@ -123,13 +132,35 @@
                     <label style="font-size: 15px;"><i class="fa-solid fa-user"></i> Student Name:</label>
                     <input type="text" id="res-name" placeholder="Student Name">
                 </div>
+                
                 <div class="input-group" style="margin-top: 40px;">
                     <label style="font-size: 15px;"><i class="fa-solid fa-bullseye"></i> Purpose:</label>
-                    <input type="text" id="res-purpose" placeholder="e.g. C Programming">
+                    <select id="res-purpose">
+                        <option value="C Programming">C Programming</option>
+                        <option value="Java Projects">Java Projects</option>
+                        <option value="Python/Data Science">Python/Data Science</option>
+                        <option value="Web Development">Web Development</option>
+                    </select>
                 </div>
+
                 <div class="input-group">
                     <label style="font-size: 15px;"><i class="fa-solid fa-computer"></i> Lab:</label>
-                    <input type="text" id="res-lab" placeholder="e.g. 524">
+                    <select id="res-lab">
+                        <option value="524">524</option>
+                        <option value="525">525</option>
+                        <option value="526">526</option>
+                        <option value="527">527</option>
+                        <option value="528">528</option>
+                    </select>
+                </div>
+
+                <div id="pc-selection-container" style="display: none; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px;">
+                    <label style="font-size: 15px; display: block; margin-bottom: 10px; font-weight: bold;">
+                        <i class="fa-solid fa-desktop"></i> Select Workstation:
+                    </label>
+                    <div id="pc-grid" style="display: grid; grid-template-columns: repeat(9, 1fr); gap: 10px; max-width: 100%;">
+                    </div>
+                    <input type="hidden" id="res-pc-number" value="">
                 </div>
                 
                 <div class="input-group mt-20" style="margin-top: 40px;">
@@ -152,6 +183,46 @@
     </div>
 
 <script>
+
+    function generatePCGrid() {
+        const pcContainer = document.getElementById('pc-selection-container');
+        const pcGrid = document.getElementById('pc-grid');
+        const labSelect = document.getElementById('res-lab');
+
+        if (labSelect.value) {
+            pcContainer.style.display = 'block';
+            pcGrid.innerHTML = '';
+            document.getElementById("res-pc-number").value = "";
+
+            for (let i = 1; i <= 45; i++) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.innerText = `PC${i}`;
+                // Enhanced CSS for better look
+                btn.style.cssText = "padding: 8px 5px; font-size: 12px; cursor: pointer; border: 1px solid #ddd; border-radius: 6px; background: #fff; transition: 0.2s;";
+                
+                btn.onclick = function() {
+
+                    document.querySelectorAll('#pc-grid button').forEach(b => {
+                        b.style.background = '#fff';
+                        b.style.color = '#000';
+                    });
+
+                    this.style.background = '#1cc88a';
+                    this.style.color = 'white';
+                    document.getElementById('res-pc-number').value = `PC${i}`;
+                };
+                
+                pcGrid.appendChild(btn);
+            }
+        } else {
+            pcContainer.style.display = 'none';
+        }
+    }
+
+    // 2. Listen for Lab Changes
+    document.getElementById('res-lab').addEventListener('change', generatePCGrid);
+
     async function handleReservation(e) {
         if (e) e.preventDefault();
 
@@ -160,10 +231,16 @@
             studentName: document.getElementById("res-name").value,
             purpose:  document.getElementById("res-purpose").value,
             lab:      document.getElementById("res-lab").value,
+            pcNumber: document.getElementById("res-pc-number").value,
             timeIn:   document.getElementById("res-time").value,
             date:     document.getElementById("res-date").value,
             remainingSession: document.getElementById("res-sessions").value
         };
+
+        if (!reservationData.pcNumber) {
+            Swal.fire('Wait!', 'Please select a workstation (PC1-PC45).', 'warning');
+            return;
+        }
 
         if (!reservationData.purpose || !reservationData.lab || !reservationData.timeIn || !reservationData.date) {
             Swal.fire('Wait!', 'Please fill in all the reservation details.', 'warning');
