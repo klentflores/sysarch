@@ -348,7 +348,7 @@
         const id = document.getElementById('modalSearchInput').value.trim();
         if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
 
-        try {
+        try {1
             const res = await fetch(`http://localhost:3000/student/${id}`);
             const data = await res.json();
 
@@ -491,7 +491,7 @@
 
             tbody.innerHTML = feedback.map(f => `
                 <tr>
-                    <td>${f.idNumber}</td>
+                    <td><b>${f.idNumber}</b></td>
                     <td>${f.lab}</td>
                     <td>${f.date}</td>
                     <td>${f.message}</td>

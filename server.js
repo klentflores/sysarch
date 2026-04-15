@@ -180,23 +180,20 @@ app.post("/time-out/:id", (req, res) => {
     });
 });
 
-// --- RESERVATION (from reservation.html) ---
 app.post("/make-reservation", (req, res) => {
     const { idNumber, purpose, lab, timeIn, date } = req.body;
 
     db.get(`SELECT remainingSession FROM users WHERE idNumber = ?`, [idNumber], (err, user) => {
         if (err) return res.status(500).json({ message: "Database error" });
         if (!user) return res.status(404).json({ message: "Student ID not found!" });
+        
         if (user.remainingSession <= 0) return res.status(400).json({ message: "No sessions left!" });
 
-        const sql = `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date) VALUES (?, ?, ?, ?, ?)`;
-        db.run(sql, [idNumber, purpose, lab, timeIn, date], function (err) {
+        const sql = `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date, status) VALUES (?, ?, ?, ?, ?, ?)`;
+        db.run(sql, [idNumber, purpose, lab, timeIn, date, 'Pending'], function (err) {
             if (err) return res.status(500).json({ message: err.message });
 
-            db.run(`UPDATE users SET remainingSession = remainingSession - 1 WHERE idNumber = ?`, [idNumber], (err) => {
-                if (err) return res.status(500).json({ message: "Failed to deduct session" });
-                res.json({ message: "Reservation successful!" });
-            });
+            res.json({ message: "Reservation submitted! Awaiting admin approval." });
         });
     });
 });
