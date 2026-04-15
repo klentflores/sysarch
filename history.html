@@ -332,7 +332,7 @@ async function logout() {
                         <td>${row.displayIn || row.timeIn}</td> 
                         <td>${row.displayOut || row.timeOut || 'None'}</td>
                         <td>${row.date || 'N/A'}</td>
-                        <td><button class="feedback-btn">Feedback</button></td>
+                        <td><button class="feedback-btn" onclick="openFeedbackPopup('${row.idNumber}', '${row.lab}')">Feedback</button></td>
                     </tr>
                 `;
             }).join("");
@@ -342,6 +342,55 @@ async function logout() {
         }
 
         renderPagination();
+    }
+
+    async function openFeedbackPopup(idNumber, lab) {
+        const { value: text } = await Swal.fire({
+            title: `Submit Feedback for ${lab}`,
+            input: "textarea",
+            inputLabel: "Tell us about your experience or report an issue:",
+            inputPlaceholder: "Type your message here...",
+            inputAttributes: {
+                "aria-label": "Type your message here"
+            },
+            showCancelButton: true,
+            confirmButtonColor: '#2c3e70',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Submit Feedback',
+            preConfirm: (value) => {
+                if (!value) {
+                    Swal.showValidationMessage('Please enter a message first');
+                }
+            }
+        });
+
+        if (text) {
+            try {
+                const response = await fetch("http://localhost:3000/api/feedback", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        idNumber: idNumber,
+                        lab: lab,
+                        message: text
+                    })
+                });
+
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thank You!',
+                        text: 'Your feedback has been sent to the admin.',
+                        confirmButtonColor: '#28a745'
+                    });
+                } else {
+                    throw new Error("Failed to send");
+                }
+            } catch (err) {
+                console.error("Feedback error:", err);
+                Swal.fire('Error', 'Could not send feedback. Is the server running?', 'error');
+            }
+        }
     }
 
     function renderPagination() {

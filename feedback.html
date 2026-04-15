@@ -479,18 +479,17 @@
         // Fetch feedback from the server
     async function loadFeedback() {
         try {
-                // Adjust this URL to match your server.js feedback endpoint
-            const res = await fetch("http://localhost:3000/admin/feedback-reports");
-            const data = await res.json();
-            const body = document.getElementById("feedbackBody");
+            // Updated to match the /api/feedback route in your server.js
+            const response = await fetch("http://localhost:3000/api/feedback"); 
+            const feedback = await response.json();
 
-            if (data.length === 0) {
-                body.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">No feedback records found.</td></tr>`;
+            const tbody = document.getElementById("feedbackBody");
+            if (feedback.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No feedback reports yet.</td></tr>`;
                 return;
             }
 
-            // Inject data into the table
-            body.innerHTML = data.map(f => `
+            tbody.innerHTML = feedback.map(f => `
                 <tr>
                     <td>${f.idNumber}</td>
                     <td>${f.lab}</td>

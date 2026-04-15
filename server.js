@@ -53,6 +53,14 @@ db.serialize(() => {
         content TEXT,
         date TEXT
     )`);
+
+    db.run(`CREATE TABLE IF NOT EXISTS feedback (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        idNumber TEXT,
+        lab TEXT,
+        message TEXT,
+        date TEXT
+    )`);
 });
 
 // --- REGISTER & LOGIN ---
@@ -335,6 +343,37 @@ app.get("/admin/reports", (req, res) => {
     db.all(sql, params, (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
+    });
+});
+
+// --- SUBMIT FEEDBACK ---s
+app.post("/api/feedback", (req, res) => {
+    const { idNumber, lab, message } = req.body;
+    const date = new Date().toLocaleDateString();
+
+    if (!idNumber || !message) {
+        return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const sql = `INSERT INTO feedback (idNumber, lab, message, date) VALUES (?, ?, ?, ?)`;
+    db.run(sql, [idNumber, lab, message, date], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Feedback submitted successfully!", id: this.lastID });
+    });
+});
+
+app.get("/api/feedback", (req, res) => {
+    db.all(`SELECT * FROM feedback ORDER BY id DESC`, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.delete("/api/feedback/:id", (req, res) => {
+    const { id } = req.params;
+    db.run(`DELETE FROM feedback WHERE id = ?`, [id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Feedback deleted" });
     });
 });
 
