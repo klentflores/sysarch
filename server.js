@@ -116,17 +116,17 @@ app.post('/update-profile', (req, res) => {
 app.post("/sit-in", (req, res) => {
     const { idNumber, purpose, lab } = req.body;
     const timeIn = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const date   = new Date().toLocaleDateString('en-CA');
- 
+    const date   = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+
     db.get(`SELECT remainingSession FROM users WHERE idNumber = ?`, [idNumber], (err, user) => {
         if (err) return res.status(500).send("Database error");
         if (!user) return res.status(404).send("Student ID not found!");
         if (user.remainingSession <= 0) return res.status(400).send("No remaining sessions!");
- 
-        const sql = `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date, status) VALUES (?, ?, ?, ?, ?, 'Active')`;
+
+        const sql = `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date) VALUES (?, ?, ?, ?, ?)`;
         db.run(sql, [idNumber, purpose, lab, timeIn, date], function (err) {
             if (err) return res.status(500).send(err.message);
- 
+
             db.run(`UPDATE users SET remainingSession = remainingSession - 1 WHERE idNumber = ?`, [idNumber], (err) => {
                 if (err) return res.status(500).send("Failed to deduct session");
                 res.json({ message: "Sit-in recorded!", id: this.lastID });
@@ -164,7 +164,7 @@ app.get("/get-sitin", (req, res) => {
 app.post("/time-out/:id", (req, res) => {
     const sitInId = req.params.id;
     const timeOut = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
- 
+
     db.run(`UPDATE reservations SET timeOut = ? WHERE id = ?`, [timeOut, sitInId], function (err) {
         if (err) return res.status(500).json({ error: err.message });
         if (this.changes === 0) return res.status(404).send("Record not found");
@@ -174,83 +174,23 @@ app.post("/time-out/:id", (req, res) => {
 
 // --- RESERVATION (from reservation.html) ---
 app.post("/make-reservation", (req, res) => {
-    const { idNumber, studentName, purpose, lab, pcNumber, timeIn, date } = req.body;
-    const createdAt = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
- 
-    // Just verify the student exists — no session deduction here
+    const { idNumber, purpose, lab, timeIn, date } = req.body;
+
     db.get(`SELECT remainingSession FROM users WHERE idNumber = ?`, [idNumber], (err, user) => {
         if (err) return res.status(500).json({ message: "Database error" });
         if (!user) return res.status(404).json({ message: "Student ID not found!" });
-        if (user.remainingSession <= 0) return res.status(400).json({ message: "No sessions left! Cannot make a reservation." });
- 
-        const sql = `INSERT INTO reservation_requests (idNumber, studentName, purpose, lab, pcNumber, timeIn, date, status, createdAt)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending', ?)`;
-        db.run(sql, [idNumber, studentName, purpose, lab, pcNumber, timeIn, date, createdAt], function (err) {
+        if (user.remainingSession <= 0) return res.status(400).json({ message: "No sessions left!" });
+
+        const sql = `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date) VALUES (?, ?, ?, ?, ?)`;
+        db.run(sql, [idNumber, purpose, lab, timeIn, date], function (err) {
             if (err) return res.status(500).json({ message: err.message });
-            res.json({ message: "Reservation request submitted! Please wait for admin approval." });
-        });
-    });
-});
 
-app.get("/admin/reservations", (req, res) => {
-    const sql = `SELECT * FROM reservation_requests ORDER BY id DESC`;
-    db.all(sql, [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-app.post("/admin/update-reservation", (req, res) => {
-    const { id, status } = req.body;
- 
-    if (status === 'Accepted') {
-        // First, get the reservation request details
-        db.get(`SELECT * FROM reservation_requests WHERE id = ?`, [id], (err, req_row) => {
-            if (err) return res.status(500).json({ message: "Database error" });
-            if (!req_row) return res.status(404).json({ message: "Reservation not found" });
- 
-            // Check student has sessions remaining
-            db.get(`SELECT remainingSession FROM users WHERE idNumber = ?`, [req_row.idNumber], (err, user) => {
-                if (err) return res.status(500).json({ message: "Database error" });
-                if (!user) return res.status(404).json({ message: "Student not found" });
-                if (user.remainingSession <= 0) {
-                    // Update request to Denied since no sessions left
-                    db.run(`UPDATE reservation_requests SET status = 'Denied' WHERE id = ?`, [id]);
-                    return res.status(400).json({ message: "Student has no remaining sessions. Reservation denied." });
-                }
- 
-                const timeIn = req_row.timeIn || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const date = req_row.date || new Date().toLocaleDateString('en-CA');
- 
-                // Insert into active sit-in reservations
-                const insertSql = `INSERT INTO reservations (idNumber, purpose, lab, pcNumber, timeIn, date, status) VALUES (?, ?, ?, ?, ?, ?, 'Active')`;
-                db.run(insertSql, [req_row.idNumber, req_row.purpose, req_row.lab, req_row.pcNumber, timeIn, date], function (err) {
-                    if (err) return res.status(500).json({ message: "Failed to record sit-in" });
- 
-                    // Deduct one session from student
-                    db.run(`UPDATE users SET remainingSession = remainingSession - 1 WHERE idNumber = ?`, [req_row.idNumber], (err) => {
-                        if (err) return res.status(500).json({ message: "Failed to deduct session" });
- 
-                        // Mark request as Accepted
-                        db.run(`UPDATE reservation_requests SET status = 'Accepted' WHERE id = ?`, [id], (err) => {
-                            if (err) return res.status(500).json({ message: "Failed to update request status" });
-                            res.json({ message: "Reservation accepted! Sit-in recorded and session deducted." });
-                        });
-                    });
-                });
+            db.run(`UPDATE users SET remainingSession = remainingSession - 1 WHERE idNumber = ?`, [idNumber], (err) => {
+                if (err) return res.status(500).json({ message: "Failed to deduct session" });
+                res.json({ message: "Reservation successful!" });
             });
         });
- 
-    } else if (status === 'Denied') {
-        db.run(`UPDATE reservation_requests SET status = 'Denied' WHERE id = ?`, [id], function (err) {
-            if (err) return res.status(500).json({ message: err.message });
-            if (this.changes === 0) return res.status(404).json({ message: "Reservation not found" });
-            res.json({ message: "Reservation denied." });
-        });
- 
-    } else {
-        res.status(400).json({ message: "Invalid status. Use 'Accepted' or 'Denied'." });
-    }
+    });
 });
 
 app.post("/record-final-logout", (req, res) => {
@@ -300,8 +240,8 @@ app.get("/announcements", (req, res) => {
 // Dashboard stats: registered students, current sit-ins, total sit-ins, chart data
 app.get("/admin/dashboard-data", (req, res) => {
     db.get(`SELECT COUNT(*) as count FROM users WHERE idNumber != 'Admin'`, (err, r) => {
-        db.get(`SELECT COUNT(*) as count FROM reservations WHERE (timeOut IS NULL OR timeOut = '') AND (status = 'Active' OR status IS NULL)`, (err, c) => {
-            db.get(`SELECT COUNT(*) as count FROM reservations WHERE status = 'Active' OR status IS NULL`, (err, t) => {
+        db.get(`SELECT COUNT(*) as count FROM reservations WHERE timeOut IS NULL OR timeOut = ''`, (err, c) => {
+            db.get(`SELECT COUNT(*) as count FROM reservations`, (err, t) => {
                 db.all(`SELECT purpose, COUNT(*) as count FROM reservations GROUP BY purpose`, (err, p) => {
                     res.json({
                         registered:   r?.count || 0,
@@ -372,28 +312,32 @@ app.get("/admin/reports", (req, res) => {
     const filterDate = req.query.date;
     let sql = `
         SELECT 
-            r.idNumber, u.firstName, u.lastName,
-            r.purpose, r.lab, r.pcNumber,
-            r.timeIn, r.timeOut, r.date
+            r.idNumber, 
+            u.firstName, 
+            u.lastName, 
+            r.purpose, 
+            r.lab, 
+            r.timeIn, 
+            r.timeOut, 
+            r.date 
         FROM reservations r
         JOIN users u ON r.idNumber = u.idNumber
-        WHERE (r.status = 'Active' OR r.status IS NULL)
     `;
     let params = [];
- 
+
     if (filterDate) {
-        sql += ` AND r.date = ?`;
+        sql += ` WHERE r.date = ?`;
         params.push(filterDate);
     }
- 
+
     sql += ` ORDER BY r.date DESC, r.timeIn DESC`;
- 
+
     db.all(sql, params, (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
- 
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
