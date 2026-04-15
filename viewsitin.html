@@ -61,7 +61,7 @@
             font-weight: bold;
         }
 
-        /* ── TABLE ── */
+        /* TABLE */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -78,6 +78,7 @@
             font-weight: 600;
             font-size: 14px;
             border-bottom: 2px solid #eee;
+            cursor: pointer;
         }
 
         td { 
@@ -90,7 +91,7 @@
             background: #fcfdfe; 
         }
 
-        /* ── BADGES ── */
+        /* BADGES */
         .badge { 
             padding: 4px 10px; 
             border-radius: 20px; 
@@ -110,20 +111,20 @@
 
         .badge-session { 
             background: #e9f5ff; 
-            color: #0056b3; }
+            color: #0056b3;
+        }
 
-        /* ── MODAL FORM ROW LAYOUT ── */
+        /* MODAL */
         .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             z-index: 500;
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(5px);
-            background-color: rgba(0,0,0,0.4); /* Fixed background */
+            background-color: rgba(0,0,0,0.4);
         }
 
         .modal-content {
@@ -154,7 +155,8 @@
             background: none; 
             border: none; 
             font-size: 20px; 
-            cursor: pointer; 
+            cursor: pointer;
+            color: white;
         }
 
         .modal-body { 
@@ -173,6 +175,7 @@
             color: #333; 
             font-size: 14px; 
         }
+
         .form-row input, .form-row select { 
             flex: 1; 
             padding: 10px; 
@@ -193,12 +196,15 @@
             justify-content: flex-end;
             gap: 10px;
         }
+
         .modal-footer button {
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
             font-size: 14px;
             cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
         }
 
         .btn-confirm { 
@@ -207,12 +213,12 @@
         }
 
         .btn-cancel {
-            background-color: #2c3e70; 
+            background-color: #6c757d; 
             color: white; 
         }
 
         .modal-footer button:hover {
-            background-color: #2d2d4e;
+            opacity: 0.9;
             transform: translateY(-1px);
         }
         
@@ -226,7 +232,7 @@
 
         #infoBody b { 
             color: #0056b3;
-            width: 100px; 
+            width: 120px; 
             display: inline-block; 
         }
 
@@ -234,58 +240,73 @@
             from { transform: translateY(-30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        .btn-timeout {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .btn-timeout:hover {
+            background: #c82333;
+        }
+
+        .btn-done {
+            background: #e9ecef;
+            color: #6c757d;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: not-allowed;
+            font-size: 12px;
+        }
     </style>
 <body>
 
-    <nav class="navbar">
-        <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
-        <ul class="nav-links">
-            <li><a href="admindashboard.html"><i class="fa fa-home"></i> Home</a></li>
-            <li><a href="javascript:void(0)" onclick="openSearchModal()"><i class="fa fa-search"></i> Search</a></li>
-            <li><a href="studentlist.html"><i class="fa fa-users"></i> Students</a></li>
-            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
-            <li><a href="viewsitin.html" class="active"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
-            <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
-            <li><a href="feedback.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
-            <li><a href="adminreservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
-            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
-        </ul>
-    </nav>
-
+    <!-- Search Student Modal -->
     <div id="searchModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Search Student</h2>
-                <button class="close-btn" onclick="closeModal('searchModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
+                <button class="close-btn" onclick="closeModal('searchModal')">&times;</button>
             </div>
             <div class="modal-body">
-                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px; box-sizing: border-box;">
+                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" 
+                    style="width:100%; padding:15px; font-size:15px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px;"
+                    onkeydown="if(event.key==='Enter') executeSearch()">
             </div>
             <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('searchModal')">Cancel</button>
                 <button class="btn-confirm" onclick="executeSearch()">Search</button>
             </div>
         </div>
     </div>
 
+    <!-- Student Info Modal -->
     <div id="studentInfoModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Student Information</h2>
-                <button class="close-btn" onclick="closeModal('studentInfoModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
+                <button class="close-btn" onclick="closeModal('studentInfoModal')">&times;</button>
             </div>
-            <div class="modal-body" id="infoBody">
-                </div>
+            <div class="modal-body" id="infoBody"></div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal('studentInfoModal')">Close</button>
             </div>
         </div>
     </div>
 
+    <!-- Confirm Sit-In Modal -->
     <div id="genericSitInModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Confirm Sit-In for <span id="displayStudentName">Student</span></h2>
-                <button class="close-btn" onclick="closeModal('genericSitInModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
+                <h2>Confirm Sit-In for Student</h2>
+                <button class="close-btn" onclick="closeModal('genericSitInModal')">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-row">
@@ -327,19 +348,37 @@
         </div>
     </div>
 
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
+        <ul class="nav-links">
+            <li><a href="admindashboard.html"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="javascript:void(0)" onclick="openSearchModal()"><i class="fa fa-search"></i> Search</a></li>
+            <li><a href="studentlist.html"><i class="fa fa-users"></i> Students</a></li>
+            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
+            <li><a href="viewsitin.html" class="active"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
+            <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+            <li><a href="feedback.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+            <li><a href="adminreservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Table -->
     <div class="page-wrapper">
-
         <div class="table-card">
-
             <center><h1 style="margin-bottom: 20px;">Current Sit-in Sessions</h1></center>
 
             <div class="table-controls">
                 <div style="display:flex; gap:10px; align-items:center;">
                     <div class="entries-control">
-                        Show <select id="entriesSelect" onchange="changeEntries()">
+                        Show 
+                        <select id="entriesSelect" onchange="changeEntries()">
                             <option value="10">10</option>
                             <option value="25">25</option>
-                        </select> entries
+                            <option value="50">50</option>
+                        </select> 
+                        entries
                     </div>
                     <button class="btn-refresh" onclick="fetchSitIns()">🔄 Refresh</button>
                 </div>
@@ -351,46 +390,50 @@
             <table id="sitInTable">
                 <thead>
                     <tr>
-                        <th onclick="sortTable(0)">Sit ID <span class="sort-icon">▲</span></th>
-                        <th onclick="sortTable(1)">ID Number <span class="sort-icon">⇅</span></th>
-                        <th onclick="sortTable(2)">Name <span class="sort-icon">⇅</span></th>
-                        <th onclick="sortTable(3)">Purpose <span class="sort-icon">⇅</span></th>
-                        <th onclick="sortTable(4)">Lab <span class="sort-icon">⇅</span></th>
-                        <th onclick="sortTable(5)">Session <span class="sort-icon">⇅</span></th>
-                        <th onclick="sortTable(6)">Status <span class="sort-icon">⇅</span></th>
+                        <th onclick="sortTable(0)">Sit ID <span>▲</span></th>
+                        <th onclick="sortTable(1)">ID Number <span>⇅</span></th>
+                        <th onclick="sortTable(2)">Name <span>⇅</span></th>
+                        <th onclick="sortTable(3)">Purpose <span>⇅</span></th>
+                        <th onclick="sortTable(4)">Lab <span>⇅</span></th>
+                        <th onclick="sortTable(5)">Time In <span>⇅</span></th>
+                        <th onclick="sortTable(6)">Session <span>⇅</span></th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="sitInTableBody">
-                    <tr class="empty-row"><td colspan="8">Loading sit-in records...</td></tr>
+                    <tr class="empty-row"><td colspan="9">Loading sit-in records...</td></tr>
                 </tbody>
             </table>
 
             <div class="pagination-row" style="display:flex; justify-content:space-between; margin-top:20px; font-size:13px;">
                 <div id="paginationInfo"></div>
-                <div id="paginationBtns" class="pagination-btns"></div>
+                <div id="paginationBtns"></div>
             </div>
         </div>
     </div>
+
 <script>
     let allRecords = [];
     let filteredRecords = [];
     let currentPage = 1;
     let entriesPerPage = 10;
 
-    // --- 1. DATA FETCHING ---
+    // ─── 1. FETCH ALL ACTIVE SIT-INS ───
     async function fetchSitIns() {
         const tbody = document.getElementById('sitInTableBody');
-        tbody.innerHTML = `<tr><td colspan="8">Loading sit-in records...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">Loading sit-in records...</td></tr>`;
         try {
             const res = await fetch('http://localhost:3000/get-sitin');
+            if (!res.ok) throw new Error('Server error');
             allRecords = await res.json();
             applySearch();
         } catch (e) {
-            tbody.innerHTML = `<tr><td colspan="8" style="color:red;">Server error. Please check your connection.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" style="color:red; text-align:center;">Server error. Please check your connection.</td></tr>`;
         }
     }
 
+    // ─── 2. MODAL HELPERS ───
     function openModal(id) { 
         const modal = document.getElementById(id);
         if (modal) modal.style.display = 'flex'; 
@@ -401,7 +444,7 @@
         if (modal) modal.style.display = 'none'; 
     }
 
-
+    // ─── 3. SEARCH STUDENT MODAL ───
     function openSearchModal() { 
         openModal('searchModal'); 
         document.getElementById('modalSearchInput').value = "";
@@ -410,55 +453,50 @@
 
     async function executeSearch() {
         const id = document.getElementById('modalSearchInput').value.trim();
-        if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
+        if (!id) return Swal.fire('Error', 'Please enter an ID number.', 'error');
 
         try {
-            // NOTE: Ensure this endpoint matches your backend (usually /get-student/ID)
             const res = await fetch(`http://localhost:3000/get-student/${id}`);
             const data = await res.json();
 
             if (res.ok) {
                 closeModal('searchModal');
-                const infoBody = document.getElementById('infoBody');
-                infoBody.innerHTML = `
-                    <div style="text-align:left; line-height:1.6;">
+                document.getElementById('infoBody').innerHTML = `
+                    <div style="text-align:left; line-height:1.8;">
                         <p><b>ID Number:</b> ${data.idNumber}</p>
                         <p><b>Name:</b> ${data.firstName} ${data.lastName}</p>
                         <p><b>Course:</b> ${data.course || 'N/A'}</p>
                         <p><b>Email:</b> ${data.email || 'N/A'}</p>
-                        <p><b>Year:</b> ${data.yearLevel || 'N/A'}</p>
+                        <p><b>Year Level:</b> ${data.yearLevel || 'N/A'}</p>
                         <p><b>Address:</b> ${data.address || 'N/A'}</p>
                         <p><b>Sessions Left:</b> <span class="badge badge-session">${data.remainingSession ?? 30}</span></p>
                     </div>
                 `;
                 openModal('studentInfoModal');
             } else {
-                Swal.fire('Oops!', 'Student not found.', 'warning');
+                Swal.fire('Not Found', 'Student not found.', 'warning');
             }
         } catch (e) { 
-            Swal.fire('Error', 'Server Error. Check if your backend is running.', 'error'); 
+            Swal.fire('Error', 'Server error. Check if your backend is running.', 'error'); 
         }
     }
 
-// --- Updated Generic Sit-In Logic ---
+    // ─── 4. SIT-IN MODAL ───
     function openGenericSitInForm() { 
-        // Clear previous inputs when opening a blank form
         document.getElementById('genIdNumber').value = "";
         document.getElementById('genFullName').value = "";
-        document.getElementById('genLab').value = "524"; // Default value for dropdown
+        document.getElementById('genPurpose').value = "C Programming";
+        document.getElementById('genLab').value = "524";
         document.getElementById('genRemaining').value = "";
         openModal('genericSitInModal'); 
     }
 
-    // NEW: Auto-fill function to show Name and Sessions as you type the ID
+    // Auto-fill student name and sessions as admin types ID
     async function autoFillStudent() {
-        const idInput = document.getElementById('genIdNumber');
+        const idNumber = document.getElementById('genIdNumber').value.trim();
         const nameInput = document.getElementById('genFullName');
         const sessionInput = document.getElementById('genRemaining');
-        
-        const idNumber = idInput.value.trim();
 
-        // LIVE CLEAR: If the user backspaces and the field is empty, clear everything
         if (idNumber === "") {
             nameInput.value = "";
             sessionInput.value = "";
@@ -466,57 +504,97 @@
         }
 
         try {
-            // Fetch from your server.js endpoint
             const res = await fetch(`http://localhost:3000/get-student/${idNumber}`);
-            
             if (res.ok) {
                 const data = await res.json();
-                // LIVE MATCH: If a student is found, display details
                 nameInput.value = `${data.firstName} ${data.lastName}`;
                 sessionInput.value = data.remainingSession ?? 30;
             } else {
-                // LIVE DISAPPEAR: If the ID is partial or wrong, keep fields empty
                 nameInput.value = "";
                 sessionInput.value = "";
             }
         } catch (e) {
-            // We stay silent during live typing to avoid error popups for every keystroke
-            console.error("Live search error:", e);
+            console.error("Auto-fill error:", e);
         }
     }
 
+    // Submit the sit-in form
     async function submitGenericSitIn() {
-        const payload = {
-            idNumber: document.getElementById('genIdNumber').value.trim(),
-            purpose: document.getElementById('genPurpose').value,
-            lab: document.getElementById('genLab').value // Now pulls from your <select>
-        };
+        const idNumber = document.getElementById('genIdNumber').value.trim();
+        const purpose  = document.getElementById('genPurpose').value;
+        const lab      = document.getElementById('genLab').value;
+        const sessions = document.getElementById('genRemaining').value;
 
-        if (!payload.idNumber || !payload.lab) {
-            return Swal.fire('Warning', 'ID Number and Lab are required.', 'warning');
-        }
+        if (!idNumber) return Swal.fire('Warning', 'Please enter a student ID number.', 'warning');
+        if (!sessions) return Swal.fire('Warning', 'Student not found. Please enter a valid ID.', 'warning');
+        if (parseInt(sessions) <= 0) return Swal.fire('No Sessions', 'This student has no remaining sessions.', 'error');
 
         try {
             const res = await fetch('http://localhost:3000/sit-in', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ idNumber, purpose, lab })
             });
 
             if (res.ok) {
-                Swal.fire({ icon: 'success', title: 'Sit-in recorded!', timer: 1500, showConfirmButton: false });
+                await Swal.fire({ 
+                    icon: 'success', 
+                    title: 'Sit-in Recorded!', 
+                    text: 'Student has been logged in successfully.',
+                    timer: 1800, 
+                    showConfirmButton: false 
+                });
                 closeModal('genericSitInModal');
-                fetchSitIns(); // Refresh the table
+                fetchSitIns(); // Refresh table
             } else {
                 const txt = await res.text();
                 Swal.fire('Error', txt, 'error');
             }
         } catch (e) { 
-            Swal.fire('Error', 'Connection failed.', 'error'); 
+            Swal.fire('Error', 'Connection failed. Is the server running?', 'error'); 
         }
     }
 
-    // --- 4. TABLE CONTROLS & PAGINATION ---
+    // ─── 5. TIME OUT ───
+    async function timeOut(idNumber, sitInId) {
+        const result = await Swal.fire({
+            title: 'Time Out Student?',
+            text: `This will record the logout time for ID: ${idNumber}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Time Out',
+            cancelButtonText: 'Cancel'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            const res = await fetch(`http://localhost:3000/time-out/${sitInId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (res.ok) {
+                await Swal.fire({ 
+                    icon: 'success', 
+                    title: 'Timed Out!', 
+                    text: 'Student has been logged out.',
+                    timer: 1500, 
+                    showConfirmButton: false 
+                });
+                fetchSitIns(); // Refresh table
+            } else {
+                const txt = await res.text();
+                Swal.fire('Error', txt, 'error');
+            }
+        } catch (e) {
+            Swal.fire('Error', 'Connection failed. Is the server running?', 'error');
+        }
+    }
+
+    // ─── 6. TABLE RENDERING ───
     function applySearch() {
         const val = document.getElementById('searchInput').value.toLowerCase();
         filteredRecords = allRecords.filter(r => 
@@ -538,27 +616,36 @@
         const pageData = filteredRecords.slice(start, start + entriesPerPage);
 
         if (pageData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">No records found.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#888; padding:30px;">No active sit-in records found.</td></tr>`;
+            document.getElementById('paginationInfo').textContent = '';
             updatePagination(0);
             return;
         }
 
         tbody.innerHTML = pageData.map(r => {
             const sessions = r.remainingSession ?? 30;
-            const isActive = !r.timeOut && !r.time_out;
-            const currentSitId = r.sitInId ?? r.id;
+            const isActive = !r.timeOut || r.timeOut === '';
+            const sitInId  = r.id;
+
             return `<tr>
-                <td>${currentSitId ?? '—'}</td>
+                <td>${sitInId ?? '—'}</td>
                 <td>${r.idNumber}</td>
                 <td>${r.firstName ?? ''} ${r.lastName ?? ''}</td>
                 <td>${r.purpose}</td>
                 <td>${r.lab}</td>
+                <td>${r.timeIn ?? '—'}</td>
                 <td><span class="badge badge-session">${sessions}</span></td>
-                <td>${isActive ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-timeout">Timed Out</span>'}</td>
                 <td>
-                    ${isActive ? 
-                        `<button onclick="timeOut('${r.idNumber}', '${currentSitId}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Time Out</button>` : 
-                        `<button disabled style="padding:5px 10px; border-radius:4px; cursor:not-allowed;">Done</button>`}
+                    ${isActive 
+                        ? '<span class="badge badge-active">Active</span>' 
+                        : '<span class="badge badge-timeout">Timed Out</span>'}
+                </td>
+                <td>
+                    ${isActive 
+                        ? `<button class="btn-timeout" onclick="timeOut('${r.idNumber}', '${sitInId}')">
+                               <i class="fa fa-sign-out"></i> Time Out
+                           </button>` 
+                        : `<button class="btn-done" disabled>Done</button>`}
                 </td>
             </tr>`;
         }).join('');
@@ -574,7 +661,15 @@
         const container = document.getElementById('paginationBtns');
         let html = '';
         for (let i = 1; i <= totalPages; i++) {
-            html += `<button onclick="goToPage(${i})" style="margin: 0 2px; padding: 5px 10px; cursor:pointer; background: ${i === currentPage ? '#0056b3' : '#fff'}; color: ${i === currentPage ? '#fff' : '#000'}; border: 1px solid #ddd;">${i}</button>`;
+            html += `<button onclick="goToPage(${i})" style="
+                margin: 0 2px; 
+                padding: 5px 10px; 
+                cursor: pointer; 
+                background: ${i === currentPage ? '#0056b3' : '#fff'}; 
+                color: ${i === currentPage ? '#fff' : '#000'}; 
+                border: 1px solid #ddd;
+                border-radius: 3px;
+            ">${i}</button>`;
         }
         container.innerHTML = html;
     }
@@ -585,16 +680,17 @@
     }
 
     function sortTable(n) {
-        const keyMap = ['id', 'idNumber', 'lastName', 'purpose', 'lab', 'remainingSession', 'timeOut'];
+        const keyMap = ['id', 'idNumber', 'lastName', 'purpose', 'lab', 'timeIn', 'remainingSession'];
         const key = keyMap[n];
         filteredRecords.sort((a, b) => {
-            let valA = a[key] || '';
-            let valB = b[key] || '';
-            return valA.toString().localeCompare(valB.toString(), undefined, {numeric: true});
+            let valA = a[key] ?? '';
+            let valB = b[key] ?? '';
+            return valA.toString().localeCompare(valB.toString(), undefined, { numeric: true });
         });
         renderTable();
     }
 
+    // ─── 7. LOGOUT ───
     function logout() {
         Swal.fire({
             title: 'Logout Admin?',
@@ -603,17 +699,17 @@
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, logout admin!',
+            confirmButtonText: 'Yes, logout!',
             cancelButtonText: 'Stay logged in'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Clear admin session data
                 sessionStorage.removeItem("adminWelcomeShown");
                 window.location.href = "index.html";
             }
         });
     }
 
+    // ─── INIT ───
     window.onload = fetchSitIns;
 </script>
 </body>

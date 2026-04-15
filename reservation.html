@@ -103,6 +103,21 @@
     .mt-20 { 
         margin-top: 15px; 
     }
+
+    /* Pending notice banner */
+    .pending-notice {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        color: #856404;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .pending-notice i { font-size: 18px; }
 </style>
 </head>
 <body>
@@ -123,14 +138,22 @@
 
             <div class="card-header"><i class="fa-solid fa-calendar-check"></i> <span>Reservation</span></div>
 
+            <div class="pending-notice">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>
+                    Your reservation will be sent to the admin for approval.
+                    Your session will only be deducted once the admin <strong>accepts</strong> your request.
+                </span>
+            </div>
+
             <div id="reservationForm">
                 <div class="input-group">
                     <label style="font-size: 15px;"><i class="fa-solid fa-id-card"></i> ID Number:</label>
-                    <input type="text" id="res-id" placeholder="Your ID Number">
+                    <input type="text" id="res-id" placeholder="Your ID Number" readonly>
                 </div>
                 <div class="input-group">
                     <label style="font-size: 15px;"><i class="fa-solid fa-user"></i> Student Name:</label>
-                    <input type="text" id="res-name" placeholder="Student Name">
+                    <input type="text" id="res-name" placeholder="Student Name" readonly>
                 </div>
                 
                 <div class="input-group" style="margin-top: 40px;">
@@ -173,10 +196,10 @@
                 </div>
                 <div class="input-group">
                     <label style="font-size: 15px;"><i class="fa-solid fa-hourglass-half"></i> Remaining Session:</label>
-                    <input type="text" id="res-sessions" value=" ">
+                    <input type="text" id="res-sessions" readonly>
                 </div>
 
-                <button type="button" id="finalReserveBtn" class="reserve-button" onclick="handleReservation(event)">Reserve</button>
+                <button type="button" id="finalReserveBtn" class="reserve-button" onclick="handleReservation(event)"><i class="fa-solid fa-paper-plane"></i> Reserve</button>
 
             </div>
         </div>
@@ -186,30 +209,27 @@
 
     function generatePCGrid() {
         const pcContainer = document.getElementById('pc-selection-container');
-        const pcGrid = document.getElementById('pc-grid');
-        const labSelect = document.getElementById('res-lab');
-
+        const pcGrid      = document.getElementById('pc-grid');
+        const labSelect   = document.getElementById('res-lab');
+ 
         if (labSelect.value) {
             pcContainer.style.display = 'block';
             pcGrid.innerHTML = '';
             document.getElementById("res-pc-number").value = "";
-
+ 
             for (let i = 1; i <= 45; i++) {
                 const btn = document.createElement('button');
-                btn.type = 'button';
+                btn.type      = 'button';
                 btn.innerText = `PC${i}`;
-                // Enhanced CSS for better look
                 btn.style.cssText = "padding: 8px 5px; font-size: 12px; cursor: pointer; border: 1px solid #ddd; border-radius: 6px; background: #fff; transition: 0.2s;";
                 
-                btn.onclick = function() {
-
+                btn.onclick = function () {
                     document.querySelectorAll('#pc-grid button').forEach(b => {
                         b.style.background = '#fff';
-                        b.style.color = '#000';
+                        b.style.color      = '#000';
                     });
-
                     this.style.background = '#1cc88a';
-                    this.style.color = 'white';
+                    this.style.color      = 'white';
                     document.getElementById('res-pc-number').value = `PC${i}`;
                 };
                 
@@ -219,48 +239,64 @@
             pcContainer.style.display = 'none';
         }
     }
-
-    // 2. Listen for Lab Changes
+ 
     document.getElementById('res-lab').addEventListener('change', generatePCGrid);
 
     async function handleReservation(e) {
         if (e) e.preventDefault();
-
+ 
         const reservationData = {
-            idNumber: document.getElementById("res-id").value,
-            studentName: document.getElementById("res-name").value,
-            purpose:  document.getElementById("res-purpose").value,
-            lab:      document.getElementById("res-lab").value,
-            pcNumber: document.getElementById("res-pc-number").value,
-            timeIn:   document.getElementById("res-time").value,
-            date:     document.getElementById("res-date").value,
+            idNumber:         document.getElementById("res-id").value.trim(),
+            studentName:      document.getElementById("res-name").value.trim(),
+            purpose:          document.getElementById("res-purpose").value,
+            lab:              document.getElementById("res-lab").value,
+            pcNumber:         document.getElementById("res-pc-number").value,
+            timeIn:           document.getElementById("res-time").value,
+            date:             document.getElementById("res-date").value,
             remainingSession: document.getElementById("res-sessions").value
         };
-
+ 
+        // Validations
         if (!reservationData.pcNumber) {
-            Swal.fire('Wait!', 'Please select a workstation (PC1-PC45).', 'warning');
+            Swal.fire('Wait!', 'Please select a workstation (PC1–PC45).', 'warning');
             return;
         }
-
         if (!reservationData.purpose || !reservationData.lab || !reservationData.timeIn || !reservationData.date) {
             Swal.fire('Wait!', 'Please fill in all the reservation details.', 'warning');
-            return; 
+            return;
         }
-
+ 
+        // Confirm before submitting
+        const { isConfirmed } = await Swal.fire({
+            title: 'Submit Reservation?',
+            html: `
+                <b>Lab:</b> ${reservationData.lab} &nbsp; <b>PC:</b> ${reservationData.pcNumber}<br>
+                <b>Purpose:</b> ${reservationData.purpose}<br>
+                <b>Date:</b> ${reservationData.date} &nbsp; <b>Time:</b> ${reservationData.timeIn}<br><br>
+                <small style="color:#856404">⚠️ Your session will only be deducted after admin approval.</small>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            confirmButtonText: 'Yes, Submit!'
+        });
+ 
+        if (!isConfirmed) return;
+ 
         try {
             const response = await fetch("http://localhost:3000/make-reservation", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(reservationData)
             });
-
+ 
             const resultData = await response.json();
-
+ 
             if (response.ok) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Reserved!',
-                    text: 'Your reservation has been recorded successfully.',
+                    title: 'Request Submitted!',
+                    html: 'Your reservation request is now <b>Pending</b>.<br>The admin will review and approve it shortly.',
                     confirmButtonColor: '#0056b3',
                     confirmButtonText: 'OK'
                 }).then((result) => {
@@ -269,8 +305,7 @@
                     }
                 });
             } else {
-
-                Swal.fire('Error', resultData.message || 'Could not save reservation. Try again.', 'error');
+                Swal.fire('Error', resultData.message || 'Could not submit reservation. Try again.', 'error');
             }
         } catch (error) {
             console.error("Fetch error:", error);
@@ -289,7 +324,7 @@
             confirmButtonColor: '#0056b3',
             confirmButtonText: 'Yes, Logout!'
         });
-
+ 
         if (isConfirmed) {
             try {
                 await fetch("http://localhost:3000/record-final-logout", {
@@ -297,33 +332,31 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ idNumber: studentId })
                 });
-                localStorage.clear();
-                window.location.href = 'index.html';
-            } catch (err) {
-                localStorage.clear();
-                window.location.href = 'index.html';
-            }
+            } catch (err) { /* silent */ }
+            localStorage.clear();
+            window.location.href = 'index.html';
         }
     }
-
+ 
     document.addEventListener("DOMContentLoaded", async () => {
         const idNumber = localStorage.getItem("loggedInId");
         if (!idNumber) {
             window.location.href = "index.html";
             return;
         }
-
+ 
         try {
             const res = await fetch(`http://localhost:3000/student/${idNumber}`);
             if (res.ok) {
                 const user = await res.json();
-                document.getElementById("res-id").value = user.idNumber || "";
-                document.getElementById("res-name").value = `${user.firstName} ${user.lastName}`;
-                document.getElementById("res-sessions").value = user.remainingSession || 0;
+                document.getElementById("res-id").value       = user.idNumber || "";
+                document.getElementById("res-name").value     = `${user.firstName} ${user.lastName}`;
+                document.getElementById("res-sessions").value = user.remainingSession ?? 0;
             }
         } catch (err) {
             console.error("Error fetching student data:", err);
         }
+ 
     });
 </script>
 </body>

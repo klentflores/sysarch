@@ -15,7 +15,6 @@
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             z-index: 500;
             justify-content: center;
             align-items: center;
@@ -41,48 +40,18 @@
             align-items: center;
         }
 
-        .modal-header h2 { 
-            font-size: 20px; 
-            color: white; 
-            margin: 0; 
-        }
-        
-        .close-btn { 
-            background: none; 
-            border: none; 
-            font-size: 20px; 
-            cursor: pointer; 
-        }
+        .modal-header h2 { font-size: 20px; color: white; margin: 0; }
+        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
+        .modal-body { padding: 25px; }
 
-        .modal-body { 
-            padding: 25px;
-        }
-
-        .form-row { 
-            display: flex; 
-            margin-bottom: 15px; 
-            align-items: center; 
-        }
-
-        .form-row label { 
-            width: 150px; 
-            font-weight: bold; 
-            color: #333; 
-            font-size: 14px;
-            
-        }
+        .form-row { display: flex; margin-bottom: 15px; align-items: center; }
+        .form-row label { width: 150px; font-weight: bold; color: #333; font-size: 14px; }
         .form-row input, .form-row select { 
-            flex: 1; 
-            padding: 10px; 
-            border: 1px solid #ccc; 
-            border-radius: 5px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            flex: 1; padding: 10px; border: 1px solid #ccc; 
+            border-radius: 5px; font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        input[readonly] { 
-            background: #eee; 
-            cursor: not-allowed; 
-        }
+        input[readonly] { background: #eee; cursor: not-allowed; }
 
         .modal-footer {
             padding: 12px;
@@ -92,36 +61,14 @@
             gap: 10px;
         }
         .modal-footer button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 13px;
-            cursor: pointer;
+            padding: 10px 20px; border: none; border-radius: 5px;
+            font-size: 13px; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
         }
 
-        .btn-confirm { 
-            background-color: #2c3e70; 
-            color: #fff; 
-            font-weight: 700;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        .btn-confirm:hover {
-            background: #2d2d4e;
-            transform: translateY(-1px);
-        }
-
-        .btn-cancel {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #2c3e70;
-            font-weight: 700; 
-            color: white; 
-        }
-
-        .btn-cancel:hover {
-            background: #2d2d4e;
-            transform: translateY(-1px);
-        }
+        .btn-confirm { background-color: #2c3e70; color: #fff; }
+        .btn-confirm:hover { background: #2d2d4e; transform: translateY(-1px); }
+        .btn-cancel { background-color: #6c757d; color: white; }
+        .btn-cancel:hover { background: #5a6268; transform: translateY(-1px); }
 
         @keyframes slideDown {
             from { transform: translateY(-50px); opacity: 0; }
@@ -129,22 +76,16 @@
         }
 
         #infoBody p { 
-            margin: 10px 0; 
-            font-size: 14px; 
-            border-bottom: 1px solid #eee; 
-            padding-bottom: 5px;
+            margin: 10px 0; font-size: 14px; 
+            border-bottom: 1px solid #eee; padding-bottom: 5px;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
+        #infoBody b { color: #0056b3; width: 120px; display: inline-block; }
 
-        #infoBody b { 
-            color: #0056b3; 
-            width: 100px; 
-            display: inline-block; 
-        }
-
+        /* ── Main Layout ── */
         .reservation-grid {
             display: grid;
-            grid-template-columns: 250px 1fr 1fr;
+            grid-template-columns: 220px 1fr 1fr;
             gap: 20px;
             padding: 30px;
             max-width: 1400px;
@@ -168,88 +109,125 @@
             padding: 15px;
             text-align: center;
             font-weight: 600;
+            font-size: 15px;
         }
 
-        .panel-body {
-            padding: 20px;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
+        .panel-body { padding: 15px; overflow-y: auto; flex-grow: 1; }
 
-        /* Computer Control Styles */
-        .control-group { margin-bottom: 20px; }
-        .control-group label { display: block; margin-bottom: 5px; font-size: 14px; }
-        .control-group select, .control-group input { 
-            width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; 
-        }
+        /* Computer Control */
+        .control-group { margin-bottom: 15px; }
+        .control-group label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 600; }
+        .control-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
 
         .btn-filter {
             width: 100%; background: #007bff; color: white; border: none;
-            padding: 10px; border-radius: 5px; cursor: pointer;
+            padding: 10px; border-radius: 5px; cursor: pointer; font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
+        .btn-filter:hover { background: #0056b3; }
 
         .status-legend {
-            display: flex; gap: 10px; margin-top: 20px; justify-content: center;
+            display: flex; gap: 10px; margin-top: 15px; justify-content: center;
         }
-
         .badge-avail { background: #28a745; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
-        .badge-used { background: #dc3545; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
+        .badge-used  { background: #dc3545; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
 
-        /* Request Card Styles */
+        /* Request Cards */
         .res-card {
-            border: 1px solid #eee;
-            padding: 15px;
+            border: 1px solid #e0e0e0;
+            padding: 14px;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
+            background: #fafafa;
         }
-        .res-card p { margin: 5px 0; font-size: 14px; }
-        .action-btns { display: flex; gap: 10px; margin-top: 10px; }
+        .res-card p { margin: 5px 0; font-size: 13px; color: #333; }
+        .res-card p b { color: #2c3e70; }
+        .action-btns { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-accept { 
+            background: #28a745; color: white; border: none; 
+            padding: 6px 16px; border-radius: 5px; cursor: pointer; font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .btn-accept:hover { background: #218838; }
+        .btn-deny { 
+            background: #dc3545; color: white; border: none; 
+            padding: 6px 16px; border-radius: 5px; cursor: pointer; font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .btn-deny:hover { background: #c82333; }
 
-        .btn-accept { background: #28a745; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; }
-        .btn-deny { background: #dc3545; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; }
+        /* Log Entries */
+        .log-entry { 
+            font-size: 13px; padding: 12px 0; 
+            border-bottom: 1px solid #eee; color: #333;
+        }
+        .log-entry p { margin: 4px 0; }
+        .log-entry b { color: #2c3e70; }
 
-        /* Log Styles */
-        .log-entry { font-size: 13px; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .status-pending { color: #856404; font-weight: bold; }
-        .status-accepted { color: #155724; font-weight: bold; }
+        .status-pending  { color: #856404; font-weight: bold; background: #fff3cd; padding: 2px 8px; border-radius: 4px; }
+        .status-accepted { color: #155724; font-weight: bold; background: #d4edda; padding: 2px 8px; border-radius: 4px; }
+        .status-denied   { color: #721c24; font-weight: bold; background: #f8d7da; padding: 2px 8px; border-radius: 4px; }
+
+        .empty-state {
+            text-align: center; color: #aaa; margin-top: 40px; font-size: 14px;
+        }
+        .empty-state i { font-size: 36px; display: block; margin-bottom: 10px; }
+
+        /* Refresh button */
+        .btn-refresh {
+            width: 100%; background: #6c757d; color: white; border: none;
+            padding: 8px; border-radius: 5px; cursor: pointer; font-size: 13px;
+            font-family: 'Plus Jakarta Sans', sans-serif; margin-top: 8px;
+        }
+        .btn-refresh:hover { background: #5a6268; }
+
+        .panel-count {
+            font-size: 11px; opacity: 0.8; margin-left: 6px;
+            background: rgba(255,255,255,0.25); padding: 1px 7px; border-radius: 10px;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Search Modal -->
     <div id="searchModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Search Student</h2>
-                <button class="close-btn" onclick="closeModal('searchModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
+                <h2><i class="fa fa-search"></i> Search Student</h2>
+                <button class="close-btn" onclick="closeModal('searchModal')" style="color:white;">&times;</button>
             </div>
             <div class="modal-body">
-                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px; box-sizing: border-box;">
+                <input type="text" id="modalSearchInput" placeholder="Enter ID Number"
+                    style="width:100%; padding:15px; font-size:15px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px;"
+                    onkeydown="if(event.key==='Enter') executeSearch(event)">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-confirm" onclick="executeSearch(event)">Search</button>
+                <button class="btn-cancel" onclick="closeModal('searchModal')">Cancel</button>
+                <button class="btn-confirm" onclick="executeSearch(event)">Search</button>
             </div>
         </div>
     </div>
 
+    <!-- Student Info Modal -->
     <div id="studentInfoModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Student Information</h2>
-                <button class="close-btn" onclick="closeModal('studentInfoModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
+                <h2><i class="fa fa-user"></i> Student Information</h2>
+                <button class="close-btn" onclick="closeModal('studentInfoModal')" style="color:white;">&times;</button>
             </div>
-            <div class="modal-body" id="infoBody">
-                </div>
+            <div class="modal-body" id="infoBody"></div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal('studentInfoModal')">Close</button>
             </div>
         </div>
     </div>
 
+    <!-- Generic Sit-In Modal -->
     <div id="genericSitInModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Confirm Sit-In for <span id="displayStudentName">Student</span></h2>
-                <button class="close-btn" onclick="closeModal('genericSitInModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
+                <h2><i class="fa fa-laptop"></i> Confirm Sit-In</h2>
+                <button class="close-btn" onclick="closeModal('genericSitInModal')" style="color:white;">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-row">
@@ -285,12 +263,13 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-cancel" onclick="closeModal('genericSitInModal')">Cancel</button>
-                <button type="button" class="btn-confirm" onclick="submitGenericSitIn(event)">Confirm Sit-In</button>
+                <button class="btn-cancel" onclick="closeModal('genericSitInModal')">Cancel</button>
+                <button class="btn-confirm" onclick="submitGenericSitIn(event)">Confirm Sit-In</button>
             </div>
         </div>
     </div>
 
+    <!-- Navbar -->
     <nav class="navbar">
         <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
         <ul class="nav-links">
@@ -306,12 +285,15 @@
         </ul>
     </nav>
 
+    <!-- Main Grid -->
     <div class="reservation-grid">
+
+        <!-- Panel 1: Computer Control -->
         <div class="panel">
             <div class="panel-header">Computer Control</div>
             <div class="panel-body">
                 <div class="control-group">
-                    <center><label>Lab</label></center>
+                    <label>Lab</label>
                     <select id="labFilter">
                         <option value="524">524</option>
                         <option value="525">525</option>
@@ -320,7 +302,12 @@
                         <option value="528">528</option>
                     </select>
                 </div>
-                <button class="btn-filter" onclick="fetchReservations()">Filter</button>
+                <button class="btn-filter" onclick="fetchReservations()">
+                    <i class="fa fa-filter"></i> Filter
+                </button>
+                <button class="btn-refresh" onclick="fetchReservations()">
+                    <i class="fa fa-refresh"></i> Refresh
+                </button>
                 <div class="status-legend">
                     <span class="badge-avail">Available</span>
                     <span class="badge-used">Used</span>
@@ -328,50 +315,55 @@
             </div>
         </div>
 
+        <!-- Panel 2: Reservation Requests (Pending) -->
         <div class="panel">
-            <div class="panel-header">Reservation Request</div>
-            <div id="requestBody" class="panel-body">
-                </div>
+            <div class="panel-header">
+                Reservation Request
+                <span class="panel-count" id="pendingCount">0</span>
+            </div>
+            <div id="requestBody" class="panel-body"></div>
         </div>
 
+        <!-- Panel 3: Logs (All) -->
         <div class="panel">
-            <div class="panel-header">Logs</div>
-            <div id="logBody" class="panel-body">
-                </div>
+            <div class="panel-header">
+                Logs
+                <span class="panel-count" id="logCount">0</span>
+            </div>
+            <div id="logBody" class="panel-body"></div>
         </div>
+
     </div>
 
 <script>
 
-    function openModal(modalId) { document.getElementById(modalId).style.display = 'flex'; }
-    function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+    function openModal(id)  { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // --- Search Logic (New Flow) ---
-    function openSearchModal() { openModal('searchModal'); document.getElementById('modalSearchInput').focus(); }
-    
+    // ── Search ──────────────────────────────────────────────
+    function openSearchModal() {
+        openModal('searchModal');
+        document.getElementById('modalSearchInput').focus();
+    }
+
     async function executeSearch(event) {
-
         if (event) event.preventDefault();
-
         const id = document.getElementById('modalSearchInput').value.trim();
         if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
 
         try {
-            const res = await fetch(`http://localhost:3000/student/${id}`);
+            const res  = await fetch(`http://localhost:3000/student/${id}`);
             const data = await res.json();
-
             if (res.ok) {
                 closeModal('searchModal');
-                
-                const infoBody = document.getElementById('infoBody');
-                infoBody.innerHTML = `
+                document.getElementById('infoBody').innerHTML = `
                     <p><b>ID Number:</b> ${data.idNumber}</p>
                     <p><b>Name:</b> ${data.firstName} ${data.lastName}</p>
                     <p><b>Course:</b> ${data.course || 'N/A'}</p>
                     <p><b>Email:</b> ${data.email || 'N/A'}</p>
                     <p><b>Year:</b> ${data.yearLevel || 'N/A'}</p>
                     <p><b>Address:</b> ${data.address || 'N/A'}</p>
-                    <p><b>Sessions Left:</b> <span class="badge badge-session">${data.remainingSession ?? 30}</span></p>
+                    <p><b>Sessions Left:</b> <strong style="color:#28a745">${data.remainingSession ?? 30}</strong></p>
                 `;
                 openModal('studentInfoModal');
             } else {
@@ -380,162 +372,184 @@
         } catch (e) { Swal.fire('Error', 'Server Error', 'error'); }
     }
 
-    // --- Generic Sit-In Logic (Matches Image) ---
-    function openGenericSitInForm() { 
-        // Clear previous inputs when opening a blank form
-        document.getElementById('genIdNumber').value = "";
-        document.getElementById('genFullName').value = "";
-        document.getElementById('genLab').value = "524"; // Default value for dropdown
+    // ── Generic Sit-In (Admin) ───────────────────────────────
+    function openGenericSitInForm() {
+        document.getElementById('genIdNumber').value  = "";
+        document.getElementById('genFullName').value  = "";
+        document.getElementById('genLab').value       = "524";
         document.getElementById('genRemaining').value = "";
-        openModal('genericSitInModal'); 
+        openModal('genericSitInModal');
     }
 
-    // NEW: Auto-fill function to show Name and Sessions as you type the ID
     async function autoFillStudent() {
-        const idInput = document.getElementById('genIdNumber');
-        const nameInput = document.getElementById('genFullName');
-        const sessionInput = document.getElementById('genRemaining');
-        
-        const idNumber = idInput.value.trim();
-
-        // LIVE CLEAR: If the user backspaces and the field is empty, clear everything
-        if (idNumber === "") {
-            nameInput.value = "";
-            sessionInput.value = "";
+        const id = document.getElementById('genIdNumber').value.trim();
+        if (!id) {
+            document.getElementById('genFullName').value  = "";
+            document.getElementById('genRemaining').value = "";
             return;
         }
-
         try {
-            // Fetch from your server.js endpoint
-            const res = await fetch(`http://localhost:3000/get-student/${idNumber}`);
-            
+            const res  = await fetch(`http://localhost:3000/get-student/${id}`);
             if (res.ok) {
                 const data = await res.json();
-                // LIVE MATCH: If a student is found, display details
-                nameInput.value = `${data.firstName} ${data.lastName}`;
-                sessionInput.value = data.remainingSession ?? 30;
+                document.getElementById('genFullName').value  = `${data.firstName} ${data.lastName}`;
+                document.getElementById('genRemaining').value = data.remainingSession ?? 30;
             } else {
-                // LIVE DISAPPEAR: If the ID is partial or wrong, keep fields empty
-                nameInput.value = "";
-                sessionInput.value = "";
+                document.getElementById('genFullName').value  = "";
+                document.getElementById('genRemaining').value = "";
             }
-        } catch (e) {
-            // We stay silent during live typing to avoid error popups for every keystroke
-            console.error("Live search error:", e);
-        }
+        } catch (e) { console.error("Live search error:", e); }
     }
 
-    // Add 'e' as a parameter to handle the event
     async function submitGenericSitIn(e) {
-        // 1. Prevent page reload if called from a form or button click
         if (e) e.preventDefault();
-
-        const idInput = document.getElementById('genIdNumber');
-        const labInput = document.getElementById('genLab');
-        const purposeInput = document.getElementById('genPurpose');
-
         const payload = {
-            idNumber: idInput.value.trim(),
-            purpose: purposeInput.value,
-            lab: labInput.value 
+            idNumber: document.getElementById('genIdNumber').value.trim(),
+            purpose:  document.getElementById('genPurpose').value,
+            lab:      document.getElementById('genLab').value
         };
-
         if (!payload.idNumber || !payload.lab) {
             return Swal.fire('Warning', 'ID Number and Lab are required.', 'warning');
         }
-
         try {
             const res = await fetch('http://localhost:3000/sit-in', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-
             if (res.ok) {
-                // 2. Use 'await' so the code pauses while the alert is visible
-                await Swal.fire({ 
-                    icon: 'success', 
-                    title: 'Sit-in recorded!', 
-                    confirmButtonText: 'OK',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false
-                });
-
+                await Swal.fire({ icon: 'success', title: 'Sit-in recorded!', confirmButtonText: 'OK' });
                 closeModal('genericSitInModal');
-                
-                // 3. Optional: Clear inputs after success
-                idInput.value = "";
-                
-                // 4. Check if fetchSitIns exists before calling to avoid errors
-                if (typeof fetchSitIns === "function") {
-                    fetchSitIns(); 
-                }
-                
-                // Refresh stats on dashboard
-                loadDashboardStats(); 
-
+                document.getElementById('genIdNumber').value = "";
             } else {
                 const txt = await res.text();
                 Swal.fire('Error', txt, 'error');
             }
-        } catch (err) { 
-            console.error("Submission error:", err);
-            Swal.fire('Error', 'Connection to server failed.', 'error'); 
+        } catch (err) {
+            Swal.fire('Error', 'Connection to server failed.', 'error');
         }
     }
 
-        async function fetchReservations() {
-            try {
-                const res = await fetch("http://localhost:3000/admin/reservations");
-                const data = await res.json();
-                
-                const requestBody = document.getElementById("requestBody");
-                const logBody = document.getElementById("logBody");
-                const labFilter = document.getElementById("labFilter").value;
+    // ── Fetch & Render Reservation Requests ─────────────────
+    async function fetchReservations() {
+        try {
+            const res  = await fetch("http://localhost:3000/admin/reservations");
+            const data = await res.json();
 
-                requestBody.innerHTML = "";
-                logBody.innerHTML = "";
+            const labFilter   = document.getElementById("labFilter").value;
+            const requestBody = document.getElementById("requestBody");
+            const logBody     = document.getElementById("logBody");
 
-                data.forEach(rev => {
-                    // Filter logic: Only show for selected lab
-                    if(rev.lab !== labFilter) return;
+            requestBody.innerHTML = "";
+            logBody.innerHTML     = "";
 
-                    // 1. Requests (Only Pending)
-                    if (rev.status === 'Pending') {
-                        requestBody.innerHTML += `
-                            <div class="res-card">
-                                <p><b>ID Number:</b> ${rev.idNumber}</p>
-                                <p><b>Date:</b> ${rev.date}</p>
-                                <p><b>Purpose:</b> ${rev.purpose}</p>
-                                <div class="action-btns">
-                                    <button class="btn-accept" onclick="updateStatus(${rev.id}, 'Accepted')">Accept</button>
-                                    <button class="btn-deny" onclick="updateStatus(${rev.id}, 'Denied')">Deny</button>
-                                </div>
-                            </div>`;
-                    }
+            // Filter by selected lab
+            const filtered = data.filter(r => r.lab === labFilter);
 
-                    // 2. Logs (All statuses)
-                    logBody.innerHTML += `
-                        <div class="log-entry">
-                            <p><b>ID:</b> ${rev.idNumber}</p>
-                            <p>Date: ${rev.date} | Lab: ${rev.lab}</p>
-                            <p>Status: <span class="status-${rev.status.toLowerCase()}">${rev.status}</span></p>
+            // Count pending for the badge
+            const pendingItems = filtered.filter(r => r.status === 'Pending');
+            document.getElementById('pendingCount').textContent = pendingItems.length;
+            document.getElementById('logCount').textContent     = filtered.length;
+
+            if (filtered.length === 0) {
+                requestBody.innerHTML = `<div class="empty-state"><i class="fa fa-inbox"></i>No reservation requests for Lab ${labFilter}</div>`;
+                logBody.innerHTML     = `<div class="empty-state"><i class="fa fa-list"></i>No logs for Lab ${labFilter}</div>`;
+                return;
+            }
+
+            let hasPending = false;
+
+            filtered.forEach(rev => {
+
+                // ── Requests Panel (Pending only) ──
+                if (rev.status === 'Pending') {
+                    hasPending = true;
+                    requestBody.innerHTML += `
+                        <div class="res-card" id="req-card-${rev.id}">
+                            <p><b>ID Number:</b> ${rev.idNumber}</p>
+                            <p><b>Name:</b> ${rev.studentName || 'N/A'}</p>
+                            <p><b>Reservation Date:</b> ${rev.date || 'N/A'}</p>
+                            <p><b>Reservation Time:</b> ${rev.timeIn || 'N/A'}</p>
+                            <p><b>Laboratory:</b> ${rev.lab}</p>
+                            <p><b>Computer Number:</b> ${rev.pcNumber || 'N/A'}</p>
+                            <p><b>Purpose:</b> ${rev.purpose}</p>
+                            <div class="action-btns">
+                                <button class="btn-accept" onclick="updateStatus(${rev.id}, 'Accepted')">
+                                    <i class="fa fa-check"></i> Accept
+                                </button>
+                                <button class="btn-deny" onclick="updateStatus(${rev.id}, 'Denied')">
+                                    <i class="fa fa-times"></i> Deny
+                                </button>
+                            </div>
                         </div>`;
-                });
-            } catch (err) { console.error("Load error:", err); }
-        }
+                }
 
-        async function updateStatus(id, newStatus) {
-            await fetch("http://localhost:3000/admin/update-reservation", {
+                // ── Logs Panel (All statuses) ──
+                const statusClass = `status-${rev.status.toLowerCase()}`;
+                logBody.innerHTML += `
+                    <div class="log-entry">
+                        <p><b>ID Number:</b> ${rev.idNumber}</p>
+                        <p><b>Name:</b> ${rev.studentName || 'N/A'}</p>
+                        <p><b>Reservation Date:</b> ${rev.date || 'N/A'}</p>
+                        <p><b>Reservation Time:</b> ${rev.timeIn || 'N/A'}</p>
+                        <p><b>Laboratory:</b> ${rev.lab} &nbsp;|&nbsp; <b>PC:</b> ${rev.pcNumber || 'N/A'}</p>
+                        <p><b>Purpose:</b> ${rev.purpose}</p>
+                        <p><b>Status:</b> <span class="${statusClass}">${rev.status}</span></p>
+                    </div>`;
+            });
+
+            if (!hasPending) {
+                requestBody.innerHTML = `<div class="empty-state"><i class="fa fa-check-circle"></i>No pending requests for Lab ${labFilter}</div>`;
+            }
+
+        } catch (err) {
+            console.error("Load error:", err);
+            Swal.fire('Error', 'Could not load reservations. Make sure server.js is running.', 'error');
+        }
+    }
+
+    // ── Accept or Deny ───────────────────────────────────────
+    async function updateStatus(id, newStatus) {
+        const actionText = newStatus === 'Accepted' ? 'accept' : 'deny';
+        const { isConfirmed } = await Swal.fire({
+            title: `${newStatus === 'Accepted' ? 'Accept' : 'Deny'} Reservation?`,
+            text: newStatus === 'Accepted'
+                ? 'This will record the sit-in and deduct one session from the student.'
+                : 'This will deny the reservation request.',
+            icon: newStatus === 'Accepted' ? 'question' : 'warning',
+            showCancelButton: true,
+            confirmButtonColor: newStatus === 'Accepted' ? '#28a745' : '#dc3545',
+            confirmButtonText: `Yes, ${actionText} it!`
+        });
+
+        if (!isConfirmed) return;
+
+        try {
+            const res  = await fetch("http://localhost:3000/admin/update-reservation", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id, status: newStatus })
             });
-            fetchReservations(); 
+            const data = await res.json();
+
+            if (res.ok) {
+                await Swal.fire({
+                    icon: newStatus === 'Accepted' ? 'success' : 'info',
+                    title: newStatus === 'Accepted' ? 'Accepted!' : 'Denied',
+                    text: data.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                fetchReservations(); // Refresh the panels
+            } else {
+                Swal.fire('Error', data.message || 'Something went wrong.', 'error');
+            }
+        } catch (err) {
+            Swal.fire('Error', 'Connection failed. Check server.js is running.', 'error');
         }
+    }
 
-        document.addEventListener("DOMContentLoaded", fetchReservations);
-
+    // ── Logout ───────────────────────────────────────────────
     function logout() {
         Swal.fire({
             title: 'Logout Admin?',
@@ -544,16 +558,23 @@
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, logout admin!',
-            cancelButtonText: 'Stay logged in'
+            confirmButtonText: 'Yes, logout!',
+            cancelButtonText: 'Stay'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Clear admin session data
                 sessionStorage.removeItem("adminWelcomeShown");
                 window.location.href = "index.html";
             }
         });
     }
+
+    // ── On Load ──────────────────────────────────────────────
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchReservations();
+        // Auto-refresh every 30 seconds
+        setInterval(fetchReservations, 30000);
+    });
+
 </script>
 </body>
 </html>

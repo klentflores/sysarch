@@ -78,7 +78,7 @@ app.post("/login", (req, res) => {
     });
 });
 
-// --- GET STUDENT PROFILE (SECURE VERSION) ---
+// --- GET STUDENT PROFILE ---
 app.get(["/student/:idNumber", "/get-student/:idNumber"], (req, res) => {
     const sql = `
         SELECT 
@@ -95,19 +95,14 @@ app.get(["/student/:idNumber", "/get-student/:idNumber"], (req, res) => {
         FROM users 
         WHERE idNumber = ?
     `;
-    
     db.get(sql, [req.params.idNumber], (err, user) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        if (!user) {
-            return res.status(404).json({ message: "Student not found." });
-        }
+        if (err) return res.status(500).json({ error: err.message });
+        if (!user) return res.status(404).json({ message: "Student not found." });
         res.json(user);
     });
 });
 
-// --- PROFILE & SESSION ACTIONS ---
+// --- PROFILE UPDATE ---
 app.post('/update-profile', (req, res) => {
     const { oldIdNumber, idNumber, lastName, firstName, middleName, yearLevel, course, email, address, profilePhoto } = req.body;
     const sql = `UPDATE users SET idNumber = ?, lastName = ?, firstName = ?, middleName = ?, yearLevel = ?, course = ?, email = ?, address = ?, profilePhoto = ? WHERE idNumber = ?`;
@@ -117,40 +112,162 @@ app.post('/update-profile', (req, res) => {
     });
 });
 
-// This handles the reservation from reservation.html
-app.post("/make-reservation", (req, res) => {
-    const { idNumber, purpose, lab, timeIn, date } = req.body;
-
+// --- SIT-IN: Record a new sit-in (called from Confirm Sit-In modal) ---
+app.post("/sit-in", (req, res) => {
+    const { idNumber, purpose, lab } = req.body;
+    const timeIn = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const date   = new Date().toLocaleDateString('en-CA');
+ 
     db.get(`SELECT remainingSession FROM users WHERE idNumber = ?`, [idNumber], (err, user) => {
-        if (err) return res.status(500).json({ message: "Database error" });
-        if (!user) return res.status(404).json({ message: "Student ID not found!" });
-        if (user.remainingSession <= 0) return res.status(400).json({ message: "No sessions left!" });
-
-        // 2. Insert the reservation
-        const sql = `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date) VALUES (?, ?, ?, ?, ?)`;
-        db.run(sql, [idNumber, purpose, lab, timeIn, date], function(err) {
-            if (err) return res.status(500).json({ message: err.message });
-
+        if (err) return res.status(500).send("Database error");
+        if (!user) return res.status(404).send("Student ID not found!");
+        if (user.remainingSession <= 0) return res.status(400).send("No remaining sessions!");
+ 
+        const sql = `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date, status) VALUES (?, ?, ?, ?, ?, 'Active')`;
+        db.run(sql, [idNumber, purpose, lab, timeIn, date], function (err) {
+            if (err) return res.status(500).send(err.message);
+ 
             db.run(`UPDATE users SET remainingSession = remainingSession - 1 WHERE idNumber = ?`, [idNumber], (err) => {
-                if (err) return res.status(500).json({ message: "Failed to deduct session" });
-                res.json({ message: "Reservation successful!" });
+                if (err) return res.status(500).send("Failed to deduct session");
+                res.json({ message: "Sit-in recorded!", id: this.lastID });
             });
         });
     });
 });
 
-app.post("/record-final-logout", (req, res) => {
-    const { idNumber } = req.body;
-    const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    db.run(`UPDATE reservations SET timeOut = ? WHERE idNumber = ? AND (timeOut IS NULL OR timeOut = '') AND id = (SELECT MAX(id) FROM reservations WHERE idNumber = ?)`, 
-    [currentTime, idNumber, idNumber], (err) => {
+// --- SIT-IN: Get all active sit-ins (no timeOut) for viewsitin.html ---
+app.get("/get-sitin", (req, res) => {
+    const sql = `
+        SELECT 
+            r.id,
+            r.idNumber,
+            u.firstName,
+            u.lastName,
+            r.purpose,
+            r.lab,
+            r.timeIn,
+            r.timeOut,
+            r.date,
+            u.remainingSession
+        FROM reservations r
+        JOIN users u ON r.idNumber = u.idNumber
+        WHERE (r.timeOut IS NULL OR r.timeOut = '')
+        ORDER BY r.id DESC
+    `;
+    db.all(sql, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Lab logout recorded", time: currentTime });
+        res.json(rows);
     });
 });
 
-app.get("/history/:idNumber", (req, res) => {
+// --- SIT-IN: Time Out a specific sit-in record by reservation ID ---
+app.post("/time-out/:id", (req, res) => {
+    const sitInId = req.params.id;
+    const timeOut = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+ 
+    db.run(`UPDATE reservations SET timeOut = ? WHERE id = ?`, [timeOut, sitInId], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).send("Record not found");
+        res.json({ message: "Timed out successfully", timeOut });
+    });
+});
 
+// --- RESERVATION (from reservation.html) ---
+app.post("/make-reservation", (req, res) => {
+    const { idNumber, studentName, purpose, lab, pcNumber, timeIn, date } = req.body;
+    const createdAt = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+ 
+    // Just verify the student exists — no session deduction here
+    db.get(`SELECT remainingSession FROM users WHERE idNumber = ?`, [idNumber], (err, user) => {
+        if (err) return res.status(500).json({ message: "Database error" });
+        if (!user) return res.status(404).json({ message: "Student ID not found!" });
+        if (user.remainingSession <= 0) return res.status(400).json({ message: "No sessions left! Cannot make a reservation." });
+ 
+        const sql = `INSERT INTO reservation_requests (idNumber, studentName, purpose, lab, pcNumber, timeIn, date, status, createdAt)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending', ?)`;
+        db.run(sql, [idNumber, studentName, purpose, lab, pcNumber, timeIn, date, createdAt], function (err) {
+            if (err) return res.status(500).json({ message: err.message });
+            res.json({ message: "Reservation request submitted! Please wait for admin approval." });
+        });
+    });
+});
+
+app.get("/admin/reservations", (req, res) => {
+    const sql = `SELECT * FROM reservation_requests ORDER BY id DESC`;
+    db.all(sql, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.post("/admin/update-reservation", (req, res) => {
+    const { id, status } = req.body;
+ 
+    if (status === 'Accepted') {
+        // First, get the reservation request details
+        db.get(`SELECT * FROM reservation_requests WHERE id = ?`, [id], (err, req_row) => {
+            if (err) return res.status(500).json({ message: "Database error" });
+            if (!req_row) return res.status(404).json({ message: "Reservation not found" });
+ 
+            // Check student has sessions remaining
+            db.get(`SELECT remainingSession FROM users WHERE idNumber = ?`, [req_row.idNumber], (err, user) => {
+                if (err) return res.status(500).json({ message: "Database error" });
+                if (!user) return res.status(404).json({ message: "Student not found" });
+                if (user.remainingSession <= 0) {
+                    // Update request to Denied since no sessions left
+                    db.run(`UPDATE reservation_requests SET status = 'Denied' WHERE id = ?`, [id]);
+                    return res.status(400).json({ message: "Student has no remaining sessions. Reservation denied." });
+                }
+ 
+                const timeIn = req_row.timeIn || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const date = req_row.date || new Date().toLocaleDateString('en-CA');
+ 
+                // Insert into active sit-in reservations
+                const insertSql = `INSERT INTO reservations (idNumber, purpose, lab, pcNumber, timeIn, date, status) VALUES (?, ?, ?, ?, ?, ?, 'Active')`;
+                db.run(insertSql, [req_row.idNumber, req_row.purpose, req_row.lab, req_row.pcNumber, timeIn, date], function (err) {
+                    if (err) return res.status(500).json({ message: "Failed to record sit-in" });
+ 
+                    // Deduct one session from student
+                    db.run(`UPDATE users SET remainingSession = remainingSession - 1 WHERE idNumber = ?`, [req_row.idNumber], (err) => {
+                        if (err) return res.status(500).json({ message: "Failed to deduct session" });
+ 
+                        // Mark request as Accepted
+                        db.run(`UPDATE reservation_requests SET status = 'Accepted' WHERE id = ?`, [id], (err) => {
+                            if (err) return res.status(500).json({ message: "Failed to update request status" });
+                            res.json({ message: "Reservation accepted! Sit-in recorded and session deducted." });
+                        });
+                    });
+                });
+            });
+        });
+ 
+    } else if (status === 'Denied') {
+        db.run(`UPDATE reservation_requests SET status = 'Denied' WHERE id = ?`, [id], function (err) {
+            if (err) return res.status(500).json({ message: err.message });
+            if (this.changes === 0) return res.status(404).json({ message: "Reservation not found" });
+            res.json({ message: "Reservation denied." });
+        });
+ 
+    } else {
+        res.status(400).json({ message: "Invalid status. Use 'Accepted' or 'Denied'." });
+    }
+});
+
+app.post("/record-final-logout", (req, res) => {
+    const { idNumber } = req.body;
+    const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    db.run(
+        `UPDATE reservations SET timeOut = ? WHERE idNumber = ? AND (timeOut IS NULL OR timeOut = '') AND id = (SELECT MAX(id) FROM reservations WHERE idNumber = ?)`,
+        [currentTime, idNumber, idNumber],
+        (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "Lab logout recorded", time: currentTime });
+        }
+    );
+});
+
+// --- HISTORY ---
+app.get("/history/:idNumber", (req, res) => {
     const sql = `
         SELECT 
             r.*, 
@@ -161,7 +278,6 @@ app.get("/history/:idNumber", (req, res) => {
         WHERE r.idNumber = ? 
         ORDER BY r.id DESC
     `;
-    
     db.all(sql, [req.params.idNumber], (err, rows) => {
         if (err) {
             console.error("History Error:", err.message);
@@ -171,6 +287,7 @@ app.get("/history/:idNumber", (req, res) => {
     });
 });
 
+// --- ANNOUNCEMENTS ---
 app.get("/announcements", (req, res) => {
     db.all(`SELECT * FROM announcements ORDER BY id DESC`, (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -179,12 +296,19 @@ app.get("/announcements", (req, res) => {
 });
 
 // --- ADMIN ENDPOINTS ---
+
+// Dashboard stats: registered students, current sit-ins, total sit-ins, chart data
 app.get("/admin/dashboard-data", (req, res) => {
     db.get(`SELECT COUNT(*) as count FROM users WHERE idNumber != 'Admin'`, (err, r) => {
-        db.get(`SELECT COUNT(*) as count FROM reservations WHERE timeOut IS NULL OR timeOut = ''`, (err, c) => {
-            db.get(`SELECT COUNT(*) as count FROM reservations`, (err, t) => {
+        db.get(`SELECT COUNT(*) as count FROM reservations WHERE (timeOut IS NULL OR timeOut = '') AND (status = 'Active' OR status IS NULL)`, (err, c) => {
+            db.get(`SELECT COUNT(*) as count FROM reservations WHERE status = 'Active' OR status IS NULL`, (err, t) => {
                 db.all(`SELECT purpose, COUNT(*) as count FROM reservations GROUP BY purpose`, (err, p) => {
-                    res.json({ registered: r?.count || 0, currentSitin: c?.count || 0, totalSitin: t?.count || 0, chartData: p || [] });
+                    res.json({
+                        registered:   r?.count || 0,
+                        currentSitin: c?.count || 0,
+                        totalSitin:   t?.count || 0,
+                        chartData:    p || []
+                    });
                 });
             });
         });
@@ -201,40 +325,29 @@ app.post("/admin/announcement", (req, res) => {
 });
 
 app.delete("/admin/announcement/:id", (req, res) => {
-    const id = req.params.id;
-
-    db.run(`DELETE FROM announcements WHERE id = ?`, [id], function (err) {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        if (this.changes === 0) {
-            return res.status(404).json({ message: "Announcement not found" });
-        }
+    db.run(`DELETE FROM announcements WHERE id = ?`, [req.params.id], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ message: "Announcement not found" });
         res.json({ message: "Announcement deleted successfully" });
     });
 });
 
 app.get("/admin/students", (req, res) => {
-    db.all(`SELECT idNumber, firstName, lastName, course, yearLevel, remainingSession FROM users WHERE idNumber != 'Admin' ORDER BY lastName ASC`, (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
+    db.all(
+        `SELECT idNumber, firstName, lastName, course, yearLevel, remainingSession FROM users WHERE idNumber != 'Admin' ORDER BY lastName ASC`,
+        (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(rows);
+        }
+    );
 });
-
-
-app.use(cors());
 
 app.delete("/admin/students/:idNumber", (req, res) => {
     const idNumber = req.params.idNumber;
     console.log("Delete request received for ID:", idNumber);
-
     db.run(`DELETE FROM users WHERE idNumber = ?`, [idNumber], function (err) {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        if (this.changes === 0) {
-            return res.status(404).json({ message: "Student not found" });
-        }
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ message: "Student not found" });
         res.json({ message: "Student deleted successfully" });
     });
 });
@@ -254,54 +367,33 @@ app.post("/admin/reset-single-student", (req, res) => {
     });
 });
 
-app.get("/get-student/:idNumber", (req, res) => {
-    const id = req.params.idNumber;
-    db.get(`SELECT firstName, lastName, remainingSession FROM users WHERE idNumber = ?`, [id], (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (row) {
-            res.json(row);
-        } else {
-            res.status(404).json({ message: "Not found" });
-        }
-    });
-});
-
-// --- SIT-IN REPORTS ENDPOINT ---
+// --- SIT-IN REPORTS ---
 app.get("/admin/reports", (req, res) => {
-    const filterDate = req.query.date; // Captures ?date= from the URL
-    
-    // SQL Logic: Combine 'reservations' (r) and 'users' (u) based on ID Number
+    const filterDate = req.query.date;
     let sql = `
         SELECT 
-            r.idNumber, 
-            u.firstName, 
-            u.lastName, 
-            r.purpose, 
-            r.lab, 
-            r.timeIn, 
-            r.timeOut, 
-            r.date 
+            r.idNumber, u.firstName, u.lastName,
+            r.purpose, r.lab, r.pcNumber,
+            r.timeIn, r.timeOut, r.date
         FROM reservations r
         JOIN users u ON r.idNumber = u.idNumber
+        WHERE (r.status = 'Active' OR r.status IS NULL)
     `;
-    
     let params = [];
-
-    // Apply date filter if the admin picked a date in the UI
+ 
     if (filterDate) {
-        sql += ` WHERE r.date = ?`;
+        sql += ` AND r.date = ?`;
         params.push(filterDate);
     }
-
-    // Sort by latest records first
+ 
     sql += ` ORDER BY r.date DESC, r.timeIn DESC`;
-
+ 
     db.all(sql, params, (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json(rows); // Send the combined data back to the browser
+        res.json(rows);
     });
 });
-
+ 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
