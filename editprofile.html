@@ -341,6 +341,64 @@
             background: #2d2d4e;
             transform: translateY(-1px);
         }
+
+        .notif-wrapper {
+            position: relative;
+        }
+
+        .notif-badge {
+            display: none;
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            background: #e24b4a;
+            color: white;
+            font-size: 10px;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #2c3e70;
+        }
+
+        .notif-dropdown {
+            display: none;
+            position: absolute;
+            top: 36px;
+            right: 0;
+            width: 300px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .notif-header {
+            background: #2c3e70;
+            color: white;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .notif-mark-btn {
+            float: right;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .notif-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -348,7 +406,19 @@
     <nav class="navbar">
         <div class="logo-text"><i class="fa fa-pencil"></i> Edit Profile Students</div>
         <ul class="nav-links">
-            <li><a href="#"><i class="fa fa-bell"></i> Notifications</a></li>
+            <li class="notif-wrapper">
+                <a href="#" onclick="toggleNotifDropdown(event)">
+                    <i class="fa fa-bell"></i> Notifications
+                </a>
+                <span id="notifBadge" class="notif-badge"></span>
+                <div id="notifDropdown" class="notif-dropdown">
+                    <div class="notif-header">
+                        <i class="fa fa-bell"></i> Announcements
+                        <button onclick="markAllRead()" class="notif-mark-btn">Mark all read</button>
+                    </div>
+                    <div id="notifList" class="notif-list"></div>
+                </div>
+            </li>
             <li><a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a></li>
             <li><a href="editprofile.html" class="active"><i class="fa fa-pencil"></i> Edit Profile</a></li>
             <li><a href="history.html"><i class="fa fa-history"></i> History</a></li>
@@ -474,6 +544,63 @@
     </div>
 
 <script>
+
+let _announcements = [];
+
+function toggleNotifDropdown(e) {
+    e.preventDefault();
+    const d = document.getElementById('notifDropdown');
+    d.style.display = d.style.display === 'block' ? 'none' : 'block';
+}
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('li:has(#notifDropdown)')) {
+        const d = document.getElementById('notifDropdown');
+        if (d) d.style.display = 'none';
+    }
+});
+
+function getReadIds() { return JSON.parse(localStorage.getItem('readIds') || '[]'); }
+function saveReadIds(ids) { localStorage.setItem('readIds', JSON.stringify(ids)); }
+
+function markAllRead() {
+    saveReadIds(_announcements.map(a => a.id));
+    renderNotifs();
+}
+
+function renderNotifs() {
+    const readIds = getReadIds();
+    const unread = _announcements.filter(a => !readIds.includes(a.id)).length;
+    const badge = document.getElementById('notifBadge');
+    badge.textContent = unread;
+    badge.style.display = unread > 0 ? 'flex' : 'none';
+
+    document.getElementById('notifList').innerHTML = _announcements.length
+        ? _announcements.map(a => `
+            <div onclick="markOneRead(${a.id})" style="padding:12px 14px; border-bottom:1px solid #eee;
+                cursor:pointer; background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
+                <div style="font-size:11px; color:#888;">${a.author} | ${a.date}</div>
+                <div style="font-size:13px; color:#222; margin-top:3px;">${a.content}</div>
+            </div>`).join('')
+        : '<p style="text-align:center;color:#aaa;padding:20px;font-size:13px;">No announcements yet.</p>';
+}
+
+function markOneRead(id) {
+    const ids = getReadIds();
+    if (!ids.includes(id)) { ids.push(id); saveReadIds(ids); renderNotifs(); }
+}
+
+async function pollAnnouncements() {
+    try {
+        const res = await fetch('http://localhost:3000/announcements');
+        _announcements = await res.json();
+        renderNotifs();
+    } catch(e) {}
+}
+
+pollAnnouncements();
+setInterval(pollAnnouncements, 30000);
+
 async function logout() {
     const studentId = localStorage.getItem('loggedInId');
     

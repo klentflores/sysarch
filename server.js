@@ -44,7 +44,8 @@ db.serialize(() => {
         lab TEXT,
         timeIn TEXT,
         timeOut TEXT,
-        date TEXT
+        date TEXT,
+        status TEXT DEFAULT 'Active'
     )`);
 
     db.run(`CREATE TABLE IF NOT EXISTS announcements (
@@ -107,6 +108,30 @@ app.get(["/student/:idNumber", "/get-student/:idNumber"], (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!user) return res.status(404).json({ message: "Student not found." });
         res.json(user);
+    });
+});
+
+// --- SIT-IN: Get ALL sit-in records (for viewsitin.html) ---
+app.get("/get-all-sitin", (req, res) => {
+    const sql = `
+        SELECT 
+            r.id,
+            r.idNumber,
+            u.firstName,
+            u.lastName,
+            r.purpose,
+            r.lab,
+            r.timeIn,
+            r.timeOut,
+            r.date,
+            u.remainingSession
+        FROM reservations r
+        JOIN users u ON r.idNumber = u.idNumber
+        ORDER BY r.id DESC
+    `;
+    db.all(sql, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
     });
 });
 

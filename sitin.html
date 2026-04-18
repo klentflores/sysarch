@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sit-in Management - CCS Admin</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 500;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content { 
+            background: #fff; 
+            border-radius: 10px; 
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); 
+            overflow: hidden; 
+            animation: slideDown 0.3s ease-out; 
+        }
+        .modal-header { 
+            background: #2c3e70;
+            padding: 15px 20px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            color: white; 
+        }
+        
+        .search-wrapper { 
+            display: flex; 
+            align-items: center; 
+            background: #ffffff; 
+            border: 2px solid #e3e6f0; 
+            border-radius: 10px; 
+            transition: all 0.2s; 
+        }
+        .search-wrapper:focus-within { 
+            box-shadow: 0 0 8px rgba(44, 62, 112, 0.2); 
+        }
+        .search-wrapper input { 
+            flex: 1; border: none !important; 
+            padding: 12px; 
+            font-size: 15px; 
+            outline: none !important; 
+        }
+
+        /* --- Search Result Card (From Image) --- */
+        #searchResultsList { 
+            margin-top: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+        }
+        .search-result-item {
+            display: flex; 
+            align-items: center; 
+            background: #f8f9fc; 
+            border-radius: 12px; 
+            padding: 12px; 
+            cursor: pointer; 
+            transition: all 0.2s;
+        }
+        .search-result-item:hover { 
+            background: #fff; 
+            transform: translateY(-2px); 
+        }
+        
+        .user-avatar {
+            width: 45px; 
+            height: 45px; 
+            background: #4e73df; 
+            color: white; 
+            border-radius: 50%;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-weight: 700; 
+            margin-right: 15px;
+        }
+        .user-info-text .name { 
+            display: block; 
+            font-weight: 700; 
+            color: #2c3e70; 
+            font-size: 14px; 
+        }
+        .user-info-text .meta { 
+            font-size: 11px; 
+            color: #858796; 
+            display: flex; 
+            gap: 8px; 
+        }
+        .user-status-badges { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-end; 
+            flex: 1; 
+            font-size: 11px; 
+            font-weight: 800; 
+        }
+        .badge-sessions { 
+            color: #1cc88a; 
+        }
+
+        /* --- Sit-in Form Styles --- */
+        .student-profile-card { 
+            background: #f8f9fc; 
+            border-left: 5px solid #2c3e70; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin: 20px; 
+        }
+        .profile-name { 
+            display: block; 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            color: #2c3e70; 
+            margin-bottom: 10px; 
+            text-transform: uppercase; 
+        }
+        .profile-meta { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; gap: 15px; 
+        }
+        .meta-item label { 
+            display: block; 
+            font-size: 10px; 
+            text-transform: uppercase; 
+            color: #858796; 
+            font-weight: 800; 
+        }
+        .meta-item span { 
+            font-weight: 600; 
+            color: #444; 
+        }
+        .modern-select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #d1d3e2; 
+            border-radius: 8px; 
+            cursor: pointer; 
+        }
+        
+        .modal-footer { 
+            padding: 15px 20px; 
+            background: #f8f9fc; 
+            border-top: 1px solid #e3e6f0; 
+            display: flex; 
+            justify-content: flex-end; 
+            gap: 10px; 
+        }
+
+        .btn-confirm { 
+            background: #2c3e70; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600; 
+        }
+
+        .btn-cancel { 
+            background: #858796;
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+        }
+
+        .btn-confirm:hover {
+            background: #2c3e70;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel:hover {
+            background: #858796;
+            transform: translateY(-1px);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .page-wrapper {
+            max-width: 1300px;
+            margin: 30px auto;
+            padding: 0 20px;
+            margin-top: 50px;
+        }
+        .page-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 25px;
+        }
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            padding: 25px;
+        }
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .entries-control {
+            font-size: 14px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .entries-control select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .search-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+        .search-control input {
+            padding: 7px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+            width: 200px;
+        }
+        .btn-add-sitin {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-add-sitin:hover { 
+            background-color: #218838;
+            transform: translateY(-1px);
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: white; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+        th { 
+            background-color: #2c3e70; 
+            color: white; 
+            padding: 15px; 
+            text-align: left; 
+            font-size: 14px;
+            cursor: pointer;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f1f1;
+            color: #444;
+            font-size: 13px;
+        }
+        tbody tr:hover { background: #f9fbff; }
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .badge-active   { background: #d4edda; color: #155724; }
+        .badge-timeout  { background: #f8d7da; color: #721c24; }
+        .badge-session  { background: #e9f5ff; color: #0056b3; }
+        .btn-timeout {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background 0.2s;
+        }
+        .btn-timeout:hover { background: #c82333; }
+        .btn-done {
+            background: #e9ecef;
+            color: #6c757d;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: not-allowed;
+            font-size: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 40px 0;
+            font-size: 14px;
+        }
+        /* Sit-in modal specific */
+        .sitin-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d3e2;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            box-sizing: border-box;
+            margin-top: 5px;
+        }
+        .sitin-input:read-only {
+            background: #f8f9fc;
+            color: #666;
+        }
+        .sitin-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #4e73df;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-text">
+            <i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin
+        </div>
+        <ul class="nav-links">
+            <li><a href="admindashboard.html"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="javascript:void(0)" onclick="openUnifiedModal()"><i class="fa fa-search"></i> Search</a></li>
+            <li><a href="studentlist.html"><i class="fa fa-users"></i> Students</a></li>
+            <li><a href="sitin.html" class="active"><i class="fa fa-laptop"></i> Sit-in</a></li>
+            <li><a href="viewsitin.html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
+            <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+            <li><a href="feedback.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+            <li><a href="adminreservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout">
+                <i class="fa fa-sign-out"></i> Log out
+            </a></li>
+        </ul>
+    </nav>
+
+    <!-- ===== SEARCH / UNIFIED SIT-IN MODAL (navbar Search button) ===== -->
+    <div id="unifiedSitInModal" class="modal-overlay">
+        <div class="modal-content" style="width: 450px;">
+            <div class="modal-header">
+                <h3><i class="fa fa-search"></i> Find Student</h3>
+                <button onclick="closeModal('unifiedSitInModal')" style="background:none;border:none;color:white;cursor:pointer;font-size:20px;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 15px;">
+                <div class="search-wrapper">
+                    <input type="text" id="uniIdSearch" placeholder="Enter Student ID...">
+                    <button class="btn-confirm" onclick="searchAndPopulate()">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+                <div id="searchResultsList"></div>
+                <div id="studentDetailsBox" style="display:none;">
+                    <div class="student-profile-card">
+                        <div id="accountInfoDisplay"></div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; padding: 0 5px;">
+                        <div>
+                            <label class="sitin-label">Purpose</label>
+                            <select id="uniPurpose" class="modern-select" style="margin-top:5px;">
+                                <option>C Programming</option>
+                                <option>Java Projects</option>
+                                <option>Web Development</option>
+                                <option>Python/Data Science</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="sitin-label">Lab Room</label>
+                            <select id="uniLab" class="modern-select" style="margin-top:5px;">
+                                <option>524</option>
+                                <option>526</option>
+                                <option>528</option>
+                                <option>529</option>
+                                <option>531</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" id="uniFooter" style="display:none;">
+                <button class="btn-cancel" onclick="closeModal('unifiedSitInModal')">Cancel</button>
+                <button class="btn-confirm" onclick="submitUnifiedSitIn()">Confirm Sit-In</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== NEW SIT-IN MODAL (+ New Sit-In button) ===== -->
+    <div id="sitInModal" class="modal-overlay">
+        <div class="modal-content" style="width: 480px;">
+            <div class="modal-header">
+                <h3><i class="fa fa-laptop"></i> New Sit-In</h3>
+                <button onclick="closeModal('sitInModal')" style="background:none;border:none;color:white;cursor:pointer;font-size:20px;">&times;</button>
+            </div>
+            <div style="padding: 20px; display:flex; flex-direction:column; gap:14px;">
+                <div>
+                    <label class="sitin-label">Student ID Number</label>
+                    <input type="text" id="genIdNumber" placeholder="Enter Student ID..."
+                        class="sitin-input" oninput="autoFillStudent()">
+                </div>
+                <div>
+                    <label class="sitin-label">Full Name</label>
+                    <input type="text" id="genFullName" placeholder="Auto-filled from ID..."
+                        class="sitin-input" readonly>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                    <div>
+                        <label class="sitin-label">Purpose</label>
+                        <select id="genPurpose" class="modern-select" style="margin-top:5px;">
+                            <option>C Programming</option>
+                            <option>Java Projects</option>
+                            <option>Web Development</option>
+                            <option>Python/Data Science</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="sitin-label">Lab Room</label>
+                        <select id="genLab" class="modern-select" style="margin-top:5px;">
+                            <option>524</option>
+                            <option>526</option>
+                            <option>528</option>
+                            <option>529</option>
+                            <option>531</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="sitin-label">Remaining Sessions</label>
+                    <input type="text" id="genRemaining" class="sitin-input" readonly
+                        placeholder="Auto-filled from ID...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('sitInModal')"><i class="fa-solid fa-xmark"></i> Cancel</button>
+                <button class="btn-confirm" onclick="submitSitIn()"><i class="fa fa-check"></i> Confirm Sit-In</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+        <div class="table-card">
+            <h1 class="page-title">Current Sit-in</h1>
+            <div class="table-controls">
+                <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                    <div class="entries-control">
+                        <select id="entriesSelect" onchange="changeEntries()">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        Entries per page
+                    </div>
+                    <button class="btn-add-sitin" onclick="openSitInModal()">
+                        <i class="fa fa-plus"></i> New Sit-In
+                    </button>
+                </div>
+                <div class="search-control">
+                    <input type="text" id="searchInput" placeholder="Search by Name or ID..." oninput="applySearch()">
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">Sit ID <span>▲</span></th>
+                        <th onclick="sortTable(1)">ID Number <span>⇅</span></th>
+                        <th onclick="sortTable(2)">Name <span>⇅</span></th>
+                        <th onclick="sortTable(3)">Purpose <span>⇅</span></th>
+                        <th onclick="sortTable(4)">Lab <span>⇅</span></th>
+                        <th onclick="sortTable(5)">Session <span>⇅</span></th>
+                        <th onclick="sortTable(6)">Status <span>⇅</span></th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="sitInTableBody">
+                    <tr><td colspan="8" class="no-data">Loading records…</td></tr>
+                </tbody>
+            </table>
+
+            <div style="display:flex; justify-content:space-between; margin-top:20px; font-size:13px; flex-wrap:wrap; gap:10px;">
+                <div id="paginationInfo"></div>
+                <div id="paginationBtns"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const BASE_URL = 'http://localhost:3000';
+
+    let allRecords      = [];
+    let filteredRecords = [];
+    let currentPage     = 1;
+    let entriesPerPage  = 10;
+    let sortKey         = 'id';
+    let sortAsc         = false;
+    let searchTimer;
+
+    // ── MODAL HELPERS ──
+    function openModal(id)  { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // Close modal when clicking outside
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) overlay.style.display = 'none';
+        });
+    });
+
+    // ── NAVBAR SEARCH MODAL ──
+    function openUnifiedModal() {
+        document.getElementById('uniIdSearch').value = '';
+        document.getElementById('searchResultsList').innerHTML = '';
+        document.getElementById('studentDetailsBox').style.display = 'none';
+        document.getElementById('uniFooter').style.display = 'none';
+        openModal('unifiedSitInModal');
+    }
+
+    document.getElementById('uniIdSearch').addEventListener('input', function () {
+        clearTimeout(searchTimer);
+        const query = this.value.trim();
+        if (!query) {
+            document.getElementById('searchResultsList').innerHTML = '';
+            document.getElementById('studentDetailsBox').style.display = 'none';
+            document.getElementById('uniFooter').style.display = 'none';
+            return;
+        }
+        searchTimer = setTimeout(searchAndPopulate, 300);
+    });
+
+    async function searchAndPopulate() {
+        const id   = document.getElementById('uniIdSearch').value.trim();
+        const list = document.getElementById('searchResultsList');
+        if (!id) return;
+        try {
+            const res  = await fetch(`${BASE_URL}/student/${id}`);
+            const data = await res.json();
+            if (res.ok) {
+                const initials = (data.firstName[0] + data.lastName[0]).toUpperCase();
+                list.innerHTML = `
+                    <div class="search-result-item" onclick='selectStudent(${JSON.stringify(data)})'>
+                        <div class="user-avatar">${initials}</div>
+                        <div class="user-info-text">
+                            <span class="name">${data.firstName} ${data.lastName}</span>
+                            <div class="meta">
+                                <span>ID: ${data.idNumber}</span>
+                                <span>${data.course} ${data.yearLevel}</span>
+                            </div>
+                        </div>
+                        <div class="user-status-badges">
+                            <span class="badge-sessions">${data.remainingSession ?? 30} sessions</span>
+                            <span style="color:#4e73df; font-size:10px;">Click to select</span>
+                        </div>
+                    </div>`;
+                document.getElementById('studentDetailsBox').style.display = 'none';
+                document.getElementById('uniFooter').style.display = 'none';
+            } else {
+                list.innerHTML = '<p style="text-align:center;color:#858796;font-size:12px;padding:10px;">No student found with that ID.</p>';
+            }
+        } catch (e) { console.error("Search Error:", e); }
+    }
+
+    function selectStudent(data) {
+        document.getElementById('searchResultsList').innerHTML = '';
+        document.getElementById('studentDetailsBox').style.display = 'block';
+        document.getElementById('uniFooter').style.display = 'flex';
+        document.getElementById('accountInfoDisplay').innerHTML = `
+            <span class="profile-name">${data.firstName} ${data.lastName}</span>
+            <div class="profile-meta">
+                <div class="meta-item"><label>ID Number</label><span>${data.idNumber}</span></div>
+                <div class="meta-item"><label>Remaining</label><span>${data.remainingSession ?? 30} / 30</span></div>
+            </div>`;
+        // Store selected ID so submitUnifiedSitIn uses correct value
+        document.getElementById('uniIdSearch').value = data.idNumber;
+    }
+
+    async function submitUnifiedSitIn() {
+        const idNumber = document.getElementById('uniIdSearch').value.trim();
+        const purpose  = document.getElementById('uniPurpose').value;
+        const lab      = document.getElementById('uniLab').value;
+        if (!idNumber) return Swal.fire('Warning', 'No student selected.', 'warning');
+
+        try {
+            const res = await fetch(`${BASE_URL}/sit-in`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idNumber, purpose, lab })
+            });
+            if (res.ok) {
+                await Swal.fire({ icon: 'success', title: 'Sit-in Recorded!', timer: 1500, showConfirmButton: false });
+                closeModal('unifiedSitInModal');
+                fetchSitIns();
+            } else {
+                const txt = await res.text();
+                Swal.fire('Error', txt, 'error');
+            }
+        } catch (e) { Swal.fire('Error', 'Connection failed.', 'error'); }
+    }
+
+    // ── NEW SIT-IN MODAL (+ button) ──
+    function openSitInModal() {
+        document.getElementById('genIdNumber').value  = '';
+        document.getElementById('genFullName').value  = '';
+        document.getElementById('genPurpose').value   = 'C Programming';
+        document.getElementById('genLab').value       = '524';
+        document.getElementById('genRemaining').value = '';
+        openModal('sitInModal');
+        setTimeout(() => document.getElementById('genIdNumber').focus(), 100);
+    }
+
+    async function autoFillStudent() {
+        const id = document.getElementById('genIdNumber').value.trim();
+        if (!id) {
+            document.getElementById('genFullName').value  = '';
+            document.getElementById('genRemaining').value = '';
+            return;
+        }
+        try {
+            const res = await fetch(`${BASE_URL}/student/${id}`);
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById('genFullName').value  = `${data.firstName} ${data.lastName}`;
+                document.getElementById('genRemaining').value = data.remainingSession ?? 30;
+            } else {
+                document.getElementById('genFullName').value  = '';
+                document.getElementById('genRemaining').value = '';
+            }
+        } catch (e) { console.error('Auto-fill error:', e); }
+    }
+
+    async function submitSitIn() {
+        const idNumber = document.getElementById('genIdNumber').value.trim();
+        const purpose  = document.getElementById('genPurpose').value;
+        const lab      = document.getElementById('genLab').value;
+        const sessions = document.getElementById('genRemaining').value;
+
+        if (!idNumber)          return Swal.fire('Warning', 'Please enter a student ID number.', 'warning');
+        if (!sessions)          return Swal.fire('Warning', 'Student not found. Please enter a valid ID.', 'warning');
+        if (parseInt(sessions) <= 0) return Swal.fire('No Sessions', 'This student has no remaining sessions.', 'error');
+
+        try {
+            const res = await fetch(`${BASE_URL}/sit-in`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idNumber, purpose, lab })
+            });
+            if (res.ok) {
+                await Swal.fire({ icon: 'success', title: 'Sit-in Recorded!', timer: 1500, showConfirmButton: false });
+                closeModal('sitInModal');
+                fetchSitIns();
+            } else {
+                const txt = await res.text();
+                Swal.fire('Error', txt, 'error');
+            }
+        } catch (e) { Swal.fire('Error', 'Connection failed.', 'error'); }
+    }
+
+    // ── FETCH ACTIVE SIT-INS (sitin.html shows only active) ──
+    async function fetchSitIns() {
+        try {
+            const res  = await fetch(`${BASE_URL}/get-sitin`);
+            const data = await res.json();
+            allRecords      = data;
+            filteredRecords = [...data];
+            currentPage     = 1;
+            renderTable();
+        } catch (e) {
+            document.getElementById('sitInTableBody').innerHTML =
+                `<tr><td colspan="8" class="no-data" style="color:#dc3545;">
+                    <i class="fa fa-exclamation-triangle"></i> Could not connect to server.
+                </td></tr>`;
+        }
+    }
+
+    // ── TIME OUT ──
+    async function timeOut(idNumber, sitInId) {
+        const result = await Swal.fire({
+            title: 'Time Out Student?',
+            text: `Record logout time for ID: ${idNumber}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Time Out',
+            cancelButtonText: 'Cancel'
+        });
+        if (!result.isConfirmed) return;
+
+        try {
+            const res = await fetch(`${BASE_URL}/time-out/${sitInId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (res.ok) {
+                await Swal.fire({ icon: 'success', title: 'Timed Out!', timer: 1500, showConfirmButton: false });
+                fetchSitIns();
+            } else {
+                const txt = await res.text();
+                Swal.fire('Error', txt, 'error');
+            }
+        } catch (e) { Swal.fire('Error', 'Connection failed.', 'error'); }
+    }
+
+    // ── TABLE ──
+    function applySearch() {
+        const val = document.getElementById('searchInput').value.toLowerCase();
+        filteredRecords = allRecords.filter(r =>
+            Object.values(r).some(v => String(v).toLowerCase().includes(val))
+        );
+        currentPage = 1;
+        renderTable();
+    }
+
+    function changeEntries() {
+        entriesPerPage = parseInt(document.getElementById('entriesSelect').value);
+        currentPage = 1;
+        renderTable();
+    }
+
+    function renderTable() {
+        const tbody    = document.getElementById('sitInTableBody');
+        const start    = (currentPage - 1) * entriesPerPage;
+        const pageData = filteredRecords.slice(start, start + entriesPerPage);
+
+        if (pageData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="no-data">No active sit-in records found.</td></tr>`;
+            document.getElementById('paginationInfo').textContent = '';
+            updatePagination(0);
+            return;
+        }
+
+        tbody.innerHTML = pageData.map(r => {
+            const sessions = r.remainingSession ?? 30;
+            const isActive = !r.timeOut || r.timeOut === '';
+            return `
+            <tr>
+                <td>${r.id ?? '—'}</td>
+                <td>${r.idNumber}</td>
+                <td>${r.firstName ?? ''} ${r.lastName ?? ''}</td>
+                <td>${r.purpose}</td>
+                <td>${r.lab}</td>
+                <td><span class="badge badge-session">${sessions}</span></td>
+                <td>${isActive
+                    ? '<span class="badge badge-active"><i class="fa fa-circle" style="font-size:8px;"></i> Active</span>'
+                    : '<span class="badge badge-timeout"><i class="fa fa-circle" style="font-size:8px;"></i> Timed Out</span>'}
+                </td>
+                <td>${isActive
+                    ? `<button class="btn-timeout" onclick="timeOut('${r.idNumber}','${r.id}')"><i class="fa fa-sign-out"></i> Time Out</button>`
+                    : `<button class="btn-done" disabled>Done</button>`}
+                </td>
+            </tr>`;
+        }).join('');
+
+        const total = filteredRecords.length;
+        document.getElementById('paginationInfo').textContent =
+            `Showing ${start + 1} to ${Math.min(start + entriesPerPage, total)} of ${total} entries`;
+        updatePagination(total);
+    }
+
+    function updatePagination(totalItems) {
+        const totalPages = Math.ceil(totalItems / entriesPerPage);
+        const container  = document.getElementById('paginationBtns');
+        if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+        let html = '';
+        html += `<button onclick="goToPage(1)" ${currentPage===1?'disabled style="opacity:.5"':''}>«</button>`;
+        html += `<button onclick="goToPage(${currentPage-1})" ${currentPage===1?'disabled style="opacity:.5"':''}>‹</button>`;
+        const range = 2;
+        for (let i = Math.max(1, currentPage-range); i <= Math.min(totalPages, currentPage+range); i++) {
+            html += `<button onclick="goToPage(${i})"
+                style="margin:0 2px;padding:5px 10px;cursor:pointer;
+                background:${i===currentPage?'#2c3e70':'#fff'};
+                color:${i===currentPage?'#fff':'#000'};
+                border:1px solid #ddd;border-radius:3px;">${i}</button>`;
+        }
+        html += `<button onclick="goToPage(${currentPage+1})" ${currentPage===totalPages?'disabled style="opacity:.5"':''}>›</button>`;
+        html += `<button onclick="goToPage(${totalPages})" ${currentPage===totalPages?'disabled style="opacity:.5"':''}>»</button>`;
+        container.innerHTML = html;
+    }
+
+    function goToPage(p) {
+        const totalPages = Math.ceil(filteredRecords.length / entriesPerPage);
+        if (p < 1 || p > totalPages) return;
+        currentPage = p;
+        renderTable();
+    }
+
+    const sortKeys = ['id', 'idNumber', 'lastName', 'purpose', 'lab', 'remainingSession', 'timeOut'];
+    function sortTable(n) {
+        const key = sortKeys[n];
+        if (sortKey === key) sortAsc = !sortAsc;
+        else { sortKey = key; sortAsc = true; }
+        filteredRecords.sort((a, b) => {
+            const cmp = String(a[key]??'').localeCompare(String(b[key]??''), undefined, { numeric: true });
+            return sortAsc ? cmp : -cmp;
+        });
+        renderTable();
+    }
+
+    function logout() {
+        Swal.fire({
+            title: 'Logout Admin?',
+            text: 'Are you sure you want to end your admin session?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, logout!',
+            cancelButtonText: 'Stay logged in'
+        }).then(result => {
+            if (result.isConfirmed) {
+                sessionStorage.removeItem('adminWelcomeShown');
+                window.location.href = 'index.html';
+            }
+        });
+    }
+
+    window.onload = fetchSitIns;
+</script>
+</body>
+</html>
