@@ -146,7 +146,7 @@
             background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            font-size: 11px;
+            font-size: 13px;
             padding: 2px 7px;
             border-radius: 4px;
             cursor: pointer;
@@ -327,39 +327,6 @@ async function loadAnnouncements() {
     }
 }
 
-async function logout() {
-    const result = await Swal.fire({
-        title: 'Logout?',
-        text: "Are you sure you want to end your session?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#0056b3',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, Logout!'
-    });
-
-    if (result.isConfirmed) {
-        const sessionId = sessionStorage.getItem("currentSessionId");
-        const now = new Date();
-        const logoutTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-
-        if (sessionId) {
-            await fetch("http://localhost:3000/update-logout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    id: sessionId, 
-                    timeOut: logoutTime 
-                })
-            });
-        }
-
-        localStorage.removeItem('loggedInId');
-        sessionStorage.clear();
-        window.location.href = 'index.html';
-    }
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
 
     const idNumber = localStorage.getItem("loggedInId");
@@ -388,26 +355,24 @@ const justLoggedIn = sessionStorage.getItem("justLoggedIn");
     if (justLoggedIn) {
         sessionStorage.removeItem("justLoggedIn");
 
-        // Get current time and date
         const now = new Date();
         const currentTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-        const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
+        const currentDate = now.toISOString().split('T')[0];
 
-        // Send the login record to the server
         fetch("http://localhost:3000/add-history", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 idNumber: user.idNumber,
                 purpose: "Sit-in (Login)",
-                lab: "Lab 1", // Default lab
+                lab: "Lab 1",
                 login: currentTime,
                 date: currentDate
             })
         })
         .then(response => response.json())
         .then(data => {
-            // Store the record ID so we can update the logout time later
+
             sessionStorage.setItem("currentSessionId", data.id);
         })
         .catch(err => console.error("Error recording login:", err));
@@ -421,25 +386,21 @@ const justLoggedIn = sessionStorage.getItem("justLoggedIn");
         });
     }
 
-        // REPLACE THIS ENTIRE SECTION in dashboard.html
         const profileUpdated = sessionStorage.getItem("profileUpdated");
         if (profileUpdated) {
             sessionStorage.removeItem("profileUpdated");
 
-            // 🔥 FIXED - SHOW CONFIRM BUTTON, NO TIMER
             Swal.fire({
                 icon: 'success',
                 title: 'Profile Updated!',
                 text: 'Your changes have been saved successfully.',
                 confirmButtonColor: '#0056b3',
-                showConfirmButton: true,  // ✅ SHOW BUTTON
+                showConfirmButton: true,
                 allowOutsideClick: false,
                 allowEscapeKey: false
-                // NO TIMER - stays until clicked!
             });
         }
 
-        // DISPLAY USER DATA
         document.getElementById("display-id").textContent = user.idNumber;
         document.getElementById("display-name").textContent = 
             `${user.firstName} ${user.middleName} ${user.lastName}`;
@@ -461,7 +422,6 @@ const justLoggedIn = sessionStorage.getItem("justLoggedIn");
             }
         }
         
-        // Also display remaining sessions if you have that element
         if(document.getElementById("display-sessions")){
             document.getElementById("display-sessions").textContent = user.remainingSession;
         }
@@ -477,6 +437,48 @@ const justLoggedIn = sessionStorage.getItem("justLoggedIn");
     }
 
 });
+
+async function logout() {
+    const studentId = localStorage.getItem('loggedInId');
+    
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout?',
+        text: "This will end your current lab session and log you out.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0056b3',
+        confirmButtonText: 'Yes, Logout!'
+    });
+
+    if (isConfirmed) {
+        try {
+            if (studentId) {
+                await fetch("http://localhost:3000/record-final-logout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ idNumber: studentId })
+                });
+            }
+
+            localStorage.removeItem('loggedInId');
+            localStorage.removeItem('sessionExpiry');
+            sessionStorage.clear();
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Logged Out',
+                text: 'Your session has been closed.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            window.location.href = 'index.html';
+        } catch (err) {
+            console.error("Logout error:", err);
+            localStorage.removeItem('loggedInId');
+            window.location.href = 'index.html';
+        }
+    }
+}
 </script>
 </body>
 </html>

@@ -83,11 +83,9 @@ form.addEventListener('submit', async (e) => {
     const loginInput = document.getElementById('loginID').value.trim().toLowerCase();
     const password = document.getElementById('passwordField').value.trim();
 
-    // ================= ADMIN LOGIN =================
     if (loginInput === "admin" && password === "admin123") {
         sessionStorage.setItem("adminWelcomeShown", "false");
         
-        // Add the SweetAlert here
         Swal.fire({
             icon: "success",
             title: "Welcome, Admin!",
@@ -95,7 +93,7 @@ form.addEventListener('submit', async (e) => {
             timer: 1500,
             showConfirmButton: false
         }).then(() => {
-            // Redirect only AFTER the alert is done
+
             window.location.href = "admindashboard.html";
         });
         return;

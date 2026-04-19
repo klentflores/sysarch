@@ -56,7 +56,6 @@
             outline: none !important; 
         }
 
-        /* --- Search Result Card (From Image) --- */
         #searchResultsList { 
             margin-top: 15px; 
             display: flex; 
@@ -113,7 +112,6 @@
             color: #1cc88a; 
         }
 
-        /* --- Sit-in Form Styles --- */
         .student-profile-card { 
             background: #f8f9fc; 
             border-left: 5px solid #2c3e70; 
@@ -276,8 +274,27 @@
             transform: translateY(-1px);
         }
 
+        .btn-submit-ann {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-submit-ann:hover {
+            background-color: #218838;
+            transform: translateY(-1px);
+        }
+
         input[type="text"], input[type="date"] { 
-            padding: 8px; 
+            padding: 6px; 
             border: 1px solid #ddd; 
             border-radius: 5px; 
         }
@@ -361,7 +378,7 @@
                 
                 <div class="filter-group">
                     <input type="date" id="dateFilter">
-                    <button class="btn-submit-ann" style="margin-top:0;" onclick="loadReports()">Filter Date</button>
+                    <button class="btn-submit-ann" style="margin-top:0;" onclick="loadReports()"><i class="fa fa-calendar"></i> Filter Date</button>
                     <button class="btn-print" onclick="window.print()"><i class="fa fa-print"></i> Print PDF</button>
                 </div>
                 <input type="text" id="reportSearch" placeholder="Search by Name or ID..." onkeyup="filterTable()">
@@ -491,7 +508,7 @@
         }
 
     async function loadReports() {
-        // 1. Check if the user has selected a date to filter
+
         const dateVal = document.getElementById("dateFilter").value;
         let url = "http://localhost:3000/admin/reports";
         
@@ -500,18 +517,16 @@
         }
 
         try {
-            // 2. Fetch data from your Node server
+
             const res = await fetch(url);
             const data = await res.json();
             const body = document.getElementById("reportsBody");
             
-            // 3. Clear existing table and check for empty results
             if (data.length === 0) {
                 body.innerHTML = `<tr><td colspan="7" style="text-align:center;">No records found.</td></tr>`;
                 return;
             }
 
-            // 4. Map the data into HTML rows
             body.innerHTML = data.map(r => `
                 <tr>
                     <td><b>${r.idNumber}</b></td>
@@ -529,44 +544,61 @@
         }
     }
 
-    // --- SEARCH FILTER (Live Typing) ---
     function filterTable() {
         const input = document.getElementById("reportSearch").value.toUpperCase();
         const rows = document.getElementById("reportsBody").getElementsByTagName("tr");
         
         for (let row of rows) {
             const text = row.innerText.toUpperCase();
-            // Show the row if the ID or Name matches the search
+
             row.style.display = text.includes(input) ? "" : "none";
         }
     }
 
-    // --- INITIALIZE ---
-    // Automatically load everything when the admin opens the page
     document.addEventListener("DOMContentLoaded", loadReports);
     
-    // Modal helpers you already use
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    function logout() {
-        Swal.fire({
-            title: 'Logout Admin?',
-            text: "Are you sure you want to end your admin session?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, logout admin!',
-            cancelButtonText: 'Stay logged in'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Clear admin session data
-                sessionStorage.removeItem("adminWelcomeShown");
-                window.location.href = "index.html";
-            }
+    async function logout() {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout Admin?',
+        text: "This will end your admin session.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, Logout!',
+        cancelButtonText: 'Stay Logged In'
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+
+        sessionStorage.removeItem("adminWelcomeShown");
+        localStorage.removeItem("adminId");
+        sessionStorage.clear();
+
+        await Swal.fire({
+            icon: 'success',
+            title: 'Logged Out',
+            text: 'Admin session ended successfully.',
+            timer: 1500,
+            showConfirmButton: false
         });
+
+        window.location.href = "index.html";
+
+    } catch (err) {
+        console.error("Admin logout error:", err);
+
+        sessionStorage.clear();
+        localStorage.removeItem("adminId");
+
+        window.location.href = "index.html";
     }
+} 
 </script>
 </body>
 </html>

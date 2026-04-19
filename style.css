@@ -7,10 +7,10 @@
 body {
     background-color: #ffffff;
     color: #333;
+    background: linear-gradient(135deg, #f0f2f5 0%, #e8ecf3 100%);
 }
 
 
-/*NAVIGATION*/
 .navbar {
     background: linear-gradient(to right, #2c3e70, #1a1a2e);
     display: flex;

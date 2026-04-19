@@ -76,15 +76,16 @@
         }
         .feedback-btn:hover {
             background-color: #218838;
+            transform: translateY(-1px);
         }
+
         .table-header-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
         }
 
-        /* Sortable headers */
         .styled-table th {
             cursor: pointer;
             user-select: none;
@@ -98,7 +99,6 @@
         .sort-icon.desc::after { content: '▼'; opacity: 1; }
         .sort-icon:not(.asc):not(.desc)::after { content: '⇅'; }
 
-        /* Table footer */
         .table-footer {
             display: flex;
             justify-content: space-between;
@@ -108,13 +108,14 @@
             gap: 8px;
         }
         #entryInfo { 
-            font-size: 15px; color: #555; 
+            font-size: 16px; color: #555; 
         }
 
         .pagination { 
             display: flex; 
             gap: 5px; 
         }
+
         .pagination button {
             min-width: 32px;
             height: 32px;
@@ -125,13 +126,16 @@
             cursor: pointer;
             font-size: 0.85em;
         }
+
         .pagination button:hover:not(:disabled) { 
             background: #218838; 
         }
+
         .pagination button.active { 
             background: #28a745; 
             color: white; 
         }
+        
         .pagination button:disabled { 
             opacity: 0.4; 
             cursor: not-allowed; 
@@ -241,11 +245,9 @@
                     <select id="entryCount">
                         <option value="10">10</option>
                         <option value="25">25</option>
-                    </select> entries per page
+                    </select> Entries per page
                 </div>
-                <div class="search-container">
-                    Search: <input type="text" id="tableSearch">
-                </div>
+                <div class="search-container"><input type="text" id="tableSearch" placeholder="Search by Name or ID..."></div>
             </div>
 
             <table class="styled-table">
@@ -329,48 +331,6 @@ pollAnnouncements();
 setInterval(pollAnnouncements, 30000);
 
 
-async function logout() {
-    const studentId = localStorage.getItem('loggedInId');
-    
-    const { isConfirmed } = await Swal.fire({
-        title: 'Logout?',
-        text: "This will end your current lab session and log you out.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#0056b3',
-        confirmButtonText: 'Yes, Logout!'
-    });
-
-    if (isConfirmed) {
-        try {
-            if (studentId) {
-                await fetch("http://localhost:3000/record-final-logout", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ idNumber: studentId })
-                });
-            }
-
-            localStorage.removeItem('loggedInId');
-            localStorage.removeItem('sessionExpiry');
-            sessionStorage.clear();
-
-            await Swal.fire({
-                icon: 'success',
-                title: 'Logged Out',
-                text: 'Your session has been closed.',
-                timer: 1500,
-                showConfirmButton: false
-            });
-            window.location.href = 'index.html';
-        } catch (err) {
-            console.error("Logout error:", err);
-            localStorage.removeItem('loggedInId');
-            window.location.href = 'index.html';
-        }
-    }
-}
-
     let allData      = [];
     let filteredData = [];
     let currentPage  = 1;
@@ -444,8 +404,7 @@ async function logout() {
             document.getElementById("entryInfo").textContent = "Showing 0 to 0 of 0 entries";
         } else {
             tbody.innerHTML = slice.map(row => {
-                // ✅ DEFINE fullName HERE
-                // This combines the names sent by your new JOIN query in server.js
+
                 const fullName = (row.firstName && row.lastName) 
                     ? `${row.firstName} ${row.lastName}` 
                     : 'Student';
@@ -599,6 +558,48 @@ async function logout() {
     }
 
     loadData();
+    
+    async function logout() {
+    const studentId = localStorage.getItem('loggedInId');
+    
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout?',
+        text: "This will end your current lab session and log you out.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0056b3',
+        confirmButtonText: 'Yes, Logout!'
+    });
+
+    if (isConfirmed) {
+        try {
+            if (studentId) {
+                await fetch("http://localhost:3000/record-final-logout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ idNumber: studentId })
+                });
+            }
+
+            localStorage.removeItem('loggedInId');
+            localStorage.removeItem('sessionExpiry');
+            sessionStorage.clear();
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Logged Out',
+                text: 'Your session has been closed.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            window.location.href = 'index.html';
+        } catch (err) {
+            console.error("Logout error:", err);
+            localStorage.removeItem('loggedInId');
+            window.location.href = 'index.html';
+        }
+    }
+}
 </script>
 </body>
 </html>

@@ -9,16 +9,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
- 
-        /* ---- WRAPPER ---- */
-        .register-wrapper {
+         .register-wrapper {
             display: flex;
             justify-content: center;
             padding: 40px 25px 60px;
             min-height: calc(100vh - 65px);
         }
  
-        /* ---- MAIN LAYOUT ---- */
         .register-container {
             width: 100%;
             max-width: 950px;
@@ -27,7 +24,6 @@
             align-items: flex-start;
         }
  
-        /* ---- LEFT SIDEBAR ---- */
         .profile-sidebar {
             width: 250px;
             flex-shrink: 0;
@@ -601,50 +597,6 @@ async function pollAnnouncements() {
 pollAnnouncements();
 setInterval(pollAnnouncements, 30000);
 
-async function logout() {
-    const studentId = localStorage.getItem('loggedInId');
-    
-    const { isConfirmed } = await Swal.fire({
-        title: 'Logout?',
-        text: "This will end your current lab session and log you out.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#0056b3',
-        confirmButtonText: 'Yes, Logout!'
-    });
-
-    if (isConfirmed) {
-        try {
-
-            if (studentId) {
-                await fetch("http://localhost:3000/record-final-logout", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ idNumber: studentId })
-                });
-            }
-
-            localStorage.removeItem('loggedInId');
-            localStorage.removeItem('sessionExpiry');
-            sessionStorage.clear();
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Logged Out',
-                text: 'Your session has been closed.',
-                timer: 1500,
-                showConfirmButton: false
-            }).then(() => {
-                window.location.href = 'index.html';
-            });
-        } catch (err) {
-            console.error("Logout error:", err);
-
-            localStorage.removeItem('loggedInId');
-            window.location.href = 'index.html';
-        }
-    }
-}
 
 let selectedPhoto = null;
 
@@ -756,6 +708,49 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 });
+
+
+async function logout() {
+    const studentId = localStorage.getItem('loggedInId');
+    
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout?',
+        text: "This will end your current lab session and log you out.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0056b3',
+        confirmButtonText: 'Yes, Logout!'
+    });
+
+    if (isConfirmed) {
+        try {
+            if (studentId) {
+                await fetch("http://localhost:3000/record-final-logout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ idNumber: studentId })
+                });
+            }
+
+            localStorage.removeItem('loggedInId');
+            localStorage.removeItem('sessionExpiry');
+            sessionStorage.clear();
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Logged Out',
+                text: 'Your session has been closed.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            window.location.href = 'index.html';
+        } catch (err) {
+            console.error("Logout error:", err);
+            localStorage.removeItem('loggedInId');
+            window.location.href = 'index.html';
+        }
+    }
+}
 </script>
 </body>
 </html>

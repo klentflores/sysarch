@@ -704,24 +704,45 @@ let myChart = null;
             }
         };
 
-    function logout() {
-        Swal.fire({
-            title: 'Logout Admin?',
-            text: "Are you sure you want to end your admin session?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, logout admin!',
-            cancelButtonText: 'Stay logged in'
-        }).then((result) => {
-            if (result.isConfirmed) {
+    async function logout() {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout Admin?',
+        text: "This will end your admin session.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, Logout!',
+        cancelButtonText: 'Stay Logged In'
+    });
 
-                sessionStorage.removeItem("adminWelcomeShown");
-                window.location.href = "index.html";
-            }
+    if (!isConfirmed) return;
+
+    try {
+
+        sessionStorage.removeItem("adminWelcomeShown");
+        localStorage.removeItem("adminId");
+        sessionStorage.clear();
+
+        await Swal.fire({
+            icon: 'success',
+            title: 'Logged Out',
+            text: 'Admin session ended successfully.',
+            timer: 1500,
+            showConfirmButton: false
         });
+
+        window.location.href = "index.html";
+
+    } catch (err) {
+        console.error("Admin logout error:", err);
+
+        sessionStorage.clear();
+        localStorage.removeItem("adminId");
+
+        window.location.href = "index.html";
     }
+}   
 </script>
 </body>
 </html>

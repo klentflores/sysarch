@@ -244,11 +244,10 @@
             color: #555;
         }
         .search-control input {
-            padding: 7px 12px;
+            padding: 6px;
             border: 1px solid #ddd;
             border-radius: 5px;
             outline: none;
-            width: 200px;
         }
         .btn-add-sitin {
             background-color: #28a745;
@@ -330,7 +329,7 @@
             padding: 40px 0;
             font-size: 14px;
         }
-        /* Sit-in modal specific */
+
         .sitin-input {
             width: 100%;
             padding: 10px 12px;
@@ -373,7 +372,6 @@
         </ul>
     </nav>
 
-    <!-- ===== SEARCH / UNIFIED SIT-IN MODAL (navbar Search button) ===== -->
     <div id="unifiedSitInModal" class="modal-overlay">
         <div class="modal-content" style="width: 450px;">
             <div class="modal-header">
@@ -511,7 +509,7 @@
                     </tr>
                 </thead>
                 <tbody id="sitInTableBody">
-                    <tr><td colspan="8" class="no-data">Loading records…</td></tr>
+                    <tr><td colspan="9" class="no-data">Loading records…</td></tr>
                 </tbody>
             </table>
 
@@ -692,7 +690,6 @@
         } catch (e) { Swal.fire('Error', 'Connection failed.', 'error'); }
     }
 
-    // ── FETCH ACTIVE SIT-INS (sitin.html shows only active) ──
     async function fetchSitIns() {
         try {
             const res  = await fetch(`${BASE_URL}/get-sitin`);
@@ -703,7 +700,7 @@
             renderTable();
         } catch (e) {
             document.getElementById('sitInTableBody').innerHTML =
-                `<tr><td colspan="8" class="no-data" style="color:#dc3545;">
+                `<tr><td colspan="9" class="no-data" style="color:#dc3545;">
                     <i class="fa fa-exclamation-triangle"></i> Could not connect to server.
                 </td></tr>`;
         }
@@ -834,23 +831,45 @@
         renderTable();
     }
 
-    function logout() {
-        Swal.fire({
-            title: 'Logout Admin?',
-            text: 'Are you sure you want to end your admin session?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, logout!',
-            cancelButtonText: 'Stay logged in'
-        }).then(result => {
-            if (result.isConfirmed) {
-                sessionStorage.removeItem('adminWelcomeShown');
-                window.location.href = 'index.html';
-            }
+    async function logout() {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout Admin?',
+        text: "This will end your admin session.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, Logout!',
+        cancelButtonText: 'Stay Logged In'
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+
+        sessionStorage.removeItem("adminWelcomeShown");
+        localStorage.removeItem("adminId");
+        sessionStorage.clear();
+
+        await Swal.fire({
+            icon: 'success',
+            title: 'Logged Out',
+            text: 'Admin session ended successfully.',
+            timer: 1500,
+            showConfirmButton: false
         });
+
+        window.location.href = "index.html";
+
+    } catch (err) {
+        console.error("Admin logout error:", err);
+
+        sessionStorage.clear();
+        localStorage.removeItem("adminId");
+
+        window.location.href = "index.html";
     }
+} 
 
     window.onload = fetchSitIns;
 </script>

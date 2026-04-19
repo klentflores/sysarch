@@ -305,30 +305,6 @@
         }
     }
 
-    async function logout(e) {
-        if (e) e.preventDefault();
-        const studentId = localStorage.getItem('loggedInId');
-        const { isConfirmed } = await Swal.fire({
-            title: 'Logout?',
-            text: "This will end your current sit-in session.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#0056b3',
-            confirmButtonText: 'Yes, Logout!'
-        });
- 
-        if (isConfirmed) {
-            try {
-                await fetch("http://localhost:3000/record-final-logout", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ idNumber: studentId })
-                });
-            } catch (err) { /* silent */ }
-            localStorage.clear();
-            window.location.href = 'index.html';
-        }
-    }
  
     document.addEventListener("DOMContentLoaded", async () => {
         const idNumber = localStorage.getItem("loggedInId");
@@ -350,6 +326,48 @@
         }
  
     });
+
+async function logout() {
+    const studentId = localStorage.getItem('loggedInId');
+    
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout?',
+        text: "This will end your current lab session and log you out.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0056b3',
+        confirmButtonText: 'Yes, Logout!'
+    });
+
+    if (isConfirmed) {
+        try {
+            if (studentId) {
+                await fetch("http://localhost:3000/record-final-logout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ idNumber: studentId })
+                });
+            }
+
+            localStorage.removeItem('loggedInId');
+            localStorage.removeItem('sessionExpiry');
+            sessionStorage.clear();
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Logged Out',
+                text: 'Your session has been closed.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            window.location.href = 'index.html';
+        } catch (err) {
+            console.error("Logout error:", err);
+            localStorage.removeItem('loggedInId');
+            window.location.href = 'index.html';
+        }
+    }
+}
 </script>
 </body>
 </html>

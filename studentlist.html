@@ -57,7 +57,6 @@
             outline: none !important; 
         }
 
-        /* --- Search Result Card (From Image) --- */
         #searchResultsList { 
             margin-top: 15px; 
             display: flex; 
@@ -114,7 +113,6 @@
             color: #1cc88a; 
         }
 
-        /* --- Sit-in Form Styles --- */
         .student-profile-card { 
             background: #f8f9fc; 
             border-left: 5px solid #2c3e70; 
@@ -277,10 +275,9 @@
 
         .search-box { 
             float: right; 
-            padding: 10px; 
+            padding: 6px; 
             border: 1px solid #ccc; 
             border-radius: 5px; 
-            width: 250px; 
         }
 
         .badge-session { 
@@ -533,11 +530,11 @@
         <div class="table-card">
             <center><h1 style="margin-bottom: 20px;">Students Information</h1></center>
 
-            <div style="margin-bottom: 30px;">
+            <div style="margin-bottom: 15px;">
 
-                <button class="btn-add" onclick="openModal('addStudentModal')">Add Student</button>
-                <button class="btn-reset" onclick="resetAllSessions()">Reset All Sessions</button>
-                <input type="text" class="search-box" id="tableSearch" placeholder="Filter table..." onkeyup="filterTable()">
+                <button class="btn-add" onclick="openModal('addStudentModal')"><i class="fa fa-user-plus"></i> Add Student</button>
+                <button class="btn-reset" onclick="resetAllSessions()"><i class="fa fa-refresh"></i> Reset All Sessions</button>
+                <input type="text" class="search-box" id="tableSearch" placeholder="Search by Name or ID..." onkeyup="filterTable()">
 
             </div>
             <table>
@@ -864,24 +861,45 @@
 
     window.onload = fetchStudents;
 
-    function logout() {
-        Swal.fire({
-            title: 'Logout Admin?',
-            text: "Are you sure you want to end your admin session?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, logout admin!',
-            cancelButtonText: 'Stay logged in'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Clear admin session data
-                sessionStorage.removeItem("adminWelcomeShown");
-                window.location.href = "index.html";
-            }
+    async function logout() {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout Admin?',
+        text: "This will end your admin session.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, Logout!',
+        cancelButtonText: 'Stay Logged In'
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+
+        sessionStorage.removeItem("adminWelcomeShown");
+        localStorage.removeItem("adminId");
+        sessionStorage.clear();
+
+        await Swal.fire({
+            icon: 'success',
+            title: 'Logged Out',
+            text: 'Admin session ended successfully.',
+            timer: 1500,
+            showConfirmButton: false
         });
+
+        window.location.href = "index.html";
+
+    } catch (err) {
+        console.error("Admin logout error:", err);
+
+        sessionStorage.clear();
+        localStorage.removeItem("adminId");
+
+        window.location.href = "index.html";
     }
+} 
 </script>
 </body>
 </html>

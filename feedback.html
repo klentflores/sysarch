@@ -57,7 +57,6 @@
             outline: none !important; 
         }
 
-        /* --- Search Result Card (From Image) --- */
         #searchResultsList { 
             margin-top: 15px; 
             display: flex; 
@@ -114,7 +113,6 @@
             color: #1cc88a; 
         }
 
-        /* --- Sit-in Form Styles --- */
         .student-profile-card { 
             background: #f8f9fc; 
             border-left: 5px solid #2c3e70; 
@@ -264,20 +262,28 @@
         }
 
         .btn-print { 
-            background: #fff; 
-            color: #333; 
-            border: 1px solid #ccc; 
-            padding: 8px 20px; 
-            border-radius: 4px; 
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 9px 17px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: 500;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-print:hover {
+            background-color: #218838;
+            transform: translateY(-1px);
         }
 
         #feedbackSearch { 
-            padding: 8px 12px; 
+            padding: 6px; 
             border: 1px solid #ddd; 
             border-radius: 5px; 
-            width: 250px;
         }
     </style>
 </head>
@@ -355,11 +361,8 @@
                 <center><h1 style="margin-bottom: 20px;">Feedback Reports</h1></center>
             
             <div class="controls">
-                <button class="btn-print" onclick="window.print()">Print</button>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <label for="feedbackSearch">Filter</label>
-                    <input type="text" id="feedbackSearch" onkeyup="filterFeedback()">
-                </div>
+                <button class="btn-print" onclick="window.print()"><i class="fa fa-print"></i> Print PDF</button>
+                <div><input type="text" id="feedbackSearch" placeholder="Search by Name or ID..." onkeyup="filterFeedback()"></div>
             </div>
 
             <table id="feedbackTable">
@@ -523,24 +526,45 @@
         // Initialize on page load
     document.addEventListener("DOMContentLoaded", loadFeedback);
 
-    function logout() {
-        Swal.fire({
-            title: 'Logout Admin?',
-            text: "Are you sure you want to end your admin session?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, logout admin!',
-            cancelButtonText: 'Stay logged in'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Clear admin session data
-                sessionStorage.removeItem("adminWelcomeShown");
-                window.location.href = "index.html";
-            }
+    async function logout() {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout Admin?',
+        text: "This will end your admin session.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, Logout!',
+        cancelButtonText: 'Stay Logged In'
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+
+        sessionStorage.removeItem("adminWelcomeShown");
+        localStorage.removeItem("adminId");
+        sessionStorage.clear();
+
+        await Swal.fire({
+            icon: 'success',
+            title: 'Logged Out',
+            text: 'Admin session ended successfully.',
+            timer: 1500,
+            showConfirmButton: false
         });
+
+        window.location.href = "index.html";
+
+    } catch (err) {
+        console.error("Admin logout error:", err);
+
+        sessionStorage.clear();
+        localStorage.removeItem("adminId");
+
+        window.location.href = "index.html";
     }
+} 
 </script>
 </body>
 </html>

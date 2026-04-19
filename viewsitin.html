@@ -226,7 +226,7 @@
         }
 
         .entries-control select, .search-control input {
-            padding: 8px;
+            padding: 6px;
             border: 1px solid #ddd;
             border-radius: 5px;
             outline: none;
@@ -416,7 +416,7 @@
                             <option value="25">25</option>
                             <option value="50">50</option>
                         </select> 
-                        entries
+                        Entries
                     </div>
                     <button class="btn-refresh" onclick="fetchSitIns()"><i class="fa fa-refresh"></i> Refresh</button>
                 </div>
@@ -708,26 +708,46 @@
         renderTable();
     }
 
-    // ─── 7. LOGOUT ───
-    function logout() {
-        Swal.fire({
-            title: 'Logout Admin?',
-            text: "Are you sure you want to end your admin session?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, logout!',
-            cancelButtonText: 'Stay logged in'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                sessionStorage.removeItem("adminWelcomeShown");
-                window.location.href = "index.html";
-            }
-        });
-    }
+   async function logout() {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout Admin?',
+        text: "This will end your admin session.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, Logout!',
+        cancelButtonText: 'Stay Logged In'
+    });
 
-    // ─── INIT ───
+    if (!isConfirmed) return;
+
+    try {
+
+        sessionStorage.removeItem("adminWelcomeShown");
+        localStorage.removeItem("adminId");
+        sessionStorage.clear();
+
+        await Swal.fire({
+            icon: 'success',
+            title: 'Logged Out',
+            text: 'Admin session ended successfully.',
+            timer: 1500,
+            showConfirmButton: false
+        });
+
+        window.location.href = "index.html";
+
+    } catch (err) {
+        console.error("Admin logout error:", err);
+
+        sessionStorage.clear();
+        localStorage.removeItem("adminId");
+
+        window.location.href = "index.html";
+    }
+} 
+
     window.onload = fetchSitIns;
 </script>
 </body>
