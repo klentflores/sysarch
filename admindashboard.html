@@ -8,8 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet"> 
-</head>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         .modal-overlay {
             display: none;
@@ -313,6 +312,7 @@
 
 
     </style>
+</head>
 <body>
 
     <nav class="navbar">
@@ -326,7 +326,7 @@
             <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
             <li><a href="feedback.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
             <li><a href="adminreservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
-            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out-alt"></i> Log out</a></li>
         </ul>
     </nav>
 
@@ -483,6 +483,108 @@ let myChart = null;
         }
     }
 
+    async function loadAnnouncements() {
+        try {
+            const res = await fetch('http://localhost:3000/announcements');
+            const announcements = await res.json();
+            const list = document.getElementById('announcementList');
+
+            if (announcements.length === 0) {
+                list.innerHTML = '<p style="color:#aaa;">No announcements yet.</p>';
+                return;
+            }
+
+            list.innerHTML = announcements.map(a => `
+            <div class="announcement-item">
+                <small style="color: #4e73df; font-weight: bold; font-size: 16px">
+                    ${a.author} | ${a.date}
+                </small>
+                <p style="margin-top: 5px;">${a.content}</p>
+
+                <button class="delete-btn" onclick="deleteAnnouncement('${a.id}')">
+                    <i class="fa fa-trash"></i> Delete
+                </button>
+            </div>
+        `).join('');
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function postAnnouncement() {
+        const content = document.getElementById('announcementText').value.trim();
+        if (!content) return Swal.fire('Error', 'Cannot post empty announcement', 'error');
+        try {
+            const res = await fetch('http://localhost:3000/admin/announcement', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content })
+            });
+            if (res.ok) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Posted!',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                });
+                document.getElementById('announcementText').value = '';
+                loadAnnouncements();
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    async function deleteAnnouncement(id) {
+        const { isConfirmed } = await Swal.fire({
+            title: 'Delete Announcement?',
+            text: "This action cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, Delete!',
+            cancelButtonText: 'Cancel',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        });
+
+        if (!isConfirmed) return;
+
+        try {
+            const res = await fetch(`http://localhost:3000/admin/announcement/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (res.ok) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Deleted',
+                    text: 'Announcement removed successfully.',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                });
+                loadAnnouncements();
+
+            } else {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: 'Failed to delete announcement.'
+                });
+            }
+
+        } catch (err) {
+            console.error("Delete error:", err);
+
+            await Swal.fire({
+                icon: 'error',
+                title: 'Server Error',
+                text: 'Something went wrong.'
+            });
+        }
+    }
+
         function openUnifiedModal() {
             document.getElementById('unifiedSitInModal').style.display = 'flex';
             document.getElementById('searchResultsList').innerHTML = '';
@@ -585,7 +687,9 @@ let myChart = null;
                 icon: 'success',
                 title: 'Success',
                 text: 'Sit-in recorded!',
-                confirmButtonText: 'OK'
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                allowEscapeKey: false 
             });
 
             closeModal('unifiedSitInModal');
@@ -594,155 +698,62 @@ let myChart = null;
         }
     }
 
-    async function loadAnnouncements() {
-        try {
-            const res = await fetch('http://localhost:3000/announcements');
-            const announcements = await res.json();
-            const list = document.getElementById('announcementList');
-
-            if (announcements.length === 0) {
-                list.innerHTML = '<p style="color:#aaa;">No announcements yet.</p>';
-                return;
-            }
-
-            list.innerHTML = announcements.map(a => `
-            <div class="announcement-item">
-                <small style="color: #4e73df; font-weight: bold; font-size: 16px">
-                    ${a.author} | ${a.date}
-                </small>
-                <p style="margin-top: 5px;">${a.content}</p>
-
-                <button class="delete-btn" onclick="deleteAnnouncement('${a.id}')">
-                    <i class="fa fa-trash"></i> Delete
-                </button>
-            </div>
-        `).join('');
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    async function postAnnouncement() {
-        const content = document.getElementById('announcementText').value.trim();
-        if (!content) return Swal.fire('Error', 'Cannot post empty announcement', 'error');
-        try {
-            const res = await fetch('http://localhost:3000/admin/announcement', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content })
-            });
-            if (res.ok) {
-                await Swal.fire({
-                    icon: 'success',
-                    title: 'Posted!',
-                    confirmButtonText: 'OK',
-                    allowOutsideClick: false
-                });
-                document.getElementById('announcementText').value = '';
-                loadAnnouncements();
-            }
-        } catch (e) { console.error(e); }
-    }
-
-    async function deleteAnnouncement(id) {
-        try {
-            const result = await Swal.fire({
-                title: 'Delete this announcement?',
-                text: "This action cannot be undone.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it',
-                allowOutsideClick: false,
-                allowEscapeKey: false
-            });
-
-            if (!result.isConfirmed) return;
-
-            const res = await fetch(`http://localhost:3000/admin/announcement/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (res.ok) {
-                await Swal.fire({
-                    icon: 'success',
-                    title: 'Deleted!',
-                    text: 'Announcement removed.',
-                    confirmButtonText: 'OK',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    timer: 0
-                });
-
-                await loadAnnouncements();
-
-            } else {
-                Swal.fire('Error', 'Failed to delete announcement', 'error');
-            }
-
-        } catch (err) {
-            console.error(err);
-            Swal.fire('Error', 'Server error', 'error');
-        }
-    }
-
     window.onload = function() {
-            loadDashboardStats();
-            loadAnnouncements();
+        loadDashboardStats();
+        loadAnnouncements();
 
-            if (!sessionStorage.getItem("adminWelcomeShown")) {
-                Swal.fire({
-                    title: 'Welcome, Admin!',
-                    text: 'System analytics and student records are ready.',
-                    icon: 'success',
-                    confirmButtonColor: '#0056b3',
-                    background: '#fff',
-                });
+        if (!sessionStorage.getItem("adminWelcomeShown")) {
+            Swal.fire({
+                title: 'Welcome, Admin!',
+                text: 'System analytics and student records are ready.',
+                icon: 'success',
+                confirmButtonColor: '#0056b3',
+                background: '#fff',
+            });
 
-                sessionStorage.setItem("adminWelcomeShown", "true");
-            }
-        };
+            sessionStorage.setItem("adminWelcomeShown", "true");
+        }
+    };
 
     async function logout() {
-    const { isConfirmed } = await Swal.fire({
-        title: 'Logout Admin?',
-        text: "This will end your admin session.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, Logout!',
-        cancelButtonText: 'Stay Logged In'
-    });
-
-    if (!isConfirmed) return;
-
-    try {
-
-        sessionStorage.removeItem("adminWelcomeShown");
-        localStorage.removeItem("adminId");
-        sessionStorage.clear();
-
-        await Swal.fire({
-            icon: 'success',
-            title: 'Logged Out',
-            text: 'Admin session ended successfully.',
-            timer: 1500,
-            showConfirmButton: false
+        const { isConfirmed } = await Swal.fire({
+            title: 'Logout Admin?',
+            text: "This will end your admin session.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, Logout!',
+            cancelButtonText: 'Stay Logged In'
         });
 
-        window.location.href = "index.html";
+        if (!isConfirmed) return;
 
-    } catch (err) {
-        console.error("Admin logout error:", err);
+        try {
 
-        sessionStorage.clear();
-        localStorage.removeItem("adminId");
+            sessionStorage.removeItem("adminWelcomeShown");
+            localStorage.removeItem("adminId");
+            sessionStorage.clear();
 
-        window.location.href = "index.html";
-    }
-}   
+            await Swal.fire({
+                icon: 'success',
+                title: 'Logged Out',
+                text: 'Admin session ended successfully.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            window.location.href = "index.html";
+
+        } catch (err) {
+            console.error("Admin logout error:", err);
+
+            sessionStorage.clear();
+            localStorage.removeItem("adminId");
+
+            window.location.href = "index.html";
+        }
+    }   
 </script>
 </body>
 </html>
