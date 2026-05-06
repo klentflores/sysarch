@@ -180,18 +180,12 @@
         .theme-toggle-btn {
             display: flex;
             align-items: center;
-            gap: 7px;
             background: rgba(255,255,255,0.12);
             border: 1px solid rgba(255,255,255,0.22);
             color: white;
-            padding: 6px 13px;
+            padding: 3px;
             border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            font-family: 'Plus Jakarta Sans', sans-serif;
             transition: background 0.25s ease, transform 0.15s ease;
-            white-space: nowrap;
         }
 
         .theme-toggle-btn:hover {
@@ -203,6 +197,74 @@
             background: rgba(255,193,7,0.15);
             border-color: rgba(255,193,7,0.4);
             color: #ffc107;
+        }
+
+         /* ══════════════════════════════════════
+           DARK / LIGHT MODE - CSS VARIABLES
+        ══════════════════════════════════════ */
+        :root {
+            --bg-page:      #f0f2f5;
+            --bg-card:      #ffffff;
+            --bg-input:     #f6f6f6;
+            --text-main:    #333333;
+            --text-muted:   #555555;
+            --text-label:   #1a1a2e;
+            --border-color: #dddddd;
+            --border-inner: #cccccc;
+            --shadow:       0 10px 30px rgba(0,0,0,0.2);
+            --table-even:   #f3f3f3;
+            --table-hover:  #f8f9fc;
+            --thead-bg:     #f0f2f5;
+        }
+        [data-theme="dark"] {
+            --bg-page:      #0f1117;
+            --bg-card:      #1a1d27;
+            --bg-input:     #22263a;
+            --text-main:    #e0e0e0;
+            --text-muted:   #b0b8cc;
+            --text-label:   #ffffff;
+            --border-color: #2e3347;
+            --border-inner: #3a3f58;
+            --shadow:       0 10px 30px rgba(0,0,0,0.5);
+            --table-even:   #1e2235;
+            --table-hover:  #232840;
+            --thead-bg:     #1e2235;
+        }
+        body {
+            background: var(--bg-page);
+            color: var(--text-main);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        [data-theme="dark"] .navbar {
+            background: linear-gradient(to right, #111827, #0a0a1a) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+        }
+        [data-theme="dark"] .notif-dropdown {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+        }
+ 
+        /* reservation dark mode */
+        .reservation-container { background: var(--bg-page); }
+        .reservation-card {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+            box-shadow: var(--shadow);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        [data-theme="dark"] .reservation-card label { color: var(--text-main); }
+        [data-theme="dark"] .reservation-card input,
+        [data-theme="dark"] .reservation-card select {
+            background: var(--bg-input);
+            border-color: var(--border-color);
+            color: var(--text-main);
+        }
+        [data-theme="dark"] .reservation-card input:focus,
+        [data-theme="dark"] .reservation-card select:focus { border-color: #4e73df; outline: none; }
+        [data-theme="dark"] .pending-notice {
+            background: #2d2000;
+            border-color: #ffc107;
+            color: #fbbf24;
         }
 </style>
 </head>
@@ -233,7 +295,7 @@
             <li>
                 <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
                     <i class="fa-solid fa-moon" id="themeIcon"></i>
-                    <span id="themeLabel">Dark Mode</span>
+                    <span id="themeLabel"></span>
                 </button>
             </li>
             <li><a href="javascript:void(0)" onclick="logout(event)" class="logout"><i class="fa fa-sign-out"></i> Logout</a></li>
@@ -314,10 +376,8 @@
         const label = document.getElementById('themeLabel');
         if (theme === 'dark') {
             icon.className  = 'fa-solid fa-sun';
-            label.textContent = 'Light Mode';
         } else {
             icon.className  = 'fa-solid fa-moon';
-            label.textContent = 'Dark Mode';
         }
     }
     

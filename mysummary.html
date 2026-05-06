@@ -295,18 +295,12 @@
         .theme-toggle-btn {
             display: flex;
             align-items: center;
-            gap: 7px;
             background: rgba(255,255,255,0.12);
             border: 1px solid rgba(255,255,255,0.22);
             color: white;
-            padding: 6px 13px;
+            padding: 3px;
             border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            font-family: 'Plus Jakarta Sans', sans-serif;
             transition: background 0.25s ease, transform 0.15s ease;
-            white-space: nowrap;
         }
 
         .theme-toggle-btn:hover {
@@ -319,6 +313,80 @@
             border-color: rgba(255,193,7,0.4);
             color: #ffc107;
         }
+
+        /* ══════════════════════════════════════
+           DARK / LIGHT MODE - CSS VARIABLES
+        ══════════════════════════════════════ */
+        :root {
+            --bg-page:      #f0f2f5;
+            --bg-card:      #ffffff;
+            --bg-input:     #f6f6f6;
+            --text-main:    #333333;
+            --text-muted:   #555555;
+            --text-label:   #1a1a2e;
+            --border-color: #dddddd;
+            --border-inner: #cccccc;
+            --shadow:       0 10px 30px rgba(0,0,0,0.2);
+            --table-even:   #f3f3f3;
+            --table-hover:  #f8f9fc;
+            --thead-bg:     #f0f2f5;
+        }
+        [data-theme="dark"] {
+            --bg-page:      #0f1117;
+            --bg-card:      #1a1d27;
+            --bg-input:     #22263a;
+            --text-main:    #e0e0e0;
+            --text-muted:   #b0b8cc;
+            --text-label:   #ffffff;
+            --border-color: #2e3347;
+            --border-inner: #3a3f58;
+            --shadow:       0 10px 30px rgba(0,0,0,0.5);
+            --table-even:   #1e2235;
+            --table-hover:  #232840;
+            --thead-bg:     #1e2235;
+        }
+        body {
+            background: var(--bg-page);
+            color: var(--text-main);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        [data-theme="dark"] .navbar {
+            background: linear-gradient(to right, #111827, #0a0a1a) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+        }
+        [data-theme="dark"] .notif-dropdown {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+        }
+ 
+        /* mysummary dark mode */
+        .summary-wrapper { background: var(--bg-page); }
+        .stat-card,
+        .sum-card {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+            box-shadow: var(--shadow);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        [data-theme="dark"] .stat-value { color: #c8d0e8; }
+        [data-theme="dark"] .stat-label { color: var(--text-muted); }
+        [data-theme="dark"] .icon-blue   { background: #1e3a5f; color: #60a5fa; }
+        [data-theme="dark"] .icon-green  { background: #064e3b; color: #34d399; }
+        [data-theme="dark"] .icon-yellow { background: #451a03; color: #fbbf24; }
+        [data-theme="dark"] .icon-purple { background: #2e1065; color: #a78bfa; }
+        [data-theme="dark"] .sum-card-header { background: #1e2a50; }
+        [data-theme="dark"] .activity-table thead tr { background: var(--thead-bg); }
+        [data-theme="dark"] .activity-table th { color: var(--text-muted); }
+        [data-theme="dark"] .activity-table td { color: var(--text-main); border-color: var(--border-color); }
+        [data-theme="dark"] .activity-table tbody tr:hover { background: var(--table-hover); }
+        [data-theme="dark"] .purpose-name { color: var(--text-main); }
+        [data-theme="dark"] .progress-bar-wrap { background: #2e3347; }
+        [data-theme="dark"] .session-stats-row { border-color: var(--border-inner); }
+        [data-theme="dark"] .session-stat .val { color: #c8d0e8; }
+        [data-theme="dark"] .session-stat .lbl { color: var(--text-muted); }
+        [data-theme="dark"] .session-arc-label .big { color: #c8d0e8; }
+        [data-theme="dark"] .session-arc-label .sub { color: var(--text-muted); }
+        [data-theme="dark"] .empty-state { color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -350,7 +418,7 @@
         <li>
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
                 <i class="fa-solid fa-moon" id="themeIcon"></i>
-                <span id="themeLabel">Dark Mode</span>
+                <span id="themeLabel"></span>
             </button>
         </li>
         <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out"></i> Logout</a></li>
@@ -470,10 +538,8 @@ function applyTheme(theme) {
     const label = document.getElementById('themeLabel');
     if (theme === 'dark') {
         icon.className  = 'fa-solid fa-sun';
-        label.textContent = 'Light Mode';
     } else {
         icon.className  = 'fa-solid fa-moon';
-        label.textContent = 'Dark Mode';
     }
 }
  
@@ -716,23 +782,43 @@ function renderPurposeBreakdown(purposeMap, total) {
 // ── LOGOUT ───────────────────────────────────────────────────────────────
 async function logout() {
     const studentId = localStorage.getItem('loggedInId');
+    
     const { isConfirmed } = await Swal.fire({
-        title: 'Logout?', text: 'This will end your current lab session.',
-        icon: 'warning', showCancelButton: true,
-        confirmButtonColor: '#0056b3', confirmButtonText: 'Yes, Logout!'
+        title: 'Logout?',
+        text: "This will end your current lab session and log you out.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0056b3',
+        confirmButtonText: 'Yes, Logout!'
     });
+
     if (isConfirmed) {
         try {
-            if (studentId) await fetch(`${BASE}/record-final-logout`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idNumber: studentId })
-            });
+            if (studentId) {
+                await fetch("http://localhost:3000/record-final-logout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ idNumber: studentId })
+                });
+            }
+
             localStorage.removeItem('loggedInId');
             localStorage.removeItem('sessionExpiry');
             sessionStorage.clear();
-            await Swal.fire({ icon: 'success', title: 'Logged Out', timer: 1500, showConfirmButton: false });
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Logged Out',
+                text: 'Your session has been closed.',
+                timer: 1500,
+                showConfirmButton: false
+            });
             window.location.href = 'index.html';
-        } catch { localStorage.removeItem('loggedInId'); window.location.href = 'index.html'; }
+        } catch (err) {
+            console.error("Logout error:", err);
+            localStorage.removeItem('loggedInId');
+            window.location.href = 'index.html';
+        }
     }
 }
 

@@ -156,6 +156,29 @@
             max-height: 300px;
             overflow-y: auto;
         }
+        
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            color: white;
+            padding: 3px;
+            border-radius: 20px;
+            transition: background 0.25s ease, transform 0.15s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(255,193,7,0.15);
+            border-color: rgba(255,193,7,0.4);
+            color: #ffc107;
+        }
+
         /* ── DARK / LIGHT MODE VARIABLES ── */
         :root {
             --bg-page:     #f0f2f5;
@@ -203,33 +226,6 @@
             background: #1e2a50;
         }
 
-        .theme-toggle-btn {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.22);
-            color: white;
-            padding: 6px 13px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            transition: background 0.25s ease, transform 0.15s ease;
-            white-space: nowrap;
-        }
-
-        .theme-toggle-btn:hover {
-            background: rgba(255,255,255,0.22);
-            transform: translateY(-1px);
-        }
-
-        [data-theme="dark"] .theme-toggle-btn {
-            background: rgba(255,193,7,0.15);
-            border-color: rgba(255,193,7,0.4);
-            color: #ffc107;
-        }
 </style>
 <body>
 
@@ -259,7 +255,7 @@
         <li>
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
                 <i class="fa-solid fa-moon" id="themeIcon"></i>
-                <span id="themeLabel">Dark Mode</span>
+                <span id="themeLabel"></span>
             </button>
         </li>
         <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out"></i> Logout</a></li>
@@ -341,10 +337,8 @@ function applyTheme(theme) {
     const label = document.getElementById('themeLabel');
     if (theme === 'dark') {
         icon.className  = 'fa-solid fa-sun';
-        label.textContent = 'Light Mode';
     } else {
         icon.className  = 'fa-solid fa-moon';
-        label.textContent = 'Dark Mode';
     }
 }
  

@@ -288,6 +288,28 @@
             text-align: center; padding: 40px; color: #aaa;
             font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif;
         }
+
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            color: white;
+            padding: 3px;
+            border-radius: 20px;
+            transition: background 0.25s ease, transform 0.15s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(255,193,7,0.15);
+            border-color: rgba(255,193,7,0.4);
+            color: #ffc107;
+        }
     </style>
 </head>
 <body>
@@ -308,6 +330,12 @@
         <li><a href="analytics.html"><i class="fa fa-line-chart"></i> Analytics</a></li>
         <li><a href="reward.html" class="active"><i class="fa fa-gift"></i> Reward</a></li>
         <li><a href="software.html"><i class="fa fa-upload"></i> Software</a></li>
+        <li>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                <i class="fa-solid fa-moon" id="themeIcon"></i>
+                <span id="themeLabel"></span>
+            </button>
+        </li>
         <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out-alt"></i> Log out</a></li>
     </ul>
 </nav>
@@ -403,6 +431,39 @@
 </div>
 
 <script>
+    /* ══════════════════════════════════════
+    DARK / LIGHT MODE
+    ══════════════════════════════════════ */
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const icon  = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
+        if (theme === 'dark') {
+            icon.className  = 'fa-solid fa-sun';
+        } else {
+            icon.className  = 'fa-solid fa-moon';
+        }
+    }
+    
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next    = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('ccs_theme', next);
+        applyTheme(next);
+    
+        // Animate the icon on toggle
+        const icon = document.getElementById('themeIcon');
+        icon.style.transform = 'rotate(360deg)';
+        icon.style.transition = 'transform 0.4s ease';
+        setTimeout(() => { icon.style.transform = ''; icon.style.transition = ''; }, 400);
+    }
+    
+    // Load saved theme on page start
+    (function() {
+        const saved = localStorage.getItem('ccs_theme') || 'light';
+        applyTheme(saved);
+    })();
+
 const BASE = 'http://localhost:3000';
 
 // ── LOAD LEADERBOARD ──────────────────────────────────────────────────────
