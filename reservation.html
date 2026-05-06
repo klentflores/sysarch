@@ -118,18 +118,125 @@
         gap: 10px;
     }
     .pending-notice i { font-size: 18px; }
+
+        .notif-wrapper {
+            position: relative;
+        }
+
+        .notif-badge {
+            display: none;
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            background: #e24b4a;
+            color: white;
+            font-size: 10px;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #2c3e70;
+        }
+
+        .notif-dropdown {
+            display: none;
+            position: absolute;
+            top: 36px;
+            right: 0;
+            width: 300px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .notif-header {
+            background: #2c3e70;
+            color: white;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .notif-mark-btn {
+            float: right;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .notif-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            color: white;
+            padding: 6px 13px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background 0.25s ease, transform 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(255,193,7,0.15);
+            border-color: rgba(255,193,7,0.4);
+            color: #ffc107;
+        }
 </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo-text"><i class="fa fa-calendar"></i> Student Reservation</div>
         <ul class="nav-links">
-            <li><a href="#"><i class="fa fa-bell"></i> Notifications</a></li>
+            <li class="notif-wrapper">
+                <a href="#" onclick="toggleNotifDropdown(event)">
+                    <i class="fa fa-bell"></i> Notifications
+                </a>
+                <span id="notifBadge" class="notif-badge"></span>
+                <div id="notifDropdown" class="notif-dropdown">
+                    <div class="notif-header">
+                        <i class="fa fa-bell"></i> Announcements
+                        <button onclick="markAllRead()" class="notif-mark-btn">Mark all read</button>
+                    </div>
+                    <div id="notifList" class="notif-list"></div>
+                </div>
+            </li>
             <li><a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a></li>
             <li><a href="editprofile.html"><i class="fa fa-pencil"></i> Edit Profile</a></li>
             <li><a href="history.html"><i class="fa fa-history"></i> History</a></li>
             <li><a href="javascript:void(0)" class="active"><i class="fa fa-calendar"></i> Reservation</a></li>
-            <li><a href="javascript:void(0)" onclick="logout(event)" class="logout"><i class="fa fa-sign-in"></i> Logout</a></li>
+            <li><a href="leaderboard.html"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+            <li><a href="mysummary.html"><i class="fa fa-chart-line"></i> My Summary</a></li>
+            <li><a href="labstatus.html"><i class="fa fa-desktop"></i> Lab Status</a></li>
+            <li>
+                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </button>
+            </li>
+            <li><a href="javascript:void(0)" onclick="logout(event)" class="logout"><i class="fa fa-sign-out"></i> Logout</a></li>
         </ul>
     </nav>
 
@@ -198,6 +305,96 @@
     </div>
 
 <script>
+    /* ══════════════════════════════════════
+    DARK / LIGHT MODE
+    ══════════════════════════════════════ */
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const icon  = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
+        if (theme === 'dark') {
+            icon.className  = 'fa-solid fa-sun';
+            label.textContent = 'Light Mode';
+        } else {
+            icon.className  = 'fa-solid fa-moon';
+            label.textContent = 'Dark Mode';
+        }
+    }
+    
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next    = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('ccs_theme', next);
+        applyTheme(next);
+    
+        // Animate the icon on toggle
+        const icon = document.getElementById('themeIcon');
+        icon.style.transform = 'rotate(360deg)';
+        icon.style.transition = 'transform 0.4s ease';
+        setTimeout(() => { icon.style.transform = ''; icon.style.transition = ''; }, 400);
+    }
+    
+    // Load saved theme on page start
+    (function() {
+        const saved = localStorage.getItem('ccs_theme') || 'light';
+        applyTheme(saved);
+    })();
+
+    let _announcements = [];
+
+    function toggleNotifDropdown(e) {
+        e.preventDefault();
+        const d = document.getElementById('notifDropdown');
+        d.style.display = d.style.display === 'block' ? 'none' : 'block';
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('li:has(#notifDropdown)')) {
+            const d = document.getElementById('notifDropdown');
+            if (d) d.style.display = 'none';
+        }
+    });
+
+    function getReadIds() { return JSON.parse(localStorage.getItem('readIds') || '[]'); }
+    function saveReadIds(ids) { localStorage.setItem('readIds', JSON.stringify(ids)); }
+
+    function markAllRead() {
+        saveReadIds(_announcements.map(a => a.id));
+        renderNotifs();
+    }
+
+    function renderNotifs() {
+        const readIds = getReadIds();
+        const unread = _announcements.filter(a => !readIds.includes(a.id)).length;
+        const badge = document.getElementById('notifBadge');
+        badge.textContent = unread;
+        badge.style.display = unread > 0 ? 'flex' : 'none';
+
+        document.getElementById('notifList').innerHTML = _announcements.length
+            ? _announcements.map(a => `
+                <div onclick="markOneRead(${a.id})" style="padding:12px 14px; border-bottom:1px solid #eee;
+                    cursor:pointer; background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
+                    <div style="font-size:11px; color:#888;">${a.author} | ${a.date}</div>
+                    <div style="font-size:13px; color:#222; margin-top:3px;">${a.content}</div>
+                </div>`).join('')
+            : '<p style="text-align:center;color:#aaa;padding:20px;font-size:13px;">No announcements yet.</p>';
+    }
+
+    function markOneRead(id) {
+        const ids = getReadIds();
+        if (!ids.includes(id)) { ids.push(id); saveReadIds(ids); renderNotifs(); }
+    }
+
+    async function pollAnnouncements() {
+        try {
+            const res = await fetch('http://localhost:3000/announcements');
+            _announcements = await res.json();
+            renderNotifs();
+        } catch(e) {}
+    }
+
+    pollAnnouncements();
+    setInterval(pollAnnouncements, 30000);
 
     function generatePCGrid() {
         const pcContainer = document.getElementById('pc-selection-container');

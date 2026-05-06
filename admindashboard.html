@@ -228,7 +228,6 @@
             font-weight: 700;
             margin: 0;
             text-transform: none;
-            font-family: 'Nunito', sans-serif;
         }
 
         .card-body {
@@ -326,6 +325,10 @@
             <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
             <li><a href="feedback.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
             <li><a href="adminreservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="adminleaderboard.html"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+            <li><a href="analytics.html"><i class="fa fa-line-chart"></i> Analytics</a></li>
+            <li><a href="reward.html"><i class="fa fa-gift"></i> Reward</a></li>
+            <li><a href="software.html"><i class="fa fa-upload"></i> Software</a></li>
             <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out-alt"></i> Log out</a></li>
         </ul>
     </nav>
@@ -496,7 +499,7 @@ let myChart = null;
 
             list.innerHTML = announcements.map(a => `
             <div class="announcement-item">
-                <small style="color: #4e73df; font-weight: bold; font-size: 16px">
+                <small style="color: #4e73df; font-weight: bold; font-size: 16px,">
                     ${a.author} | ${a.date}
                 </small>
                 <p style="margin-top: 5px;">${a.content}</p>

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - CCS Sit-in Monitoring</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ── PAGE LAYOUT ── */
+        .leaderboard-wrapper {
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* ── MAIN GRID ── */
+        .leaderboard-grid {
+            display: grid;
+            grid-template-columns: 1.8fr 1fr;
+            gap: 25px;
+            width: 100%;
+            max-width: 1100px;
+            align-items: start;
+        }
+
+        /* ── SHARED CARD ── */
+        .lb-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            border: 1px solid #e3e6f0;
+        }
+
+        .lb-card-header {
+            background: #2c3e70;
+            color: white;
+            padding: 14px 20px;
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 0.04em;
+        }
+
+        .lb-card-body {
+            padding: 20px;
+        }
+
+        /* ── LEADERBOARD TABLE ── */
+        .lb-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92em;
+        }
+
+        .lb-table thead tr {
+            background-color: #f0f2f5;
+            color: #444;
+            text-align: left;
+        }
+
+        .lb-table th,
+        .lb-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .lb-table th {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #666;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .lb-table td {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #333;
+        }
+
+        .lb-table tbody tr:hover {
+            background-color: #f8f9fc;
+            transition: background 0.2s;
+        }
+
+        /* ── RANK BADGE ── */
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .rank-1 { background: #ffd700; color: #333; }
+        .rank-2 { background: #c0c0c0; color: #333; }
+        .rank-3 { background: #cd7f32; color: #fff; }
+        .rank-other { background: #e8ecf3; color: #555; }
+
+        /* ── HIGHLIGHT CURRENT USER ── */
+        .current-user-row {
+            background-color: #eaf0ff !important;
+            font-weight: 600;
+        }
+
+        /* ── POINTS BADGE ── */
+        .points-badge {
+            display: inline-block;
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffc107;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* ── COURSE CHIP ── */
+        .course-chip {
+            display: inline-block;
+            background: #e8ecf3;
+            color: #555;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* ── YOUR RANKING CARD ── */
+        .rank-display {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .rank-number {
+            font-size: 64px;
+            font-weight: 800;
+            color: #4e73df;
+            font-family: 'Sora', sans-serif;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .rank-label {
+            font-size: 13px;
+            color: #888;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .rank-divider {
+            border: none;
+            border-top: 1px solid #eee;
+            margin: 0 -20px 25px;
+        }
+
+        .rank-stat-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .rank-stat-value {
+            font-size: 42px;
+            font-weight: 800;
+            color: #ffc107;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .rank-stat-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* ── ADDITIONAL STATS ROW ── */
+        .rank-meta {
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            margin-top: 5px;
+        }
+
+        .rank-meta-item {
+            text-align: center;
+        }
+
+        .rank-meta-item .meta-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e70;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .rank-meta-item .meta-label {
+            font-size: 11px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* ── TROPHY ICONS ── */
+        .trophy-1 { color: #ffd700; }
+        .trophy-2 { color: #c0c0c0; }
+        .trophy-3 { color: #cd7f32; }
+
+        /* ── EMPTY STATE ── */
+        .empty-lb {
+            text-align: center;
+            color: #aaa;
+            padding: 40px 20px;
+            font-size: 15px;
+        }
+
+        /* ── NOTIFICATION (copied from dashboard) ── */
+        .notif-wrapper { position: relative; }
+        .notif-badge {
+            display: none;
+            position: absolute;
+            top: -4px; right: -6px;
+            background: #e24b4a;
+            color: white;
+            font-size: 10px;
+            border-radius: 50%;
+            width: 16px; height: 16px;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #2c3e70;
+        }
+        .notif-dropdown {
+            display: none;
+            position: absolute;
+            top: 36px; right: 0;
+            width: 300px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            overflow: hidden;
+        }
+        .notif-header {
+            background: #2c3e70;
+            color: white;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .notif-mark-btn {
+            float: right;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .notif-list { max-height: 300px; overflow-y: auto; }
+
+        /* ── LOADING SPINNER ── */
+        .lb-loading {
+            text-align: center;
+            padding: 40px;
+            color: #aaa;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .lb-loading i { font-size: 28px; margin-bottom: 10px; animation: spin 1s linear infinite; display: block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            color: white;
+            padding: 6px 13px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background 0.25s ease, transform 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(255,193,7,0.15);
+            border-color: rgba(255,193,7,0.4);
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+    <div class="logo-text"><i class="fa fa-trophy"></i> Student Leaderboard</div>
+    <ul class="nav-links">
+        <li class="notif-wrapper">
+            <a href="#" onclick="toggleNotifDropdown(event)">
+                <i class="fa fa-bell"></i> Notifications
+            </a>
+            <span id="notifBadge" class="notif-badge"></span>
+            <div id="notifDropdown" class="notif-dropdown">
+                <div class="notif-header">
+                    <i class="fa fa-bell"></i> Announcements
+                    <button onclick="markAllRead()" class="notif-mark-btn">Mark all read</button>
+                </div>
+                <div id="notifList" class="notif-list"></div>
+            </div>
+        </li>
+        <li><a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a></li>
+        <li><a href="editprofile.html"><i class="fa fa-pencil"></i> Edit Profile</a></li>
+        <li><a href="history.html"><i class="fa fa-history"></i> History</a></li>
+        <li><a href="reservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+        <li><a href="leaderboard.html" class="active"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+        <li><a href="mysummary.html"><i class="fa fa-chart-line"></i> My Summary</a></li>
+        <li><a href="labstatus.html"><i class="fa fa-desktop"></i> Lab Status</a></li>
+        <li>
+                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </button>
+            </li>
+        <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out"></i> Logout</a></li>
+    </ul>
+</nav>
+
+<!-- ── PAGE CONTENT ── -->
+<div class="leaderboard-wrapper">
+
+    <div class="leaderboard-grid">
+
+        <!-- LEFT: Top Students Table -->
+        <div class="lb-card">
+            <div class="lb-card-header"><i class="fa-solid fa-ranking-star"></i> Top Students</div>
+            <div class="lb-card-body" style="padding: 0;">
+                <div id="leaderboardContent">
+                    <div class="lb-loading">
+                        <i class="fa fa-spinner"></i>
+                        Loading leaderboard...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Your Ranking -->
+        <div class="lb-card">
+            <div class="lb-card-header">
+                <i class="fa-solid fa-medal"></i> Your Ranking
+            </div>
+            <div class="lb-card-body">
+                <div class="rank-display">
+                    <div id="yourRankNumber" class="rank-number">—</div>
+                    <div class="rank-label">Your current rank</div>
+
+                    <hr class="rank-divider">
+
+                    <div class="rank-stat-box">
+                        <div id="yourPoints" class="rank-stat-value">—</div>
+                        <div class="rank-stat-label">Total Points</div>
+                    </div>
+
+                    <div class="rank-meta">
+                        <div class="rank-meta-item">
+                            <div id="yourSitins" class="meta-value">—</div>
+                            <div class="meta-label">Sit-ins</div>
+                        </div>
+                        <div class="rank-meta-item">
+                            <div id="totalStudents" class="meta-value">—</div>
+                            <div class="meta-label">Total Students</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── SCRIPTS ── -->
+<script>
+const BASE = 'http://localhost:3000';
+
+/* ══════════════════════════════════════
+   DARK / LIGHT MODE
+══════════════════════════════════════ */
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const icon  = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (theme === 'dark') {
+        icon.className  = 'fa-solid fa-sun';
+        label.textContent = 'Light Mode';
+    } else {
+        icon.className  = 'fa-solid fa-moon';
+        label.textContent = 'Dark Mode';
+    }
+}
+ 
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next    = current === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('ccs_theme', next);
+    applyTheme(next);
+ 
+    // Animate the icon on toggle
+    const icon = document.getElementById('themeIcon');
+    icon.style.transform = 'rotate(360deg)';
+    icon.style.transition = 'transform 0.4s ease';
+    setTimeout(() => { icon.style.transform = ''; icon.style.transition = ''; }, 400);
+}
+ 
+// Load saved theme on page start
+(function() {
+    const saved = localStorage.getItem('ccs_theme') || 'light';
+    applyTheme(saved);
+})();
+
+// ── NOTIFICATION SYSTEM ──────────────────────────────────────────────
+let _announcements = [];
+
+function toggleNotifDropdown(e) {
+    e.preventDefault();
+    const d = document.getElementById('notifDropdown');
+    d.style.display = d.style.display === 'block' ? 'none' : 'block';
+}
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('li:has(#notifDropdown)')) {
+        const d = document.getElementById('notifDropdown');
+        if (d) d.style.display = 'none';
+    }
+});
+
+function getReadIds() { return JSON.parse(localStorage.getItem('readIds') || '[]'); }
+function saveReadIds(ids) { localStorage.setItem('readIds', JSON.stringify(ids)); }
+
+function markAllRead() {
+    saveReadIds(_announcements.map(a => a.id));
+    renderNotifs();
+}
+
+function renderNotifs() {
+    const readIds = getReadIds();
+    const unread = _announcements.filter(a => !readIds.includes(a.id)).length;
+    const badge = document.getElementById('notifBadge');
+    badge.textContent = unread;
+    badge.style.display = unread > 0 ? 'flex' : 'none';
+
+    document.getElementById('notifList').innerHTML = _announcements.length
+        ? _announcements.map(a => `
+            <div onclick="markOneRead(${a.id})" style="padding:12px 14px; border-bottom:1px solid #eee;
+                cursor:pointer; background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
+                <div style="font-size:11px; color:#888;">${a.author} | ${a.date}</div>
+                <div style="font-size:13px; color:#222; margin-top:3px;">${a.content}</div>
+            </div>`).join('')
+        : '<p style="text-align:center;color:#aaa;padding:20px;font-size:13px;">No announcements yet.</p>';
+}
+
+function markOneRead(id) {
+    const ids = getReadIds();
+    if (!ids.includes(id)) { ids.push(id); saveReadIds(ids); renderNotifs(); }
+}
+
+async function pollAnnouncements() {
+    try {
+        const res = await fetch(`${BASE}/announcements`);
+        _announcements = await res.json();
+        renderNotifs();
+    } catch(e) {}
+}
+pollAnnouncements();
+setInterval(pollAnnouncements, 30000);
+
+// ── LEADERBOARD LOGIC ─────────────────────────────────────────────────
+async function loadLeaderboard() {
+    const myId = localStorage.getItem('loggedInId');
+    if (!myId) { window.location.href = 'index.html'; return; }
+
+    try {
+        const res = await fetch(`${BASE}/leaderboard`);
+        if (!res.ok) throw new Error('Server error');
+        const data = await res.json(); // [{ idNumber, firstName, lastName, course, sitins, points }, ...]
+
+        renderTable(data, myId);
+        renderMyRank(data, myId);
+    } catch (err) {
+        console.error('Leaderboard error:', err);
+        document.getElementById('leaderboardContent').innerHTML =
+            '<div class="lb-loading"><i class="fa fa-exclamation-circle" style="color:#e74c3c;animation:none;"></i>Could not load leaderboard.<br><small>Make sure the server is running.</small></div>';
+    }
+}
+
+function renderTable(data, myId) {
+    const container = document.getElementById('leaderboardContent');
+
+    if (!data.length) {
+        container.innerHTML = '<div class="empty-lb"><i class="fa fa-ghost"></i><br>No data yet. Be the first to sit in!</div>';
+        return;
+    }
+
+    const trophyIcons = ['trophy-1', 'trophy-2', 'trophy-3'];
+    const rankClasses = ['rank-1', 'rank-2', 'rank-3'];
+
+    const rows = data.map((s, i) => {
+        const rank  = i + 1;
+        const isMe  = s.idNumber === myId;
+        const rankBadgeClass = rank <= 3 ? rankClasses[rank - 1] : 'rank-other';
+        const rowClass       = isMe ? 'current-user-row' : '';
+        const meLabel        = isMe ? ' <span style="font-size:10px;background:#4e73df;color:#fff;padding:1px 6px;border-radius:8px;vertical-align:middle;">You</span>' : '';
+
+        return `
+            <tr class="${rowClass}">
+                <td><span class="rank-badge ${rankBadgeClass}">${rank <= 3 ? '<i class="fa fa-trophy ' + (trophyIcons[rank-1]) + '"></i>' : '#' + rank}</span></td>
+                <td>${s.firstName} ${s.lastName}${meLabel}</td>
+                <td><span class="course-chip">${s.course || '—'}</span></td>
+                <td>${s.sitins}</td>
+                <td><span class="points-badge">${s.points}</span></td>
+            </tr>`;
+    }).join('');
+
+    container.innerHTML = `
+        <table class="lb-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Sit-ins</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+}
+
+function renderMyRank(data, myId) {
+    const idx = data.findIndex(s => s.idNumber === myId);
+    const me  = data[idx];
+
+    document.getElementById('totalStudents').textContent = data.length;
+
+    if (!me) {
+        document.getElementById('yourRankNumber').textContent = '—';
+        document.getElementById('yourPoints').textContent   = '0';
+        document.getElementById('yourSitins').textContent   = '0';
+        return;
+    }
+
+    const rank = idx + 1;
+    document.getElementById('yourRankNumber').textContent = `#${rank}`;
+    document.getElementById('yourPoints').textContent     = me.points;
+    document.getElementById('yourSitins').textContent     = me.sitins;
+}
+
+// ── LOGOUT ─────────────────────────────────────────────────────────────
+async function logout() {
+    const studentId = localStorage.getItem('loggedInId');
+
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout?',
+        text: 'This will end your current lab session and log you out.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0056b3',
+        confirmButtonText: 'Yes, Logout!'
+    });
+
+    if (isConfirmed) {
+        try {
+            if (studentId) {
+                await fetch(`${BASE}/record-final-logout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idNumber: studentId })
+                });
+            }
+            localStorage.removeItem('loggedInId');
+            localStorage.removeItem('sessionExpiry');
+            sessionStorage.clear();
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Logged Out',
+                text: 'Your session has been closed.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            window.location.href = 'index.html';
+        } catch (err) {
+            localStorage.removeItem('loggedInId');
+            window.location.href = 'index.html';
+        }
+    }
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', loadLeaderboard);
+</script>
+</body>
+</html>

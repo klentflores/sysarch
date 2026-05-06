@@ -10,6 +10,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet"> 
     <style>
 
+        .page-title {
+            font-size: 25px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 1200px;
+        }
+ 
+        .page-title i { color: #34ad52; }
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -87,10 +101,9 @@
             display: grid;
             grid-template-columns: 220px 1fr 1fr;
             gap: 20px;
-            padding: 30px;
+            padding: 20px;
             max-width: 1400px;
             margin: auto;
-            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         .panel {
@@ -281,13 +294,20 @@
             <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
             <li><a href="feedback.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
             <li><a href="adminreservation.html" class="active"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="adminleaderboard.html"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+            <li><a href="analytics.html"><i class="fa fa-line-chart"></i> Analytics</a></li>
+            <li><a href="reward.html"><i class="fa fa-gift"></i> Reward</a></li>
+            <li><a href="software.html"><i class="fa fa-upload"></i> Software</a></li>
             <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out-alt"></i> Log out</a></li>
         </ul>
     </nav>
 
+    <div style="padding: 25px 30px 0; max-width: 1400px; margin: auto;">
+        <div class="page-title"><i class="fa-solid fa-calendar-check"></i> Manage Reservations</div>
+    </div>
     <!-- Main Grid -->
     <div class="reservation-grid">
-
+        
         <!-- Panel 1: Computer Control -->
         <div class="panel">
             <div class="panel-header">Computer Control</div>
@@ -550,44 +570,44 @@
     }
 
    async function logout() {
-    const { isConfirmed } = await Swal.fire({
-        title: 'Logout Admin?',
-        text: "This will end your admin session.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, Logout!',
-        cancelButtonText: 'Stay Logged In'
-    });
-
-    if (!isConfirmed) return;
-
-    try {
-
-        sessionStorage.removeItem("adminWelcomeShown");
-        localStorage.removeItem("adminId");
-        sessionStorage.clear();
-
-        await Swal.fire({
-            icon: 'success',
-            title: 'Logged Out',
-            text: 'Admin session ended successfully.',
-            timer: 1500,
-            showConfirmButton: false
+        const { isConfirmed } = await Swal.fire({
+            title: 'Logout Admin?',
+            text: "This will end your admin session.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, Logout!',
+            cancelButtonText: 'Stay Logged In'
         });
 
-        window.location.href = "index.html";
+        if (!isConfirmed) return;
 
-    } catch (err) {
-        console.error("Admin logout error:", err);
+        try {
 
-        sessionStorage.clear();
-        localStorage.removeItem("adminId");
+            sessionStorage.removeItem("adminWelcomeShown");
+            localStorage.removeItem("adminId");
+            sessionStorage.clear();
 
-        window.location.href = "index.html";
-    }
-} 
+            await Swal.fire({
+                icon: 'success',
+                title: 'Logged Out',
+                text: 'Admin session ended successfully.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            window.location.href = "index.html";
+
+        } catch (err) {
+            console.error("Admin logout error:", err);
+
+            sessionStorage.clear();
+            localStorage.removeItem("adminId");
+
+            window.location.href = "index.html";
+        }
+    }   
 
     // ── On Load ──────────────────────────────────────────────
     document.addEventListener("DOMContentLoaded", () => {

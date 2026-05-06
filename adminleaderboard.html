@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - CCS Admin</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ── PAGE LAYOUT ── */
+        .page-wrapper {
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: calc(100vh - 60px);
+            margin-top: 20px;
+        }
+
+        .page-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 1200px;
+        }
+ 
+        .page-title i { color: #28a745; }
+
+        /* ── MAIN CARD ── */
+        .lb-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            overflow: hidden;
+            border: 1px solid #e3e6f0;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* ── CARD HEADER ── */
+        .lb-card-header {
+            background: #2c3e70;
+            color: white;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .lb-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .lb-legend {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.75);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .legend-item i { color: #ffc107; font-size: 10px; }
+
+        /* ── TABLE ── */
+        .lb-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        .lb-table thead tr {
+            background: #f0f2f5;
+        }
+
+        .lb-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #666;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        .lb-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #333;
+            vertical-align: middle;
+        }
+
+        .lb-table tbody tr:hover { background: #f8f9fc; }
+
+        /* ── RANK BADGE ── */
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .rank-1 { background: #fff3cd; color: #856404; }
+        .rank-2 { background: #e9ecef; color: #495057; }
+        .rank-3 { background: #f8d7b0; color: #7a4f26; }
+        .rank-other { background: #eef0f5; color: #666; font-size: 12px; }
+
+        /* ── STUDENT CELL ── */
+        .student-name {
+            font-weight: 700;
+            color: #1a1a2e;
+            font-size: 14px;
+        }
+
+        .student-id {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+
+        /* ── COURSE CHIP ── */
+        .course-chip {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* ── HOURS ── */
+        .hours-val {
+            color: #1cc88a;
+            font-weight: 600;
+        }
+
+        .hours-sub {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+
+        /* ── POINTS ── */
+        .points-val {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffc107;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .points-unit {
+            font-size: 11px;
+            font-weight: 700;
+            color: #ffc107;
+        }
+
+        .points-sub {
+            font-size: 10px;
+            color: #bbb;
+            margin-top: 2px;
+            cursor: help;
+        }
+
+        /* ── TOOLTIP ── */
+        .tooltip-wrap { position: relative; display: inline-block; }
+
+        .tooltip-wrap .tooltip-box {
+            visibility: hidden;
+            opacity: 0;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 11px;
+            border-radius: 8px;
+            padding: 8px 12px;
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 0;
+            white-space: nowrap;
+            z-index: 100;
+            transition: opacity 0.2s;
+            line-height: 1.7;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .tooltip-wrap:hover .tooltip-box {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* ── ADD POINTS BUTTON ── */
+        .btn-add-points {
+            background: #1cc88a;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-add-points:hover {
+            background: #17a673;
+            transform: translateY(-1px);
+        }
+
+        /* ── EMPTY / LOADING ── */
+        .lb-status {
+            text-align: center;
+            padding: 50px 20px;
+            color: #aaa;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px;
+        }
+
+        .lb-status i {
+            display: block;
+            font-size: 30px;
+            margin-bottom: 10px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── RESET ALL POINTS ── */
+        .btn-reset {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold; 
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-reset:hover { 
+            background: #da0b1f;
+            transform: translateY(-1px); 
+        }
+
+        .card-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafbfc;
+        }
+
+        .footer-info {
+            font-size: 12px;
+            color: #aaa;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
+    <ul class="nav-links">
+        <li><a href="admindashboard.html"><i class="fa fa-home"></i> Home</a></li>
+        <li><a href="javascript:void(0)" onclick="openUnifiedModal()"><i class="fa fa-search"></i> Search</a></li>
+        <li><a href="studentlist.html"><i class="fa fa-users"></i> Students</a></li>
+        <li><a href="sitin.html"><i class="fa fa-laptop"></i> Sit-in</a></li>
+        <li><a href="viewsitin.html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
+        <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+        <li><a href="feedback.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+        <li><a href="adminreservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+        <li><a href="adminleaderboard.html" class="active"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+        <li><a href="analytics.html"><i class="fa fa-line-chart"></i> Analytics</a></li>
+        <li><a href="reward.html"><i class="fa fa-gift"></i> Reward</a></li>
+        <li><a href="software.html"><i class="fa fa-upload"></i> Software</a></li>
+        <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out-alt"></i> Log out</a></li>
+    </ul>
+</nav>
+
+<!-- ── PAGE ── -->
+<div class="page-wrapper">
+    
+    <div class="page-title"><i class="fa fa-trophy"></i> Leaderboard</div>
+
+    <div class="lb-card">
+
+        <!-- Header -->
+        <div class="lb-card-header">
+            <div class="lb-header-left">
+                <i class="fa-solid fa-ranking-star"></i> Top Students by Points
+            </div>
+            <div class="lb-legend">
+                <div class="legend-item">
+                    <i class="fa fa-star"></i> Points = +1 completion
+                </div>
+                <div class="legend-item">
+                    <i class="fa fa-clock"></i> 20min (max 5) +1 bonus
+                </div>
+                <div class="legend-item">
+                    <i class="fa fa-fire"></i> +2 bonus ≥ 2h
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div id="tableContainer">
+            <div class="lb-status">
+                <i class="fa fa-spinner"></i>
+                Loading leaderboard...
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer">
+            <span class="footer-info" id="footerInfo">—</span>
+            <button class="btn-reset" onclick="confirmResetPoints()">
+                <i class="fa fa-refresh"></i> Reset All Points
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── SCRIPTS ── -->
+<script>
+const BASE = 'http://localhost:3000';
+
+// ── LOAD LEADERBOARD ────────────────────────────────────────────────────
+async function loadLeaderboard() {
+    try {
+        const res = await fetch(`${BASE}/admin/leaderboard`);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        renderTable(data);
+        document.getElementById('footerInfo').textContent =
+            `${data.length} student${data.length !== 1 ? 's' : ''} ranked`;
+    } catch {
+        document.getElementById('tableContainer').innerHTML = `
+            <div class="lb-status">
+                <i class="fa fa-exclamation-circle" style="color:#e74c3c;animation:none;"></i>
+                Could not load leaderboard.<br>
+                <small>Make sure the server is running.</small>
+            </div>`;
+    }
+}
+
+// ── RENDER TABLE ─────────────────────────────────────────────────────────
+function renderTable(data) {
+    if (!data.length) {
+        document.getElementById('tableContainer').innerHTML =
+            '<div class="lb-status"><i class="fa fa-ghost" style="animation:none;"></i>No sit-in records found.</div>';
+        return;
+    }
+
+    const trophyHTML = [
+        '<i class="fa fa-trophy" style="color:#ffd700;font-size:18px;"></i>',
+        '<i class="fa fa-trophy" style="color:#c0c0c0;font-size:18px;"></i>',
+        '<i class="fa fa-trophy" style="color:#cd7f32;font-size:18px;"></i>'
+    ];
+    const rankClass = ['rank-1','rank-2','rank-3'];
+
+    const rows = data.map((s, i) => {
+        const rank = i + 1;
+        const rankBadge = rank <= 3
+            ? `<span class="rank-badge ${rankClass[rank-1]}">${trophyHTML[rank-1]}</span>`
+            : `<span class="rank-badge rank-other">#${rank}</span>`;
+
+        const totalHrsDisplay = s.totalMinutes > 0
+            ? `<span class="hours-val">${Math.floor(s.totalMinutes/60)}h ${s.totalMinutes%60}m</span>
+               <div class="hours-sub">Longest: ${s.longestMinutes > 0 ? Math.floor(s.longestMinutes/60)+'h '+s.longestMinutes%60+'m' : '—'}</div>`
+            : `<span class="hours-val">0h</span><div class="hours-sub">Longest: —</div>`;
+
+        const avgDisplay = s.sitins > 0 && s.totalMinutes > 0
+            ? `${Math.round(s.totalMinutes / s.sitins)}m`
+            : '—';
+
+        const breakdown = buildBreakdown(s);
+
+        return `
+            <tr>
+                <td>${rankBadge}</td>
+                <td>
+                    <div class="student-name">${s.firstName} ${s.lastName}</div>
+                    <div class="student-id">${s.idNumber}</div>
+                </td>
+                <td><span class="course-chip">${s.course || '—'}</span></td>
+                <td><b>${s.sitins}</b></td>
+                <td>${totalHrsDisplay}</td>
+                <td>${avgDisplay}</td>
+                <td>
+                    <div class="tooltip-wrap">
+                        <span class="points-val">${s.points}</span>
+                        <span class="points-unit"> PTS</span>
+                        <div class="points-sub">hover for breakdown</div>
+                        <div class="tooltip-box">${breakdown}</div>
+                    </div>
+                </td>
+                <td>
+                    <button class="btn-add-points" onclick="addPoints('${s.idNumber}', '${s.firstName} ${s.lastName}')">
+                        <i class="fa fa-plus"></i> Points
+                    </button>
+                </td>
+            </tr>`;
+    }).join('');
+
+    document.getElementById('tableContainer').innerHTML = `
+        <table class="lb-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Sit-ins</th>
+                    <th>Total Hours</th>
+                    <th>Avg Session</th>
+                    <th>Points</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+}
+
+function buildBreakdown(s) {
+    const completion = s.sitins;
+    const timeBonus  = Math.min(Math.floor((s.totalMinutes || 0) / 20), 5);
+    const longBonus  = (s.totalMinutes || 0) >= 120 ? 2 : 0;
+    const manual     = s.manualPoints || 0;
+    return `+${completion} completions<br>+${timeBonus} time bonus (20min)<br>+${longBonus} long session bonus<br>+${manual} manual points`;
+}
+
+// ── ADD POINTS MODAL ────────────────────────────────────────────────────
+async function addPoints(idNumber, name) {
+    const { value: pts, isConfirmed } = await Swal.fire({
+        title: `Add Points`,
+        html: `<p style="margin-bottom:10px;color:#555;">Student: <b>${name}</b></p>
+               <input id="swalPts" type="number" min="1" max="100" value="1"
+               class="swal2-input" placeholder="Points to add" style="width:80%;">`,
+        showCancelButton: true,
+        confirmButtonColor: '#1cc88a',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: '<i class="fa fa-plus"></i> Add Points',
+        preConfirm: () => {
+            const v = parseInt(document.getElementById('swalPts').value);
+            if (!v || v < 1) { Swal.showValidationMessage('Enter a valid number (min 1)'); return false; }
+            return v;
+        }
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+        const res = await fetch(`${BASE}/admin/add-points`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idNumber, points: pts })
+        });
+        if (!res.ok) throw new Error();
+        await Swal.fire({ icon: 'success', title: `+${pts} Points Added!`,
+            text: `Points added to ${name}.`, timer: 1500, showConfirmButton: false });
+        loadLeaderboard();
+    } catch {
+        Swal.fire('Error', 'Could not add points. Is the server running?', 'error');
+    }
+}
+
+// ── RESET ALL POINTS ─────────────────────────────────────────────────────
+async function confirmResetPoints() {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Reset All Points?',
+        text: 'This will set all manual bonus points back to 0.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        confirmButtonText: 'Yes, Reset!'
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+        const res = await fetch(`${BASE}/admin/reset-points`, { method: 'POST' });
+        if (!res.ok) throw new Error();
+        await Swal.fire({ icon: 'success', title: 'Points Reset!', timer: 1500, showConfirmButton: false });
+        loadLeaderboard();
+    } catch {
+        Swal.fire('Error', 'Could not reset points.', 'error');
+    }
+}
+
+async function logout() {
+        const { isConfirmed } = await Swal.fire({
+            title: 'Logout Admin?',
+            text: "This will end your admin session.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, Logout!',
+            cancelButtonText: 'Stay Logged In'
+        });
+
+        if (!isConfirmed) return;
+
+        try {
+
+            sessionStorage.removeItem("adminWelcomeShown");
+            localStorage.removeItem("adminId");
+            sessionStorage.clear();
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Logged Out',
+                text: 'Admin session ended successfully.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            window.location.href = "index.html";
+
+        } catch (err) {
+            console.error("Admin logout error:", err);
+
+            sessionStorage.clear();
+            localStorage.removeItem("adminId");
+
+            window.location.href = "index.html";
+        }
+    } 
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', loadLeaderboard);
+</script>
+</body>
+</html>

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Status - CCS Sit-in Monitoring</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+
+        .labstatus-wrapper {
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* ── TITLE ROW ── */
+        .title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1100px;
+            margin-bottom: 25px;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            border: 1px solid #e3e6f0;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #555;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .live-dot {
+            width: 9px;
+            height: 9px;
+            background: #1cc88a;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+
+        /* ── OVERVIEW STATS ── */
+        .overview-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            width: 100%;
+            max-width: 1100px;
+            margin-bottom: 25px;
+        }
+
+        .ov-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+            border: 1px solid #e3e6f0;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .ov-icon {
+            width: 46px; height: 46px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+
+        .icon-green  { background: #d1fae5; color: #059669; }
+        .icon-red    { background: #fee2e2; color: #dc2626; }
+        .icon-blue   { background: #dbeafe; color: #2563eb; }
+
+        .ov-val {
+            font-size: 24px; font-weight: 800;
+            color: #1a1a2e; font-family: 'Sora', sans-serif; line-height: 1;
+        }
+
+        .ov-lbl {
+            font-size: 11px; color: #888; margin-top: 3px;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* ── LAB CARDS GRID ── */
+        .labs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .lab-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e3e6f0;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .lab-card:hover { transform: translateY(-2px); }
+
+        /* ── LAB CARD HEADER ── */
+        .lab-card-top {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lab-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a2e;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .lab-sub {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 2px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .lab-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .badge-available { background: #d1fae5; color: #059669; }
+        .badge-occupied  { background: #fee2e2; color: #dc2626; }
+        .badge-full      { background: #fef3c7; color: #d97706; }
+
+        /* ── CAPACITY BAR ── */
+        .capacity-section {
+            padding: 0 20px 14px;
+        }
+
+        .capacity-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .capacity-label {
+            font-size: 11px;
+            color: #888;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .capacity-count {
+            font-size: 13px;
+            font-weight: 700;
+            color: #333;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .cap-bar-wrap {
+            background: #f0f2f5;
+            border-radius: 20px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .cap-bar-fill {
+            height: 100%;
+            border-radius: 20px;
+            transition: width 0.5s ease;
+        }
+
+        .fill-low    { background: #1cc88a; }
+        .fill-medium { background: #ffc107; }
+        .fill-high   { background: #e74c3c; }
+
+        /* ── STUDENTS IN LAB LIST ── */
+        .lab-divider {
+            border: none;
+            border-top: 1px solid #f0f0f0;
+            margin: 0;
+        }
+
+        .students-section {
+            padding: 12px 20px 16px;
+        }
+
+        .students-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #888;
+            margin-bottom: 10px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .student-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f0f2f5;
+            border-radius: 20px;
+            padding: 4px 10px;
+            margin: 3px 3px 3px 0;
+            font-size: 12px;
+            color: #333;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .student-chip i { color: #4e73df; font-size: 10px; }
+
+        .no-students {
+            font-size: 13px;
+            color: #ccc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-style: italic;
+        }
+
+        /* ── LAST UPDATED ── */
+        .last-updated {
+            font-size: 12px;
+            color: #bbb;
+            margin-top: 20px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* ── NOTIFICATION ── */
+        .notif-wrapper { position: relative; }
+        .notif-badge {
+            display: none; position: absolute;
+            top: -4px; right: -6px;
+            background: #e24b4a; color: white;
+            font-size: 10px; border-radius: 50%;
+            width: 16px; height: 16px;
+            align-items: center; justify-content: center;
+            border: 2px solid #2c3e70;
+        }
+        .notif-dropdown {
+            display: none; position: absolute;
+            top: 36px; right: 0; width: 300px;
+            background: white; border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            z-index: 1000; overflow: hidden;
+        }
+        .notif-header { background: #2c3e70; color: white; padding: 10px 14px; font-size: 14px; font-weight: bold; }
+        .notif-mark-btn { float: right; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 11px; padding: 2px 7px; border-radius: 4px; cursor: pointer; }
+        .notif-list { max-height: 300px; overflow-y: auto; }
+
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            color: white;
+            padding: 6px 13px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background 0.25s ease, transform 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(255,193,7,0.15);
+            border-color: rgba(255,193,7,0.4);
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+    <div class="logo-text"><i class="fa fa-desktop"></i> Student Lab Status</div>
+    <ul class="nav-links">
+        <li class="notif-wrapper">
+            <a href="#" onclick="toggleNotifDropdown(event)">
+                <i class="fa fa-bell"></i> Notifications
+            </a>
+            <span id="notifBadge" class="notif-badge"></span>
+            <div id="notifDropdown" class="notif-dropdown">
+                <div class="notif-header">
+                    <i class="fa fa-bell"></i> Announcements
+                    <button onclick="markAllRead()" class="notif-mark-btn">Mark all read</button>
+                </div>
+                <div id="notifList" class="notif-list"></div>
+            </div>
+        </li>
+        <li><a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a></li>
+        <li><a href="editprofile.html"><i class="fa fa-pencil"></i> Edit Profile</a></li>
+        <li><a href="history.html"><i class="fa fa-history"></i> History</a></li>
+        <li><a href="reservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+        <li><a href="leaderboard.html"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+        <li><a href="mysummary.html"><i class="fa fa-chart-line"></i> My Summary</a></li>
+        <li><a href="labstatus.html" class="active"><i class="fa fa-desktop"></i> Lab Status</a></li>
+        <li>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                <i class="fa-solid fa-moon" id="themeIcon"></i>
+                <span id="themeLabel">Dark Mode</span>
+            </button>
+        </li>
+        <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out"></i> Logout</a></li>
+    </ul>
+</nav>
+
+<!-- ── PAGE ── -->
+<div class="labstatus-wrapper">
+
+    <!-- Title + Live badge -->
+    <div class="title-row">
+        <div class="live-badge">
+            <div class="live-dot"></div>
+            Live — updates every 30s
+        </div>
+    </div>
+
+    <!-- Overview Stats -->
+    <div class="overview-row">
+        <div class="ov-card">
+            <div class="ov-icon icon-green"><i class="fa fa-check-circle"></i></div>
+            <div>
+                <div class="ov-val" id="ovAvailable">—</div>
+                <div class="ov-lbl">Labs Available</div>
+            </div>
+        </div>
+        <div class="ov-card">
+            <div class="ov-icon icon-red"><i class="fa fa-users"></i></div>
+            <div>
+                <div class="ov-val" id="ovOccupied">—</div>
+                <div class="ov-lbl">Labs Occupied</div>
+            </div>
+        </div>
+        <div class="ov-card">
+            <div class="ov-icon icon-blue"><i class="fa fa-user"></i></div>
+            <div>
+                <div class="ov-val" id="ovStudents">—</div>
+                <div class="ov-lbl">Students Currently In</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lab Cards -->
+    <div class="labs-grid" id="labsGrid">
+        <!-- rendered by JS -->
+    </div>
+
+    <div class="last-updated" id="lastUpdated">Fetching...</div>
+</div>
+
+<!-- ── SCRIPTS ── -->
+<script>
+/* ══════════════════════════════════════
+   DARK / LIGHT MODE
+══════════════════════════════════════ */
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const icon  = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (theme === 'dark') {
+        icon.className  = 'fa-solid fa-sun';
+        label.textContent = 'Light Mode';
+    } else {
+        icon.className  = 'fa-solid fa-moon';
+        label.textContent = 'Dark Mode';
+    }
+}
+ 
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next    = current === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('ccs_theme', next);
+    applyTheme(next);
+ 
+    // Animate the icon on toggle
+    const icon = document.getElementById('themeIcon');
+    icon.style.transform = 'rotate(360deg)';
+    icon.style.transition = 'transform 0.4s ease';
+    setTimeout(() => { icon.style.transform = ''; icon.style.transition = ''; }, 400);
+}
+ 
+// Load saved theme on page start
+(function() {
+    const saved = localStorage.getItem('ccs_theme') || 'light';
+    applyTheme(saved);
+})();
+
+const BASE = 'http://localhost:3000';
+
+// Labs config — add or rename as needed to match your actual lab names
+const LABS = [
+    { name: 'Laboratory 1', capacity: 40 },
+    { name: 'Laboratory 2', capacity: 40 },
+    { name: 'Laboratory 3', capacity: 40 },
+    { name: 'Laboratory 4', capacity: 40 },
+    { name: 'Laboratory 5', capacity: 40 },
+    { name: 'Laboratory 6', capacity: 40 },
+];
+
+// ── NOTIFICATION ─────────────────────────────────────────────────────────
+let _announcements = [];
+function toggleNotifDropdown(e) {
+    e.preventDefault();
+    const d = document.getElementById('notifDropdown');
+    d.style.display = d.style.display === 'block' ? 'none' : 'block';
+}
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('li:has(#notifDropdown)')) {
+        const d = document.getElementById('notifDropdown');
+        if (d) d.style.display = 'none';
+    }
+});
+function getReadIds() { return JSON.parse(localStorage.getItem('readIds') || '[]'); }
+function saveReadIds(ids) { localStorage.setItem('readIds', JSON.stringify(ids)); }
+function markAllRead() { saveReadIds(_announcements.map(a => a.id)); renderNotifs(); }
+function renderNotifs() {
+    const readIds = getReadIds();
+    const unread = _announcements.filter(a => !readIds.includes(a.id)).length;
+    const badge = document.getElementById('notifBadge');
+    badge.textContent = unread; badge.style.display = unread > 0 ? 'flex' : 'none';
+    document.getElementById('notifList').innerHTML = _announcements.length
+        ? _announcements.map(a => `
+            <div onclick="markOneRead(${a.id})" style="padding:12px 14px;border-bottom:1px solid #eee;
+                cursor:pointer;background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
+                <div style="font-size:11px;color:#888;">${a.author} | ${a.date}</div>
+                <div style="font-size:13px;color:#222;margin-top:3px;">${a.content}</div>
+            </div>`).join('')
+        : '<p style="text-align:center;color:#aaa;padding:20px;font-size:13px;">No announcements yet.</p>';
+}
+function markOneRead(id) {
+    const ids = getReadIds();
+    if (!ids.includes(id)) { ids.push(id); saveReadIds(ids); renderNotifs(); }
+}
+async function pollAnnouncements() {
+    try { const r = await fetch(`${BASE}/announcements`); _announcements = await r.json(); renderNotifs(); } catch(e) {}
+}
+pollAnnouncements();
+setInterval(pollAnnouncements, 30000);
+
+// ── LOAD LAB STATUS ───────────────────────────────────────────────────────
+async function loadLabStatus() {
+    try {
+        const res = await fetch(`${BASE}/get-sitin`);
+        const activeSitins = await res.json();
+
+        // Group students by lab
+        const labMap = {};
+        activeSitins.forEach(s => {
+            const lab = s.lab || 'Unknown';
+            if (!labMap[lab]) labMap[lab] = [];
+            labMap[lab].push(s);
+        });
+
+        // Merge with configured labs
+        const allLabs = LABS.map(cfg => ({
+            ...cfg,
+            students: labMap[cfg.name] || []
+        }));
+
+        // Also add any labs from DB not in config
+        Object.keys(labMap).forEach(labName => {
+            if (!LABS.find(l => l.name === labName)) {
+                allLabs.push({ name: labName, capacity: 40, students: labMap[labName] });
+            }
+        });
+
+        renderOverview(allLabs);
+        renderLabCards(allLabs);
+
+        const now = new Date();
+        document.getElementById('lastUpdated').textContent =
+            `Last updated: ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+
+    } catch (err) {
+        console.error('Lab status error:', err);
+        document.getElementById('labsGrid').innerHTML =
+            `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#aaa;font-family:'Plus Jakarta Sans',sans-serif;">
+                <i class="fa fa-exclamation-circle" style="font-size:28px;color:#e74c3c;display:block;margin-bottom:10px;"></i>
+                Could not load lab status. Make sure the server is running.
+            </div>`;
+    }
+}
+
+function renderOverview(labs) {
+    const totalStudents = labs.reduce((s, l) => s + l.students.length, 0);
+    const occupied      = labs.filter(l => l.students.length > 0).length;
+    const available     = labs.filter(l => l.students.length === 0).length;
+
+    document.getElementById('ovAvailable').textContent = available;
+    document.getElementById('ovOccupied').textContent  = occupied;
+    document.getElementById('ovStudents').textContent  = totalStudents;
+}
+
+function renderLabCards(labs) {
+    const grid = document.getElementById('labsGrid');
+
+    grid.innerHTML = labs.map(lab => {
+        const count    = lab.students.length;
+        const capacity = lab.capacity;
+        const pct      = Math.min(Math.round((count / capacity) * 100), 100);
+
+        const fillClass = pct >= 90 ? 'fill-high' : pct >= 50 ? 'fill-medium' : 'fill-low';
+        const badgeClass = count === 0
+            ? 'badge-available'
+            : count >= capacity ? 'badge-full' : 'badge-occupied';
+        const badgeLabel = count === 0
+            ? '<i class="fa fa-check-circle"></i> Available'
+            : count >= capacity ? '<i class="fa fa-times-circle"></i> Full'
+            : '<i class="fa fa-user"></i> Occupied';
+
+        const chipList = lab.students.length
+            ? lab.students.map(s =>
+                `<span class="student-chip"><i class="fa fa-user"></i>${s.firstName} ${s.lastName}</span>`
+              ).join('')
+            : `<span class="no-students">No students currently</span>`;
+
+        return `
+            <div class="lab-card">
+                <div class="lab-card-top">
+                    <div>
+                        <div class="lab-name"><i class="fa fa-desktop" style="color:#4e73df;margin-right:6px;"></i>${lab.name}</div>
+                        <div class="lab-sub">Capacity: ${capacity} seats</div>
+                    </div>
+                    <span class="lab-status-badge ${badgeClass}">${badgeLabel}</span>
+                </div>
+
+                <div class="capacity-section">
+                    <div class="capacity-top">
+                        <span class="capacity-label">Occupancy</span>
+                        <span class="capacity-count">${count} / ${capacity}</span>
+                    </div>
+                    <div class="cap-bar-wrap">
+                        <div class="cap-bar-fill ${fillClass}" style="width:${pct}%;"></div>
+                    </div>
+                </div>
+
+                <hr class="lab-divider">
+
+                <div class="students-section">
+                    <div class="students-title"><i class="fa fa-users" style="margin-right:5px;"></i>Students Inside</div>
+                    <div>${chipList}</div>
+                </div>
+            </div>`;
+    }).join('');
+}
+
+// ── LOGOUT ───────────────────────────────────────────────────────────────
+async function logout() {
+    const studentId = localStorage.getItem('loggedInId');
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout?', text: 'This will end your current lab session.',
+        icon: 'warning', showCancelButton: true,
+        confirmButtonColor: '#0056b3', confirmButtonText: 'Yes, Logout!'
+    });
+    if (isConfirmed) {
+        try {
+            if (studentId) await fetch(`${BASE}/record-final-logout`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idNumber: studentId })
+            });
+            localStorage.removeItem('loggedInId');
+            localStorage.removeItem('sessionExpiry');
+            sessionStorage.clear();
+            await Swal.fire({ icon: 'success', title: 'Logged Out', timer: 1500, showConfirmButton: false });
+            window.location.href = 'index.html';
+        } catch { localStorage.removeItem('loggedInId'); window.location.href = 'index.html'; }
+    }
+}
+
+// ── INIT + AUTO-REFRESH ───────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const idNumber = localStorage.getItem('loggedInId');
+    if (!idNumber) { window.location.href = 'index.html'; return; }
+    loadLabStatus();
+    setInterval(loadLabStatus, 30000);
+});
+</script>
+</body>
+</html>

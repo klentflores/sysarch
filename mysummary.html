@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Summary - CCS Sit-in Monitoring</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+
+        .summary-wrapper {
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* ── STAT CARDS ROW ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 1100px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 22px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e3e6f0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .icon-blue   { background: #dbeafe; color: #2563eb; }
+        .icon-green  { background: #d1fae5; color: #059669; }
+        .icon-yellow { background: #fef3c7; color: #d97706; }
+        .icon-purple { background: #ede9fe; color: #7c3aed; }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: #1a1a2e;
+            font-family: 'Sora', sans-serif;
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── BOTTOM GRID ── */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* ── SHARED CARD ── */
+        .sum-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e3e6f0;
+            overflow: hidden;
+        }
+
+        .sum-card-header {
+            background: #2c3e70;
+            color: white;
+            padding: 14px 20px;
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sum-card-body { padding: 20px; }
+
+        /* ── RECENT ACTIVITY TABLE ── */
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .activity-table thead tr {
+            background: #f0f2f5;
+        }
+
+        .activity-table th {
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #666;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .activity-table td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #f5f5f5;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #444;
+        }
+
+        .activity-table tbody tr:hover { background: #f8f9fc; }
+
+        .status-done {
+            display: inline-block;
+            background: #d1fae5;
+            color: #059669;
+            padding: 2px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-active {
+            display: inline-block;
+            background: #fef3c7;
+            color: #d97706;
+            padding: 2px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* ── CHART ── */
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+
+        /* ── PURPOSE BREAKDOWN ── */
+        .purpose-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 5px;
+        }
+
+        .purpose-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .purpose-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .purpose-count {
+            font-size: 12px;
+            font-weight: 700;
+            color: #4e73df;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .progress-bar-wrap {
+            background: #f0f2f5;
+            border-radius: 20px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 20px;
+            transition: width 0.6s ease;
+        }
+
+        /* ── SESSION PROGRESS ── */
+        .session-progress-wrap {
+            margin-top: 10px;
+        }
+
+        .session-arc-label {
+            text-align: center;
+            margin-top: -10px;
+        }
+
+        .session-arc-label .big {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a1a2e;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .session-arc-label .sub {
+            font-size: 12px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .session-stats-row {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 20px;
+        }
+
+        .session-stat { text-align: center; }
+
+        .session-stat .val {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e70;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .session-stat .lbl {
+            font-size: 11px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #bbb;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* ── NOTIFICATION (same as other pages) ── */
+        .notif-wrapper { position: relative; }
+        .notif-badge {
+            display: none;
+            position: absolute;
+            top: -4px; right: -6px;
+            background: #e24b4a; color: white;
+            font-size: 10px; border-radius: 50%;
+            width: 16px; height: 16px;
+            align-items: center; justify-content: center;
+            border: 2px solid #2c3e70;
+        }
+        .notif-dropdown {
+            display: none; position: absolute;
+            top: 36px; right: 0; width: 300px;
+            background: white; border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            z-index: 1000; overflow: hidden;
+        }
+        .notif-header {
+            background: #2c3e70; color: white;
+            padding: 10px 14px; font-size: 14px; font-weight: bold;
+        }
+        .notif-mark-btn {
+            float: right; background: rgba(255,255,255,0.2);
+            border: none; color: white; font-size: 11px;
+            padding: 2px 7px; border-radius: 4px; cursor: pointer;
+        }
+        .notif-list { max-height: 300px; overflow-y: auto; }
+
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            color: white;
+            padding: 6px 13px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background 0.25s ease, transform 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(255,193,7,0.15);
+            border-color: rgba(255,193,7,0.4);
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+    <div class="logo-text"><i class="fa fa-chart-line"></i> My Summary</div>
+    <ul class="nav-links">
+        <li class="notif-wrapper">
+            <a href="#" onclick="toggleNotifDropdown(event)">
+                <i class="fa fa-bell"></i> Notifications
+            </a>
+            <span id="notifBadge" class="notif-badge"></span>
+            <div id="notifDropdown" class="notif-dropdown">
+                <div class="notif-header">
+                    <i class="fa fa-bell"></i> Announcements
+                    <button onclick="markAllRead()" class="notif-mark-btn">Mark all read</button>
+                </div>
+                <div id="notifList" class="notif-list"></div>
+            </div>
+        </li>
+        <li><a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a></li>
+        <li><a href="editprofile.html"><i class="fa fa-pencil"></i> Edit Profile</a></li>
+        <li><a href="history.html"><i class="fa fa-history"></i> History</a></li>
+        <li><a href="reservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+        <li><a href="leaderboard.html"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+        <li><a href="mysummary.html" class="active"><i class="fa fa-chart-line"></i> My Summary</a></li>
+        <li><a href="labstatus.html"><i class="fa fa-desktop"></i> Lab Status</a></li>
+        <li>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                <i class="fa-solid fa-moon" id="themeIcon"></i>
+                <span id="themeLabel">Dark Mode</span>
+            </button>
+        </li>
+        <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out"></i> Logout</a></li>
+    </ul>
+</nav>
+
+<!-- ── PAGE ── -->
+<div class="summary-wrapper">
+
+    <!-- STAT CARDS -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon icon-blue"><i class="fa fa-laptop"></i></div>
+            <div class="stat-info">
+                <div class="stat-value" id="statTotalSitins">—</div>
+                <div class="stat-label">Total Sit-ins</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-green"><i class="fa fa-clock"></i></div>
+            <div class="stat-info">
+                <div class="stat-value" id="statTotalHours">—</div>
+                <div class="stat-label">Total Hours</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-yellow"><i class="fa fa-trophy"></i></div>
+            <div class="stat-info">
+                <div class="stat-value" id="statPoints">—</div>
+                <div class="stat-label">Total Points</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-purple"><i class="fa fa-hourglass-half"></i></div>
+            <div class="stat-info">
+                <div class="stat-value" id="statAvgSession">—</div>
+                <div class="stat-label">Avg Session</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM GRID -->
+    <div class="bottom-grid">
+
+        <!-- LEFT: Recent Activity -->
+        <div class="sum-card">
+            <div class="sum-card-header">
+                <i class="fa fa-history"></i> Recent Sit-in Activity
+            </div>
+            <div class="sum-card-body" style="padding: 0;">
+                <div id="recentActivity">
+                    <div class="empty-state"><i class="fa fa-spinner fa-spin"></i><br>Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Sessions + Purpose Chart -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+
+            <!-- Session Gauge -->
+            <div class="sum-card">
+                <div class="sum-card-header">
+                    <i class="fa fa-hourglass"></i> Session Remaining
+                </div>
+                <div class="sum-card-body">
+                    <div class="chart-container" style="height:180px;">
+                        <canvas id="sessionChart"></canvas>
+                    </div>
+                    <div class="session-arc-label">
+                        <div class="big" id="gaugeLabel">—</div>
+                        <div class="sub">Sessions Left</div>
+                    </div>
+                    <div class="session-stats-row">
+                        <div class="session-stat">
+                            <div class="val" id="sessionUsed">—</div>
+                            <div class="lbl">Used</div>
+                        </div>
+                        <div class="session-stat">
+                            <div class="val">30</div>
+                            <div class="lbl">Total</div>
+                        </div>
+                        <div class="session-stat">
+                            <div class="val" id="sessionRemaining">—</div>
+                            <div class="lbl">Remaining</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Purpose Breakdown -->
+            <div class="sum-card">
+                <div class="sum-card-header">
+                    <i class="fa fa-pie-chart"></i> Sit-in by Purpose
+                </div>
+                <div class="sum-card-body">
+                    <div id="purposeBreakdown">
+                        <div class="empty-state">No data yet.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── SCRIPTS ── -->
+<script>
+const BASE = 'http://localhost:3000';
+const COLORS = ['#4e73df','#1cc88a','#ffc107','#e74c3c','#9b59b6','#2c3e70','#f39c12'];
+
+/* ══════════════════════════════════════
+   DARK / LIGHT MODE
+══════════════════════════════════════ */
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const icon  = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (theme === 'dark') {
+        icon.className  = 'fa-solid fa-sun';
+        label.textContent = 'Light Mode';
+    } else {
+        icon.className  = 'fa-solid fa-moon';
+        label.textContent = 'Dark Mode';
+    }
+}
+ 
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next    = current === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('ccs_theme', next);
+    applyTheme(next);
+ 
+    // Animate the icon on toggle
+    const icon = document.getElementById('themeIcon');
+    icon.style.transform = 'rotate(360deg)';
+    icon.style.transition = 'transform 0.4s ease';
+    setTimeout(() => { icon.style.transform = ''; icon.style.transition = ''; }, 400);
+}
+ 
+// Load saved theme on page start
+(function() {
+    const saved = localStorage.getItem('ccs_theme') || 'light';
+    applyTheme(saved);
+})();
+
+// ── NOTIFICATION ──────────────────────────────────────────────────────────
+let _announcements = [];
+
+function toggleNotifDropdown(e) {
+    e.preventDefault();
+    const d = document.getElementById('notifDropdown');
+    d.style.display = d.style.display === 'block' ? 'none' : 'block';
+}
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('li:has(#notifDropdown)')) {
+        const d = document.getElementById('notifDropdown');
+        if (d) d.style.display = 'none';
+    }
+});
+function getReadIds() { return JSON.parse(localStorage.getItem('readIds') || '[]'); }
+function saveReadIds(ids) { localStorage.setItem('readIds', JSON.stringify(ids)); }
+function markAllRead() { saveReadIds(_announcements.map(a => a.id)); renderNotifs(); }
+function renderNotifs() {
+    const readIds = getReadIds();
+    const unread = _announcements.filter(a => !readIds.includes(a.id)).length;
+    const badge = document.getElementById('notifBadge');
+    badge.textContent = unread;
+    badge.style.display = unread > 0 ? 'flex' : 'none';
+    document.getElementById('notifList').innerHTML = _announcements.length
+        ? _announcements.map(a => `
+            <div onclick="markOneRead(${a.id})" style="padding:12px 14px;border-bottom:1px solid #eee;
+                cursor:pointer;background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
+                <div style="font-size:11px;color:#888;">${a.author} | ${a.date}</div>
+                <div style="font-size:13px;color:#222;margin-top:3px;">${a.content}</div>
+            </div>`).join('')
+        : '<p style="text-align:center;color:#aaa;padding:20px;font-size:13px;">No announcements yet.</p>';
+}
+function markOneRead(id) {
+    const ids = getReadIds();
+    if (!ids.includes(id)) { ids.push(id); saveReadIds(ids); renderNotifs(); }
+}
+async function pollAnnouncements() {
+    try { const r = await fetch(`${BASE}/announcements`); _announcements = await r.json(); renderNotifs(); } catch(e) {}
+}
+pollAnnouncements();
+setInterval(pollAnnouncements, 30000);
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function parseMinutes(timeIn, timeOut) {
+    if (!timeIn || !timeOut || timeOut === 'null' || timeOut === '') return 0;
+    try {
+        const toMins = t => {
+            const clean = t.replace(/\s?(AM|PM)/i, '');
+            const [h, m] = clean.split(':').map(Number);
+            const isPM = /PM/i.test(t);
+            return (isPM && h !== 12 ? h + 12 : (!isPM && h === 12 ? 0 : h)) * 60 + m;
+        };
+        return Math.max(0, toMins(timeOut) - toMins(timeIn));
+    } catch { return 0; }
+}
+
+function fmtMins(mins) {
+    if (mins <= 0) return '—';
+    const h = Math.floor(mins / 60), m = mins % 60;
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+// ── LOAD SUMMARY ──────────────────────────────────────────────────────────
+let sessionChartInstance = null;
+
+async function loadSummary() {
+    const idNumber = localStorage.getItem('loggedInId');
+    if (!idNumber) { window.location.href = 'index.html'; return; }
+
+    try {
+        // Fetch history + student profile in parallel
+        const [histRes, studentRes] = await Promise.all([
+            fetch(`${BASE}/history/${idNumber}`),
+            fetch(`${BASE}/student/${idNumber}`)
+        ]);
+        const history = await histRes.json();
+        const student = await studentRes.json();
+
+        // ── COMPUTE STATS ──
+        const totalSitins = history.length;
+        let totalMins = 0;
+        const purposeMap = {};
+
+        history.forEach(row => {
+            const mins = parseMinutes(row.timeIn, row.timeOut);
+            totalMins += mins;
+            const p = row.purpose || 'Other';
+            purposeMap[p] = (purposeMap[p] || 0) + 1;
+        });
+
+        const avgMins = totalSitins > 0 ? Math.round(totalMins / totalSitins) : 0;
+        const remaining = student.remainingSession ?? 30;
+        const used = 30 - remaining;
+
+        // Points formula (same as leaderboard)
+        const timeBonus = Math.min(Math.floor(totalMins / 20), 5);
+        const longBonus = totalMins >= 120 ? 2 : 0;
+        const points = totalSitins + timeBonus + longBonus;
+
+        // ── STAT CARDS ──
+        document.getElementById('statTotalSitins').textContent = totalSitins;
+        document.getElementById('statTotalHours').textContent  = fmtMins(totalMins);
+        document.getElementById('statPoints').textContent      = points;
+        document.getElementById('statAvgSession').textContent  = fmtMins(avgMins);
+
+        // ── SESSION GAUGE ──
+        document.getElementById('gaugeLabel').textContent       = remaining;
+        document.getElementById('sessionUsed').textContent      = used;
+        document.getElementById('sessionRemaining').textContent = remaining;
+        renderSessionGauge(used, remaining);
+
+        // ── RECENT ACTIVITY ──
+        renderRecentActivity(history.slice(0, 8));
+
+        // ── PURPOSE BREAKDOWN ──
+        renderPurposeBreakdown(purposeMap, totalSitins);
+
+    } catch (err) {
+        console.error('Summary error:', err);
+    }
+}
+
+function renderSessionGauge(used, remaining) {
+    const ctx = document.getElementById('sessionChart').getContext('2d');
+    if (sessionChartInstance) sessionChartInstance.destroy();
+
+    const pct = used / 30;
+    const gaugeColor = pct >= 0.9 ? '#e74c3c' : pct >= 0.6 ? '#ffc107' : '#1cc88a';
+
+    sessionChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [used, remaining],
+                backgroundColor: [gaugeColor, '#f0f2f5'],
+                borderWidth: 0,
+                circumference: 180,
+                rotation: 270
+            }]
+        },
+        options: {
+            cutout: '78%',
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            animation: { animateRotate: true }
+        }
+    });
+}
+
+function renderRecentActivity(rows) {
+    const el = document.getElementById('recentActivity');
+    if (!rows.length) {
+        el.innerHTML = '<div class="empty-state">No sit-in records yet.</div>';
+        return;
+    }
+
+    const tableRows = rows.map(r => {
+        const isDone = r.timeOut && r.timeOut !== 'null' && r.timeOut !== '';
+        const statusBadge = isDone
+            ? `<span class="status-done">Done</span>`
+            : `<span class="status-active">Active</span>`;
+        const duration = isDone ? fmtMins(parseMinutes(r.timeIn, r.timeOut)) : '—';
+
+        return `
+            <tr>
+                <td>${r.date || '—'}</td>
+                <td>${r.purpose || '—'}</td>
+                <td>${r.lab || '—'}</td>
+                <td>${r.timeIn || '—'}</td>
+                <td>${r.timeOut && r.timeOut !== 'null' ? r.timeOut : '—'}</td>
+                <td>${duration}</td>
+                <td>${statusBadge}</td>
+            </tr>`;
+    }).join('');
+
+    el.innerHTML = `
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Purpose</th>
+                    <th>Lab</th>
+                    <th>Time In</th>
+                    <th>Time Out</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+        </table>`;
+}
+
+function renderPurposeBreakdown(purposeMap, total) {
+    const el = document.getElementById('purposeBreakdown');
+    const entries = Object.entries(purposeMap).sort((a,b) => b[1] - a[1]);
+
+    if (!entries.length) {
+        el.innerHTML = '<div class="empty-state">No data yet.</div>';
+        return;
+    }
+
+    el.innerHTML = `<div class="purpose-list">${
+        entries.map(([name, count], i) => {
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            return `
+                <div class="purpose-item">
+                    <div class="purpose-top">
+                        <span class="purpose-name">${name}</span>
+                        <span class="purpose-count">${count} (${pct}%)</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" style="width:${pct}%;background:${COLORS[i % COLORS.length]};"></div>
+                    </div>
+                </div>`;
+        }).join('')
+    }</div>`;
+}
+
+// ── LOGOUT ───────────────────────────────────────────────────────────────
+async function logout() {
+    const studentId = localStorage.getItem('loggedInId');
+    const { isConfirmed } = await Swal.fire({
+        title: 'Logout?', text: 'This will end your current lab session.',
+        icon: 'warning', showCancelButton: true,
+        confirmButtonColor: '#0056b3', confirmButtonText: 'Yes, Logout!'
+    });
+    if (isConfirmed) {
+        try {
+            if (studentId) await fetch(`${BASE}/record-final-logout`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idNumber: studentId })
+            });
+            localStorage.removeItem('loggedInId');
+            localStorage.removeItem('sessionExpiry');
+            sessionStorage.clear();
+            await Swal.fire({ icon: 'success', title: 'Logged Out', timer: 1500, showConfirmButton: false });
+            window.location.href = 'index.html';
+        } catch { localStorage.removeItem('loggedInId'); window.location.href = 'index.html'; }
+    }
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', loadSummary);
+</script>
+</body>
+</html>

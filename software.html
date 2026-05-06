@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software App Import / Upload - CCS Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ── PAGE LAYOUT ── */
+        .software-container {
+            padding: 35px 50px;
+            max-width: 1500px;
+            margin: auto;
+        }
+
+        .page-title {
+            font-size: 25px;
+            font-weight: 700;
+            color: #2c3e70;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+ 
+        .page-title i { color: #f6c23e; }
+
+        .software-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.35fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: #fff;
+            border: 1px solid #e3e6f0;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            background: #2c3e70;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header span {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-body { padding: 20px; }
+
+        /* ── DROPZONE ── */
+        .dropzone {
+            border: 2px dashed #c5cde8;
+            border-radius: 12px;
+            padding: 35px 20px;
+            text-align: center;
+            background: #f8f9fc;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            margin-bottom: 15px;
+        }
+
+        .dropzone:hover, .dropzone.dragover {
+            border-color: #2c3e70;
+            background: #eef0f8;
+        }
+
+        .dropzone i {
+            font-size: 38px;
+            color: #f6c23e;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .dropzone p {
+            color: #6e7d9b;
+            font-size: 13.5px;
+            margin: 0;
+        }
+
+        .dropzone p span {
+            display: block;
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 4px;
+        }
+
+        /* ── FILE PREVIEW ── */
+        .file-preview {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #f0f4ff;
+            border: 1px solid #c5cde8;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #2c3e70;
+            font-weight: 600;
+        }
+
+        .file-preview i { color: #f6c23e; font-size: 18px; }
+
+        .file-preview .file-remove {
+            margin-left: auto;
+            cursor: pointer;
+            color: #e74a3b;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .file-preview .file-remove:hover { color: #c0392b; }
+
+        /* ── FORM FIELDS ── */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #4e73df;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid #d1d3e2;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #444;
+            background: #f8f9fc;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #2c3e70;
+            box-shadow: 0 0 0 3px rgba(44,62,112,0.08);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* ── LAB CHECKBOXES ── */
+        .lab-check-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .lab-check-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #444;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .lab-check-label input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            accent-color: #2c3e70;
+            cursor: pointer;
+        }
+
+        /* ── UPLOAD BUTTON ── */
+        .upload-btn {
+            width: 100%;
+            background: #1cc88a;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 20px;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .upload-btn:hover {
+            background: #17a673;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 18px rgba(28,200,138,0.28);
+        }
+
+        /* ── REGISTERED SOFTWARE ── */
+        .search-bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fc;
+            border: 1px solid #d1d3e2;
+            border-radius: 8px;
+            padding: 0 12px;
+        }
+
+        .search-bar-wrapper i { color: #aaa; font-size: 13px; }
+
+        .search-bar-wrapper input {
+            border: none !important;
+            background: transparent !important;
+            padding: 10px 6px !important;
+            font-size: 13px !important;
+            outline: none !important;
+            flex: 1;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: #aaa;
+            text-align: center;
+        }
+
+        .empty-state i { font-size: 42px; margin-bottom: 10px; color: #d1d3e2; }
+        .empty-state p { font-size: 13px; }
+
+        /* ── SOFTWARE LIST ITEM ── */
+        .software-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f8f9fc;
+            border: 1px solid #e3e6f0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .software-item:hover {
+            background: #fff;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            transform: translateY(-1px);
+        }
+
+        .software-icon {
+            width: 42px;
+            height: 42px;
+            background: #2c3e70;
+            color: #f6c23e;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .software-info { flex: 1; }
+
+        .software-info .sw-name {
+            font-weight: 700;
+            font-size: 13.5px;
+            color: #2c3e70;
+            display: block;
+        }
+
+        .software-info .sw-meta {
+            font-size: 11px;
+            color: #858796;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 3px;
+        }
+
+        .sw-badge {
+            background: #eef0f8;
+            color: #4e73df;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .sw-labs {
+            font-size: 10px;
+            color: #aaa;
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+
+        .sw-lab-tag {
+            background: #f0f4ff;
+            border: 1px solid #c5cde8;
+            border-radius: 4px;
+            padding: 1px 6px;
+            color: #2c3e70;
+            font-weight: 600;
+        }
+
+        .sw-delete-btn {
+            background: none;
+            border: none;
+            color: #e74a3b;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.2s;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .sw-delete-btn:hover { background: #fde8e7; }
+
+        /* ── LAB OVERVIEW CARDS ── */
+        .lab-overview-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .lab-card {
+            background: #fff;
+            border: 1px solid #e3e6f0;
+            border-radius: 12px;
+            padding: 18px 14px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            transition: all 0.25s;
+        }
+
+        .lab-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+        }
+
+        .lab-card .lab-name {
+            color: #f6c23e;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .lab-card .lab-count {
+            font-size: 30px;
+            font-weight: 700;
+            color: #2c3e70;
+            margin: 6px 0 2px;
+            line-height: 1;
+        }
+
+        .lab-card .lab-label {
+            font-size: 11px;
+            color: #858796;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 500;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .modal-header {
+            background: #2c3e70;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .modal-header h3 { font-size: 15px; }
+
+        .modal-body { padding: 20px; }
+
+        .modal-footer {
+            padding: 15px 20px;
+            background: #f8f9fc;
+            border-top: 1px solid #e3e6f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-confirm {
+            background: #2c3e70;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-confirm:hover { background: #1a2a56; }
+
+        .btn-cancel {
+            background: #858796;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-cancel:hover { background: #6c757d; }
+
+        @keyframes slideDown {
+            from { transform: translateY(-40px); opacity: 0; }
+            to   { transform: translateY(0); opacity: 1; }
+        }
+
+        /* search-bar in card-header */
+        .header-search {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 6px;
+            padding: 4px 10px;
+            gap: 6px;
+        }
+
+        .header-search input {
+            background: none;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 13px;
+            width: 160px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .header-search input::placeholder { color: rgba(255,255,255,0.55); }
+        .header-search i { color: rgba(255,255,255,0.6); font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+    <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
+    <ul class="nav-links">
+        <li><a href="admindashboard.html"><i class="fa fa-home"></i> Home</a></li>
+        <li><a href="javascript:void(0)" onclick="openUnifiedModal()"><i class="fa fa-search"></i> Search</a></li>
+        <li><a href="studentlist.html"><i class="fa fa-users"></i> Students</a></li>
+        <li><a href="sitin.html"><i class="fa fa-laptop"></i> Sit-in</a></li>
+        <li><a href="viewsitin.html"><i class="fa fa-list-alt"></i> Sit-in Records</a></li>
+        <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+        <li><a href="feedback.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+        <li><a href="adminreservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+        <li><a href="adminleaderboard.html"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+        <li><a href="analytics.html"><i class="fa fa-line-chart"></i> Analytics</a></li>
+        <li><a href="reward.html"><i class="fa fa-gift"></i> Rewards</a></li>
+        <li><a href="software.html" class="active"><i class="fa fa-upload"></i> Software</a></li>
+        <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out-alt"></i> Log out</a></li>
+    </ul>
+</nav>
+
+<!-- ── MAIN ── -->
+<div class="software-container">
+    
+    <div class="page-title"><i class="fa-solid fa-cloud-arrow-up"></i> Software App Import & Upload</div>
+
+    <div class="software-grid">
+
+        <!-- LEFT: Upload Form -->
+        <div>
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="fa-solid fa-cloud-arrow-up"></i> Upload Software / File</span>
+                </div>
+                <div class="card-body">
+                    <!-- Dropzone -->
+                    <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p><strong>Drag &amp; drop files here</strong></p>
+                        <p><span>or click to browse .zip, .exe, .msi, .apk, .pdf, .docx supported</span></p>
+                    </div>
+                    <input type="file" id="fileInput" style="display:none"
+                           accept=".zip,.exe,.msi,.apk,.pdf,.docx,.rar,.7z">
+
+                    <!-- File Preview -->
+                    <div class="file-preview" id="filePreview">
+                        <i class="fa-solid fa-file-zipper"></i>
+                        <span id="filePreviewName">filename.zip</span>
+                        <span id="filePreviewSize" style="color:#858796; font-weight:400; font-size:11px;"></span>
+                        <i class="fa-solid fa-xmark file-remove" onclick="removeFile()"></i>
+                    </div>
+
+                    <!-- Name -->
+                    <div class="form-group">
+                        <label>Software / File Name</label>
+                        <input type="text" id="swName" placeholder="e.g. Visual Studio Code 1.88">
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="swCategory">
+                            <option value="" disabled selected>Select category</option>
+                            <option>IDE / Code Editor</option>
+                            <option>Programming Language</option>
+                            <option>Database Tool</option>
+                            <option>Design Tool</option>
+                            <option>Productivity</option>
+                            <option>Utility</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="swDesc" placeholder="Brief description of this software"></textarea>
+                    </div>
+
+                    <!-- Available Labs -->
+                    <div class="form-group">
+                        <label>Available in Labs</label>
+                        <div class="lab-check-group">
+                            <label class="lab-check-label">
+                                <input type="checkbox" value="524"> Lab 524
+                            </label>
+                            <label class="lab-check-label">
+                                <input type="checkbox" value="526"> Lab 526
+                            </label>
+                            <label class="lab-check-label">
+                                <input type="checkbox" value="528"> Lab 528
+                            </label>
+                            <label class="lab-check-label">
+                                <input type="checkbox" value="530"> Lab 530
+                            </label>
+                        </div>
+                    </div>
+
+                    <button class="upload-btn" onclick="uploadSoftware()">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Upload &amp; Register Software
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Registered Software + Lab Overview -->
+        <div>
+            <!-- Registered Software -->
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="fa-solid fa-boxes-stacked"></i> Registered Software</span>
+                    <div class="header-search">
+                        <i class="fa fa-search"></i>
+                        <input type="text" id="swSearch" placeholder="Search..." oninput="filterSoftware()">
+                    </div>
+                </div>
+                <div class="card-body" id="swListContainer">
+                    <div class="empty-state" id="emptyState">
+                        <i class="fa-solid fa-box-open"></i>
+                        <p>No software registered yet.</p>
+                    </div>
+                    <div id="swList"></div>
+                </div>
+            </div>
+
+            <!-- Lab Software Overview -->
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="fa-solid fa-desktop"></i> Lab Software Overview</span>
+                </div>
+                <div class="card-body">
+                    <div class="lab-overview-grid">
+                        <div class="lab-card">
+                            <div class="lab-name">LAB 524</div>
+                            <div class="lab-count" id="count524">0</div>
+                            <div class="lab-label">Software</div>
+                        </div>
+                        <div class="lab-card">
+                            <div class="lab-name">LAB 526</div>
+                            <div class="lab-count" id="count526">0</div>
+                            <div class="lab-label">Software</div>
+                        </div>
+                        <div class="lab-card">
+                            <div class="lab-name">LAB 528</div>
+                            <div class="lab-count" id="count528">0</div>
+                            <div class="lab-label">Software</div>
+                        </div>
+                        <div class="lab-card">
+                            <div class="lab-name">LAB 530</div>
+                            <div class="lab-count" id="count530">0</div>
+                            <div class="lab-label">Software</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── SEARCH / SIT-IN MODAL (same as other pages) ── -->
+<div id="unifiedSitInModal" class="modal-overlay">
+    <div class="modal-content" style="width:450px;">
+        <div class="modal-header">
+            <h3><i class="fa fa-search"></i> Find Student</h3>
+            <button onclick="closeModal('unifiedSitInModal')"
+                    style="background:none;border:none;color:white;cursor:pointer;font-size:20px;">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex;align-items:center;background:#fff;border:2px solid #e3e6f0;border-radius:10px;">
+                <input type="text" id="uniIdSearch" placeholder="Enter Student ID...."
+                       style="flex:1;border:none;padding:12px;font-size:15px;outline:none;border-radius:10px;">
+                <button class="btn-confirm" onclick="searchAndPopulate()"><i class="fa fa-search"></i></button>
+            </div>
+            <div id="searchResultsList" style="margin-top:15px;display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── LOCAL DATA STORE (in-memory; replace with API calls as needed) ──
+    let softwareList = JSON.parse(localStorage.getItem('ccs_software') || '[]');
+    let selectedFile = null;
+
+    // ── CATEGORY ICON MAP ──
+    const categoryIcons = {
+        'IDE / Code Editor':   'fa-solid fa-code',
+        'Programming Language':'fa-solid fa-terminal',
+        'Database Tool':       'fa-solid fa-database',
+        'Design Tool':         'fa-solid fa-pen-ruler',
+        'Productivity':        'fa-solid fa-briefcase',
+        'Utility':             'fa-solid fa-screwdriver-wrench',
+        'Other':               'fa-solid fa-cube',
+    };
+
+    // ── FILE INPUT ──
+    document.getElementById('fileInput').addEventListener('change', function () {
+        if (this.files[0]) handleFile(this.files[0]);
+    });
+
+    // ── DRAG & DROP ──
+    const dz = document.getElementById('dropzone');
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+    dz.addEventListener('drop', e => {
+        e.preventDefault();
+        dz.classList.remove('dragover');
+        if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    });
+
+    function handleFile(file) {
+        selectedFile = file;
+        const preview = document.getElementById('filePreview');
+        document.getElementById('filePreviewName').textContent = file.name;
+        document.getElementById('filePreviewSize').textContent = formatSize(file.size);
+        preview.style.display = 'flex';
+        dz.style.display = 'none';
+
+        // Set file icon by extension
+        const ext = file.name.split('.').pop().toLowerCase();
+        const iconMap = { pdf:'fa-file-pdf', zip:'fa-file-zipper', rar:'fa-file-zipper',
+                          '7z':'fa-file-zipper', exe:'fa-file-code', msi:'fa-file-code',
+                          apk:'fa-mobile-screen', docx:'fa-file-word' };
+        preview.querySelector('i.fa-solid') .className =
+            `fa-solid ${iconMap[ext] || 'fa-file'} ` ;
+    }
+
+    function removeFile() {
+        selectedFile = null;
+        document.getElementById('filePreview').style.display = 'none';
+        document.getElementById('fileInput').value = '';
+        dz.style.display = 'block';
+    }
+
+    function formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    // ── UPLOAD / REGISTER ──
+    function uploadSoftware() {
+        const name  = document.getElementById('swName').value.trim();
+        const cat   = document.getElementById('swCategory').value;
+        const desc  = document.getElementById('swDesc').value.trim();
+        const labs  = [...document.querySelectorAll('.lab-check-group input:checked')].map(c => c.value);
+
+        if (!name) return Swal.fire({ icon:'warning', title:'Missing Name', text:'Please enter a software name.', confirmButtonColor:'#2c3e70' });
+        if (!cat)  return Swal.fire({ icon:'warning', title:'Missing Category', text:'Please select a category.', confirmButtonColor:'#2c3e70' });
+        if (labs.length === 0) return Swal.fire({ icon:'warning', title:'No Lab Selected', text:'Please select at least one lab.', confirmButtonColor:'#2c3e70' });
+
+        const entry = {
+            id:       Date.now(),
+            name,
+            category: cat,
+            desc:     desc || '—',
+            labs,
+            fileName: selectedFile ? selectedFile.name : null,
+            date:     new Date().toLocaleDateString('en-CA')
+        };
+
+        softwareList.push(entry);
+        localStorage.setItem('ccs_software', JSON.stringify(softwareList));
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Registered!',
+            text: `"${name}" has been added successfully.`,
+            confirmButtonColor: '#2c3e70',
+            allowOutsideClick: false
+        });
+
+        // Reset form
+        document.getElementById('swName').value = '';
+        document.getElementById('swCategory').value = '';
+        document.getElementById('swDesc').value = '';
+        document.querySelectorAll('.lab-check-group input').forEach(c => c.checked = false);
+        removeFile();
+
+        renderList();
+        updateLabCounts();
+    }
+
+    // ── RENDER LIST ──
+    function renderList(filter = '') {
+        const list     = document.getElementById('swList');
+        const empty    = document.getElementById('emptyState');
+        const filtered = softwareList.filter(s =>
+            s.name.toLowerCase().includes(filter.toLowerCase()) ||
+            s.category.toLowerCase().includes(filter.toLowerCase())
+        );
+
+        if (filtered.length === 0) {
+            list.innerHTML = '';
+            empty.style.display = 'flex';
+            return;
+        }
+
+        empty.style.display = 'none';
+        list.innerHTML = filtered.map(s => `
+            <div class="software-item">
+                <div class="software-icon">
+                    <i class="${categoryIcons[s.category] || 'fa-solid fa-cube'}"></i>
+                </div>
+                <div class="software-info">
+                    <span class="sw-name">${s.name}</span>
+                    <div class="sw-meta">
+                        <span class="sw-badge">${s.category}</span>
+                        <span>${s.fileName || 'No file attached'}</span>
+                    </div>
+                    <div class="sw-labs">
+                        ${s.labs.map(l => `<span class="sw-lab-tag">Lab ${l}</span>`).join('')}
+                    </div>
+                </div>
+                <button class="sw-delete-btn" onclick="deleteSoftware(${s.id})" title="Remove">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    // ── FILTER ──
+    function filterSoftware() {
+        renderList(document.getElementById('swSearch').value);
+    }
+
+    // ── DELETE ──
+    async function deleteSoftware(id) {
+        const { isConfirmed } = await Swal.fire({
+            title: 'Remove Software?',
+            text: 'This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e74a3b',
+            cancelButtonColor: '#858796',
+            confirmButtonText: 'Yes, Remove',
+            allowOutsideClick: false
+        });
+        if (!isConfirmed) return;
+
+        softwareList = softwareList.filter(s => s.id !== id);
+        localStorage.setItem('ccs_software', JSON.stringify(softwareList));
+        renderList(document.getElementById('swSearch').value);
+        updateLabCounts();
+
+        Swal.fire({ icon:'success', title:'Removed', timer:1200, showConfirmButton:false });
+    }
+
+    // ── LAB COUNTS ──
+    function updateLabCounts() {
+        ['524','526','528','530'].forEach(lab => {
+            const count = softwareList.filter(s => s.labs.includes(lab)).length;
+            document.getElementById('count' + lab).textContent = count;
+        });
+    }
+
+    // ── SEARCH MODAL (stub) ──
+    function openUnifiedModal() {
+        document.getElementById('unifiedSitInModal').style.display = 'flex';
+        document.getElementById('searchResultsList').innerHTML = '';
+        document.getElementById('uniIdSearch').value = '';
+    }
+
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    async function searchAndPopulate() {
+        const id   = document.getElementById('uniIdSearch').value.trim();
+        const list = document.getElementById('searchResultsList');
+        if (!id) return;
+        try {
+            const res  = await fetch(`http://localhost:3000/student/${id}`);
+            const data = await res.json();
+            if (res.ok) {
+                const initials = (data.firstName[0] + data.lastName[0]).toUpperCase();
+                list.innerHTML = `
+                    <div style="display:flex;align-items:center;background:#f8f9fc;border-radius:12px;padding:12px;gap:12px;">
+                        <div style="width:45px;height:45px;background:#4e73df;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;">${initials}</div>
+                        <div>
+                            <span style="font-weight:700;color:#2c3e70;display:block;">${data.firstName} ${data.lastName}</span>
+                            <span style="font-size:11px;color:#858796;">ID: ${data.idNumber} &nbsp;|&nbsp; ${data.course} ${data.yearLevel}</span>
+                        </div>
+                        <div style="margin-left:auto;font-size:11px;font-weight:800;color:#1cc88a;">${data.remainingSession ?? 30} sessions</div>
+                    </div>`;
+            } else {
+                list.innerHTML = '<p style="text-align:center;color:#858796;font-size:12px;padding:10px;">No student found.</p>';
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    // ── LOGOUT ──
+    async function logout() {
+        const { isConfirmed } = await Swal.fire({
+            title: 'Logout Admin?',
+            text: "This will end your admin session.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, Logout!',
+            cancelButtonText: 'Stay Logged In'
+        });
+
+        if (!isConfirmed) return;
+
+        try {
+
+            sessionStorage.removeItem("adminWelcomeShown");
+            localStorage.removeItem("adminId");
+            sessionStorage.clear();
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Logged Out',
+                text: 'Admin session ended successfully.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            window.location.href = "index.html";
+
+        } catch (err) {
+            console.error("Admin logout error:", err);
+
+            sessionStorage.clear();
+            localStorage.removeItem("adminId");
+
+            window.location.href = "index.html";
+        }
+    }
+
+    // ── INIT ──
+    window.onload = () => {
+        renderList();
+        updateLabCounts();
+    };
+</script>
+</body>
+</html>

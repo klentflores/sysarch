@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards - CCS Admin</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 500; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px); background-color: rgba(0,0,0,0.4);
+        }
+
+        .page-title {
+            font-size: 25px;
+            font-weight: 700;
+            color: #2c3e70;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+ 
+        .page-title i { color: #f6c23e; }
+
+        .modal-content { background:#fff; border-radius:10px; box-shadow:0 15px 35px rgba(0,0,0,0.4); overflow:hidden; animation:slideDown 0.3s ease-out; }
+        .modal-header  { background:#2c3e70; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; color:white; }
+        .modal-footer  { padding:15px 20px; background:#f8f9fc; border-top:1px solid #e3e6f0; display:flex; justify-content:flex-end; gap:10px; }
+        .search-wrapper { display:flex; align-items:center; background:#fff; border:2px solid #e3e6f0; border-radius:10px; transition:all 0.2s; }
+        .search-wrapper:focus-within { box-shadow:0 0 8px rgba(44,62,112,0.2); }
+        .search-wrapper input { flex:1; border:none !important; padding:12px; font-size:15px; outline:none !important; }
+        #searchResultsList { margin-top:15px; display:flex; flex-direction:column; gap:10px; }
+        .search-result-item { display:flex; align-items:center; background:#f8f9fc; border-radius:12px; padding:12px; cursor:pointer; transition:all 0.2s; }
+        .search-result-item:hover { background:#fff; transform:translateY(-2px); }
+        .user-avatar { width:45px; height:45px; background:#4e73df; color:white; border-radius:50%; display:flex; justify-content:center; align-items:center; font-weight:700; margin-right:15px; }
+        .user-info-text .name { display:block; font-weight:700; color:#2c3e70; font-size:14px; }
+        .user-info-text .meta { font-size:11px; color:#858796; display:flex; gap:8px; }
+        .user-status-badges { display:flex; flex-direction:column; align-items:flex-end; flex:1; font-size:11px; font-weight:800; }
+        .badge-sessions { color:#1cc88a; }
+        .student-profile-card { background:#f8f9fc; border-left:5px solid #2c3e70; border-radius:8px; padding:20px; margin:20px; }
+        .profile-name { display:block; font-size:1.1rem; font-weight:600; color:#2c3e70; margin-bottom:10px; text-transform:uppercase; }
+        .profile-meta { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+        .meta-item label { display:block; font-size:10px; text-transform:uppercase; color:#858796; font-weight:800; }
+        .meta-item span  { font-weight:600; color:#444; }
+        .modern-select { width:100%; padding:12px; border:1px solid #d1d3e2; border-radius:8px; cursor:pointer; }
+        .btn-confirm { background:#2c3e70; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600; }
+        .btn-cancel  { background:#858796; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; }
+        .btn-confirm:hover { transform:translateY(-1px); }
+        .btn-cancel:hover  { transform:translateY(-1px); }
+        @keyframes slideDown { from{transform:translateY(-50px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+
+        /* ── PAGE ── */
+        .page-wrapper {
+            max-width: 1300px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* ── TWO-COLUMN LAYOUT ── */
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        /* ── SHARED CARD ── */
+        .rw-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+            border: 1px solid #e3e6f0;
+            overflow: hidden;
+        }
+
+        .rw-card-header {
+            background: #2c3e70;
+            color: white;
+            padding: 14px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .rw-card-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rw-card-body { padding: 22px; }
+
+        /* ── AWARD FORM ── */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #444;
+            margin-bottom: 6px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f8f9fc;
+            color: #333;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #2c3e70;
+            box-shadow: 0 0 0 3px rgba(44,62,112,0.08);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #bbb;
+        }
+
+        /* ── FORM BUTTONS ── */
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-award {
+            flex: 1;
+            background: #1cc88a;
+            color: white;
+            border: none;
+            padding: 11px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .btn-award:hover { background: #17a673; transform: translateY(-1px); }
+
+        .btn-reset-all {
+            flex: 1;
+            background: #4e73df;
+            color: white;
+            border: none;
+            padding: 11px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .btn-reset-all:hover { background: #3a5bbf; transform: translateY(-1px); }
+
+        /* ── LEADERBOARD TABLE ── */
+        .lb-legend {
+            font-size: 11px;
+            color: rgba(255,255,255,0.75);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .rw-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .rw-table thead tr { background-color: #2c3e70; }
+
+        .rw-table th {
+            padding: 13px 15px;
+            text-align: left;
+            font-size: 12px;
+            color: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
+        }
+
+        .rw-table td {
+            padding: 13px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+            color: #333;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            vertical-align: middle;
+        }
+
+        .rw-table tbody tr:hover { background: #f8f9ff; }
+
+        /* ── RANK PIP ── */
+        .rank-pip {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; border-radius: 50%;
+            font-weight: 700; font-size: 12px;
+        }
+        .pip-1 { background:#fff3cd; color:#856404; }
+        .pip-2 { background:#e9ecef; color:#495057; }
+        .pip-3 { background:#f8d7b0; color:#7a4f26; }
+        .pip-n { background:#f0f2f5; color:#666; font-size:11px; }
+
+        /* ── STUDENT CELL ── */
+        .student-name { font-weight: 700; color: #1a1a2e; font-size: 14px; }
+        .student-id   { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+        /* ── COURSE CHIP ── */
+        .course-chip {
+            display: inline-block; background: #dbeafe; color: #1e40af;
+            padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+        }
+
+        /* ── HOURS ── */
+        .hours-val { color: #1cc88a; font-weight: 600; }
+        .hours-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+        /* ── POINTS ── */
+        .pts-val  { font-size: 15px; font-weight: 800; color: #ffc107; font-family:'Sora',sans-serif; }
+        .pts-unit { font-size: 11px; font-weight: 700; color: #ffc107; }
+        .pts-sub  { font-size: 10px; color: #bbb; margin-top: 2px; cursor: help; }
+
+        /* ── TOOLTIP ── */
+        .tooltip-wrap { position: relative; display: inline-block; }
+        .tooltip-box {
+            visibility: hidden; opacity: 0;
+            background: #1a1a2e; color: #fff; font-size: 11px;
+            border-radius: 8px; padding: 8px 12px;
+            position: absolute; bottom: calc(100% + 6px); left: 0;
+            white-space: nowrap; z-index: 100; transition: opacity 0.2s;
+            line-height: 1.7; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .tooltip-wrap:hover .tooltip-box { visibility: visible; opacity: 1; }
+
+        /* ── ADD POINTS BUTTON ── */
+        .btn-add-pts {
+            background: #1cc88a; color: white; border: none;
+            padding: 7px 14px; border-radius: 7px; cursor: pointer;
+            font-weight: 700; font-size: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: inline-flex; align-items: center; gap: 5px;
+            transition: all 0.2s;
+        }
+        .btn-add-pts:hover { background: #17a673; transform: translateY(-1px); }
+
+        /* ── EMPTY ── */
+        .table-empty {
+            text-align: center; padding: 40px; color: #aaa;
+            font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+    <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
+    <ul class="nav-links">
+        <li><a href="admindashboard.html"><i class="fa fa-home"></i> Home</a></li>
+        <li><a href="javascript:void(0)" onclick="openUnifiedModal()"><i class="fa fa-search"></i> Search</a></li>
+        <li><a href="studentlist.html"><i class="fa fa-users"></i> Students</a></li>
+        <li><a href="sitin.html"><i class="fa fa-laptop"></i> Sit-in</a></li>
+        <li><a href="viewsitin.html"><i class="fa fa-list-alt"></i> Sit-in Records</a></li>
+        <li><a href="sitinreports.html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+        <li><a href="feedback.html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+        <li><a href="adminreservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+        <li><a href="adminleaderboard.html"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+        <li><a href="analytics.html"><i class="fa fa-line-chart"></i> Analytics</a></li>
+        <li><a href="reward.html" class="active"><i class="fa fa-gift"></i> Reward</a></li>
+        <li><a href="software.html"><i class="fa fa-upload"></i> Software</a></li>
+        <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out-alt"></i> Log out</a></li>
+    </ul>
+</nav>
+
+<!-- ── UNIFIED SIT-IN MODAL ── -->
+<div id="unifiedSitInModal" class="modal-overlay">
+    <div class="modal-content" style="width:450px;">
+        <div class="modal-header">
+            <h3><i class="fa fa-search"></i> Find Student</h3>
+            <button onclick="closeModal('unifiedSitInModal')" style="background:none;border:none;color:white;cursor:pointer;font-size:20px;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding:10px;">
+            <div class="search-wrapper">
+                <input type="text" id="uniIdSearch" placeholder="Enter Student ID....">
+                <button class="btn-confirm" onclick="searchAndPopulate()"><i class="fa fa-search"></i></button>
+            </div>
+            <div id="searchResultsList"></div>
+            <div id="studentDetailsBox" style="display:none;">
+                <div class="student-profile-card"><div id="accountInfoDisplay"></div></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;padding:0 20px;">
+                    <div>
+                        <label style="font-size:13px;font-weight:700;color:#4e73df;">Purpose</label>
+                        <select id="uniPurpose" class="modern-select">
+                            <option>C Programming</option><option>Java Projects</option>
+                            <option>Web Development</option><option>Python/Data Science</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:12px;font-weight:700;color:#4e73df;">Lab Room</label>
+                        <select id="uniLab" class="modern-select">
+                            <option>524</option><option>526</option>
+                            <option>528</option><option>529</option><option>531</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer" id="uniFooter" style="display:none;">
+            <button class="btn-cancel" onclick="closeModal('unifiedSitInModal')">Cancel</button>
+            <button class="btn-confirm" onclick="submitUnifiedSitIn()">Confirm Sit-In</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── PAGE ── -->
+<div class="page-wrapper">
+
+    <div class="page-title"><i class="fa fa-star"></i> Add Reward & Points</div>
+
+    <div class="rewards-grid">
+
+        <!-- LEFT: Award Form -->
+        <div class="rw-card">
+            <div class="rw-card-header">
+                <div class="rw-card-header-left"><i class="fa fa-star"></i> Award Points to Student</div>
+            </div>
+            <div class="rw-card-body">
+                <div class="form-group">
+                    <label>Student ID Number</label>
+                    <input type="text" id="awardStudentId" placeholder="e.g. 20-1234-567">
+                </div>
+                <div class="form-group">
+                    <label>Points to Add</label>
+                    <input type="number" id="awardPoints" value="10" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label>Reason</label>
+                    <textarea id="awardReason" placeholder="e.g. Perfect attendance"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-award" onclick="awardPoints()">
+                        <i class="fa fa-star"></i> Award Points
+                    </button>
+                    <button class="btn-reset-all" onclick="confirmResetSessions()">
+                        <i class="fa fa-refresh"></i> Reset All Sessions
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Leaderboard Table -->
+        <div class="rw-card">
+            <div class="rw-card-header">
+                <div class="rw-card-header-left"><i class="fa-solid fa-ranking-star"></i> Points Leaderboard</div>
+                <div class="lb-legend"><i class="fa fa-star"></i> Points = Completions + Duration + Bonus</div>
+            </div>
+            <div id="leaderboardContainer">
+                <div class="table-empty"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const BASE = 'http://localhost:3000';
+
+// ── LOAD LEADERBOARD ──────────────────────────────────────────────────────
+async function loadLeaderboard() {
+    try {
+        const res  = await fetch(`${BASE}/admin/leaderboard`);
+        const data = await res.json();
+        renderTable(data);
+    } catch {
+        document.getElementById('leaderboardContainer').innerHTML =
+            '<div class="table-empty"><i class="fa fa-exclamation-circle" style="color:#e74c3c;"></i><br>Could not load. Is the server running?</div>';
+    }
+}
+
+function fmtMins(mins) {
+    if (!mins || mins <= 0) return '—';
+    const h = Math.floor(mins/60), m = mins%60;
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+function renderTable(data) {
+    const container = document.getElementById('leaderboardContainer');
+    if (!data.length) {
+        container.innerHTML = '<div class="table-empty">No student data yet.</div>';
+        return;
+    }
+
+    const pipClass  = ['pip-1','pip-2','pip-3'];
+    const trophyClr = ['#ffd700','#c0c0c0','#cd7f32'];
+
+    const rows = data.map((s, i) => {
+        const rank = i + 1;
+        const pip  = rank <= 3
+            ? `<span class="rank-pip ${pipClass[rank-1]}"><i class="fa fa-trophy" style="color:${trophyClr[rank-1]};font-size:13px;"></i></span>`
+            : `<span class="rank-pip pip-n">#${rank}</span>`;
+
+        const totalMins   = s.totalMinutes || 0;
+        const longestMins = s.longestMinutes || 0;
+        const avgMins     = s.sitins > 0 && totalMins > 0 ? Math.round(totalMins / s.sitins) : 0;
+
+        const breakdown = `+${s.sitins} completions<br>+${Math.min(Math.floor(totalMins/20),5)} time bonus<br>+${totalMins>=120?2:0} long bonus<br>+${s.manualPoints||0} manual`;
+
+        return `<tr>
+            <td>${pip}</td>
+            <td>
+                <div class="student-name">${s.firstName} ${s.lastName}</div>
+                <div class="student-id">${s.idNumber}</div>
+            </td>
+            <td><span class="course-chip">${s.course||'—'}</span></td>
+            <td><b>${s.sitins}</b></td>
+            <td>
+                <div class="hours-val">${fmtMins(totalMins)}</div>
+                <div class="hours-sub">Longest: ${fmtMins(longestMins)}</div>
+            </td>
+            <td>${avgMins > 0 ? avgMins+'m' : '—'}</td>
+            <td>
+                <div class="tooltip-wrap">
+                    <span class="pts-val">${s.points}</span> <span class="pts-unit">PTS</span>
+                    <div class="pts-sub">hover for breakdown</div>
+                    <div class="tooltip-box">${breakdown}</div>
+                </div>
+            </td>
+            <td>
+                <button class="btn-add-pts" onclick="quickAddPoints('${s.idNumber}','${s.firstName} ${s.lastName}')">
+                    <i class="fa fa-plus"></i> Points
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+
+    container.innerHTML = `
+        <table class="rw-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Sit-ins</th>
+                    <th>Total Hours</th>
+                    <th>Avg Session</th>
+                    <th>Points</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+}
+
+// ── AWARD POINTS (form) ───────────────────────────────────────────────────
+async function awardPoints() {
+    const idNumber = document.getElementById('awardStudentId').value.trim();
+    const points   = parseInt(document.getElementById('awardPoints').value);
+    const reason   = document.getElementById('awardReason').value.trim();
+
+    if (!idNumber) { Swal.fire('Missing', 'Please enter a Student ID.', 'warning'); return; }
+    if (!points || points < 1) { Swal.fire('Invalid', 'Points must be at least 1.', 'warning'); return; }
+
+    try {
+        const res = await fetch(`${BASE}/admin/add-points`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idNumber, points })
+        });
+        if (!res.ok) throw new Error();
+        await Swal.fire({ icon:'success', title:`+${points} Points Awarded!`,
+            text: reason ? `Reason: ${reason}` : `Points added to ${idNumber}.`,
+            timer: 2000, showConfirmButton: false });
+        document.getElementById('awardStudentId').value = '';
+        document.getElementById('awardPoints').value    = '10';
+        document.getElementById('awardReason').value    = '';
+        loadLeaderboard();
+    } catch {
+        Swal.fire('Error', 'Could not award points. Check the student ID or server.', 'error');
+    }
+}
+
+// ── QUICK ADD POINTS (table button) ──────────────────────────────────────
+async function quickAddPoints(idNumber, name) {
+    const { value: pts, isConfirmed } = await Swal.fire({
+        title: `Add Points`,
+        html: `<p style="margin-bottom:10px;color:#555;">Student: <b>${name}</b></p>
+               <input id="swalPts" type="number" min="1" max="100" value="1"
+               class="swal2-input" placeholder="Points to add" style="width:80%;">`,
+        showCancelButton: true,
+        confirmButtonColor: '#1cc88a',
+        confirmButtonText: '<i class="fa fa-plus"></i> Add Points',
+        preConfirm: () => {
+            const v = parseInt(document.getElementById('swalPts').value);
+            if (!v || v < 1) { Swal.showValidationMessage('Enter a valid number (min 1)'); return false; }
+            return v;
+        }
+    });
+    if (!isConfirmed) return;
+    try {
+        const res = await fetch(`${BASE}/admin/add-points`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idNumber, points: pts })
+        });
+        if (!res.ok) throw new Error();
+        await Swal.fire({ icon:'success', title:`+${pts} Points Added!`, timer:1500, showConfirmButton:false });
+        loadLeaderboard();
+    } catch { Swal.fire('Error', 'Could not add points.', 'error'); }
+}
+
+// ── RESET ALL SESSIONS ────────────────────────────────────────────────────
+async function confirmResetSessions() {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Reset All Sessions?',
+        text: 'This will set all student sessions back to 30.',
+        icon: 'warning', showCancelButton: true,
+        confirmButtonColor: '#4e73df', confirmButtonText: 'Yes, Reset!'
+    });
+    if (!isConfirmed) return;
+    try {
+        const res = await fetch(`${BASE}/admin/reset-sessions`, { method: 'POST' });
+        if (!res.ok) throw new Error();
+        await Swal.fire({ icon:'success', title:'Sessions Reset!', text:'All students reset to 30 sessions.', timer:1800, showConfirmButton:false });
+    } catch { Swal.fire('Error', 'Could not reset sessions.', 'error'); }
+}
+
+// ── UNIFIED MODAL ─────────────────────────────────────────────────────────
+function openUnifiedModal() {
+    document.getElementById('unifiedSitInModal').style.display='flex';
+    document.getElementById('searchResultsList').innerHTML='';
+    document.getElementById('studentDetailsBox').style.display='none';
+    document.getElementById('uniFooter').style.display='none';
+    document.getElementById('uniIdSearch').value='';
+}
+function openModal(id)  { document.getElementById(id).style.display='flex'; }
+function closeModal(id) { document.getElementById(id).style.display='none'; }
+
+let searchTimer;
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('uniIdSearch').addEventListener('input', function() {
+        clearTimeout(searchTimer);
+        if (!this.value.trim()) {
+            document.getElementById('searchResultsList').innerHTML='';
+            document.getElementById('studentDetailsBox').style.display='none';
+            document.getElementById('uniFooter').style.display='none'; return;
+        }
+        searchTimer = setTimeout(searchAndPopulate, 300);
+    });
+    loadLeaderboard();
+});
+
+async function searchAndPopulate() {
+    const id=document.getElementById('uniIdSearch').value.trim();
+    if (!id) return;
+    try {
+        const res=await fetch(`${BASE}/student/${id}`); const data=await res.json();
+        if (res.ok) {
+            const initials=(data.firstName[0]+data.lastName[0]).toUpperCase();
+            document.getElementById('searchResultsList').innerHTML=`
+                <div class="search-result-item" onclick='selectStudent(${JSON.stringify(data)})'>
+                    <div class="user-avatar">${initials}</div>
+                    <div class="user-info-text">
+                        <span class="name">${data.firstName} ${data.lastName}</span>
+                        <div class="meta"><span>ID: ${data.idNumber}</span><span>${data.course} ${data.yearLevel}</span></div>
+                    </div>
+                    <div class="user-status-badges">
+                        <span class="badge-sessions">${data.remainingSession??30} sessions</span>
+                        <span style="color:#4e73df;font-size:10px;">Click to select</span>
+                    </div>
+                </div>`;
+            document.getElementById('studentDetailsBox').style.display='none';
+            document.getElementById('uniFooter').style.display='none';
+        } else {
+            document.getElementById('searchResultsList').innerHTML='<p style="text-align:center;color:#858796;font-size:12px;padding:10px;">No student found.</p>';
+        }
+    } catch(e) { console.error(e); }
+}
+
+function selectStudent(data) {
+    document.getElementById('searchResultsList').innerHTML='';
+    document.getElementById('studentDetailsBox').style.display='block';
+    document.getElementById('uniFooter').style.display='flex';
+    document.getElementById('accountInfoDisplay').innerHTML=`
+        <span class="profile-name">${data.firstName} ${data.lastName}</span>
+        <div class="profile-meta">
+            <div class="meta-item"><label>ID Number</label><span>${data.idNumber}</span></div>
+            <div class="meta-item"><label>Remaining</label><span>${data.remainingSession??30} / 30</span></div>
+        </div>`;
+}
+
+async function submitUnifiedSitIn() {
+    const idNumber=document.getElementById('uniIdSearch').value;
+    const purpose=document.getElementById('uniPurpose').value;
+    const lab=document.getElementById('uniLab').value;
+    const res=await fetch(`${BASE}/sit-in`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idNumber,purpose,lab})});
+    if (res.ok) { Swal.fire('Success','Sit-in recorded!','success'); closeModal('unifiedSitInModal'); }
+}
+
+async function logout() {
+        const { isConfirmed } = await Swal.fire({
+            title: 'Logout Admin?',
+            text: "This will end your admin session.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, Logout!',
+            cancelButtonText: 'Stay Logged In'
+        });
+
+        if (!isConfirmed) return;
+
+        try {
+
+            sessionStorage.removeItem("adminWelcomeShown");
+            localStorage.removeItem("adminId");
+            sessionStorage.clear();
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Logged Out',
+                text: 'Admin session ended successfully.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            window.location.href = "index.html";
+
+        } catch (err) {
+            console.error("Admin logout error:", err);
+
+            sessionStorage.clear();
+            localStorage.removeItem("adminId");
+
+            window.location.href = "index.html";
+        }
+    }   
+</script>
+</body>
+</html>
