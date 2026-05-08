@@ -445,88 +445,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Search Modal -->
-    <div id="searchModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fa fa-search"></i> Search Student</h2>
-                <button class="close-btn" onclick="closeModal('searchModal')" style="color:white;">&times;</button>
-            </div>
-            <div class="modal-body">
-                <input type="text" id="modalSearchInput" placeholder="Enter ID Number"
-                    style="width:100%; padding:15px; font-size:15px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px;"
-                    onkeydown="if(event.key==='Enter') executeSearch(event)">
-            </div>
-            <div class="modal-footer">
-                <button class="btn-cancel" onclick="closeModal('searchModal')">Cancel</button>
-                <button class="btn-confirm" onclick="executeSearch(event)">Search</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Student Info Modal -->
-    <div id="studentInfoModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fa fa-user"></i> Student Information</h2>
-                <button class="close-btn" onclick="closeModal('studentInfoModal')" style="color:white;">&times;</button>
-            </div>
-            <div class="modal-body" id="infoBody"></div>
-            <div class="modal-footer">
-                <button class="btn-cancel" onclick="closeModal('studentInfoModal')">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Generic Sit-In Modal -->
-    <div id="genericSitInModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fa fa-laptop"></i> Confirm Sit-In</h2>
-                <button class="close-btn" onclick="closeModal('genericSitInModal')" style="color:white;">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-row">
-                    <label>ID Number:</label>
-                    <input type="text" id="genIdNumber" placeholder="Enter ID Number" oninput="autoFillStudent()">
-                </div>
-                <div class="form-row">
-                    <label>Full Name:</label>
-                    <input type="text" id="genFullName" placeholder="Student Name" readonly>
-                </div>
-                <div class="form-row">
-                    <label>Purpose:</label>
-                    <select id="genPurpose">
-                        <option value="C Programming">C Programming</option>
-                        <option value="Java Projects">Java Projects</option>
-                        <option value="Python/Data Science">Python/Data Science</option>
-                        <option value="Web Development">Web Development</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label>Laboratory:</label>
-                    <select id="genLab">
-                        <option value="524">524</option>
-                        <option value="525">525</option>
-                        <option value="526">526</option>
-                        <option value="527">527</option>
-                        <option value="528">528</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label>Sessions Left:</label>
-                    <input type="text" id="genRemaining" placeholder="30" readonly>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-cancel" onclick="closeModal('genericSitInModal')">Cancel</button>
-                <button class="btn-confirm" onclick="submitGenericSitIn(event)">Confirm Sit-In</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Navbar -->
     <nav class="navbar">
         <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
         <ul class="nav-links">
@@ -551,6 +469,59 @@
             <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out-alt"></i> Log out</a></li>
         </ul>
     </nav>
+
+    <div id="unifiedSitInModal" class="modal-overlay">
+        <div class="modal-content" style="width: 450px;">
+            <div class="modal-header">
+                <h3><i class="fa fa-search"></i> Find Student</h3>
+                <button onclick="closeModal('unifiedSitInModal')" style="background:none; border:none; color:white; cursor:pointer; font-size:20px;">&times;</button>
+            </div>
+            
+            <div class="modal-body" style="padding: 10px;">
+                <div class="search-wrapper">
+                    <input type="text" id="uniIdSearch" placeholder="Enter Student ID....">
+                    <button class="btn-confirm" onclick="searchAndPopulate()">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+
+                <div id="searchResultsList"></div>
+
+                <div id="studentDetailsBox" style="display: none;">
+                    <div class="student-profile-card">
+                        <div id="accountInfoDisplay"></div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="font-size: 13px; font-weight: 700; color: #4e73df;">Purpose</label>
+                            <select id="uniPurpose" class="modern-select">
+                                <option>C Programming</option>
+                                <option>Java Projects</option>
+                                <option>Web Development</option>
+                                <option>Python/Data Science</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; color: #4e73df;">Lab Room</label>
+                            <select id="uniLab" class="modern-select">
+                                <option>524</option>
+                                <option>526</option>
+                                <option>528</option>
+                                <option>529</option>
+                                <option>531</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer" id="uniFooter" style="display: none;">
+                <button class="btn-cancel" onclick="closeModal('unifiedSitInModal')">Cancel</button>
+                <button class="btn-confirm" onclick="submitUnifiedSitIn()">Confirm Sit-In</button>
+            </div>
+        </div>
+    </div>
 
     <div style="padding: 25px 30px 0; max-width: 1400px; margin: auto;">
         <div class="page-title"><i class="fa-solid fa-calendar-check"></i> Manage Reservations</div>

@@ -206,7 +206,7 @@ app.post("/time-out/:id", (req, res) => {
 });
 
 app.post("/make-reservation", (req, res) => {
-    const { idNumber, purpose, lab, timeIn, date } = req.body;
+    const { idNumber, studentName, purpose, lab, pcNumber, timeIn, date } = req.body;
 
     db.get(`SELECT remainingSession FROM users WHERE idNumber = ?`, [idNumber], (err, user) => {
         if (err) return res.status(500).json({ message: "Database error" });
@@ -214,8 +214,8 @@ app.post("/make-reservation", (req, res) => {
         
         if (user.remainingSession <= 0) return res.status(400).json({ message: "No sessions left!" });
 
-        const sql = `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date, status) VALUES (?, ?, ?, ?, ?, ?)`;
-        db.run(sql, [idNumber, purpose, lab, timeIn, date, 'Pending'], function (err) {
+        const sql = `INSERT INTO reservations (idNumber, studentName, purpose, lab, pcNumber, timeIn, date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+        db.run(sql, [idNumber, studentName || '', purpose, lab, pcNumber || '', timeIn, date, 'Pending'], function (err) {
             if (err) return res.status(500).json({ message: err.message });
 
             res.json({ message: "Reservation submitted! Awaiting admin approval." });
@@ -396,6 +396,93 @@ app.delete("/api/feedback/:id", (req, res) => {
     db.run(`DELETE FROM feedback WHERE id = ?`, [id], function(err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Feedback deleted" });
+    });
+});
+
+// --- ADMIN: GET ALL RESERVATIONS ---
+app.get("/admin/reservations", (req, res) => {
+    const sql = `
+        SELECT 
+            r.id,
+            r.idNumber,
+            r.studentName,
+            r.purpose,
+            r.lab,
+            r.pcNumber,
+            r.timeIn,
+            r.timeOut,
+            r.date,
+            r.status
+        FROM reservations r
+        WHERE r.status IN ('Pending', 'Accepted', 'Denied')
+        ORDER BY r.id DESC
+    `;
+    db.all(sql, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// --- ADMIN: UPDATE RESERVATION STATUS (Accept / Deny) ---
+app.post("/admin/update-reservation", (req, res) => {
+    const { id, status } = req.body;
+    const createdAt = new Date().toLocaleString();
+
+    db.get(`SELECT * FROM reservations WHERE id = ?`, [id], (err, rev) => {
+        if (err) return res.status(500).json({ message: "DB error" });
+        if (!rev) return res.status(404).json({ message: "Reservation not found" });
+
+        db.run(`UPDATE reservations SET status = ? WHERE id = ?`, [status, id], function (err) {
+            if (err) return res.status(500).json({ message: err.message });
+
+            // If accepted: deduct session
+            if (status === 'Accepted') {
+                db.run(`UPDATE users SET remainingSession = remainingSession - 1 WHERE idNumber = ?`, [rev.idNumber]);
+            }
+
+            // Create notification for the student
+            const msg = status === 'Accepted'
+                ? `✅ Your reservation for Lab ${rev.lab} (${rev.pcNumber || 'N/A'}) on ${rev.date} at ${rev.timeIn} has been ACCEPTED.`
+                : `❌ Your reservation for Lab ${rev.lab} (${rev.pcNumber || 'N/A'}) on ${rev.date} at ${rev.timeIn} has been DENIED.`;
+
+            db.run(
+                `INSERT INTO notifications (idNumber, reservationId, message, isRead, createdAt) VALUES (?, ?, ?, 0, ?)`,
+                [rev.idNumber, id, msg, createdAt],
+                (err) => {
+                    if (err) console.error("Notification insert error:", err.message);
+                }
+            );
+
+            res.json({ message: `Reservation ${status} successfully.` });
+        });
+    });
+});
+
+// --- STUDENT: GET NOTIFICATIONS ---
+app.get("/notifications/:idNumber", (req, res) => {
+    db.all(
+        `SELECT * FROM notifications WHERE idNumber = ? ORDER BY id DESC`,
+        [req.params.idNumber],
+        (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(rows);
+        }
+    );
+});
+
+// --- STUDENT: MARK NOTIFICATION AS READ ---
+app.post("/notifications/read/:id", (req, res) => {
+    db.run(`UPDATE notifications SET isRead = 1 WHERE id = ?`, [req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Marked as read" });
+    });
+});
+
+// --- STUDENT: MARK ALL NOTIFICATIONS AS READ ---
+app.post("/notifications/read-all/:idNumber", (req, res) => {
+    db.run(`UPDATE notifications SET isRead = 1 WHERE idNumber = ?`, [req.params.idNumber], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "All marked as read" });
     });
 });
 
