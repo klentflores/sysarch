@@ -430,8 +430,8 @@ async function loadAnnouncements() {
 
         list.innerHTML = announcements.map(a => `
             <div class="announcement-item">
-                <small style="color: #4e73df; font-weight: bold;">${a.author} | ${a.date}</small>
-                <p style="margin-top: 5px;">${a.content}</p>
+                <medium style="color: #4e73df; font-weight: bold; font-family: 'Sora', sans-serif;">${a.author} | ${a.date}</medium>
+                <p style="margin-top: 15px; font-family: 'Sora', sans-serif;">${a.content}</p>
             </div>
         `).join('');
     } catch (err) {

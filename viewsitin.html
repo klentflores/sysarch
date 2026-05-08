@@ -293,7 +293,8 @@
         td { 
             padding: 12px 15px; 
             border-bottom: 1px solid #f1f1f1; 
-            color: #444; 
+            font-size: 14px; color: #333;
+            font-family: 'Sora', sans-serif;
         }
 
         tbody tr:hover { 
@@ -950,13 +951,13 @@
             const sitInId  = r.id;
 
             return `<tr>
-                <td>${sitInId ?? '—'}</td>
+                <td><b style="font-family: 'Sora', sans-serif;">${sitInId ?? '—'}</b></td>
                 <td>${r.idNumber}</td>
                 <td>${r.firstName ?? ''} ${r.lastName ?? ''}</td>
                 <td>${r.purpose}</td>
                 <td>${r.lab}</td>
                 <td>${r.timeIn ?? '—'}</td>
-                <td><span class="badge badge-session">${sessions}</span></td>
+                <td><span class="badge badge-session" style="font-family: 'Sora', sans-serif;">${sessions}</span></td>
                 <td>
                     ${isActive 
                         ? '<span class="badge badge-active">Active</span>' 
@@ -967,7 +968,7 @@
                         ? `<button class="btn-timeout" onclick="timeOut('${r.idNumber}', '${sitInId}')">
                                <i class="fa fa-sign-out"></i> Time Out
                            </button>` 
-                        : `<button class="btn-done" disabled>Done</button>`}
+                        : `<button class="btn-done" style="font-family: 'Sora', sans-serif;" disabled>Done</button>`}
                 </td>
             </tr>`;
         }).join('');

@@ -663,10 +663,6 @@
                     html: 'Your reservation request is now <b>Pending</b>.<br>The admin will review and approve it shortly.',
                     confirmButtonColor: '#0056b3',
                     confirmButtonText: 'OK'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "history.html";
-                    }
                 });
             } else {
                 Swal.fire('Error', resultData.message || 'Could not submit reservation. Try again.', 'error');

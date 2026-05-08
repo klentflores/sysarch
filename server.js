@@ -127,6 +127,7 @@ app.get("/get-all-sitin", (req, res) => {
             u.remainingSession
         FROM reservations r
         JOIN users u ON r.idNumber = u.idNumber
+        WHERE r.status NOT IN ('Pending', 'Accepted', 'Denied')
         ORDER BY r.id DESC
     `;
     db.all(sql, [], (err, rows) => {
@@ -185,6 +186,7 @@ app.get("/get-sitin", (req, res) => {
         FROM reservations r
         JOIN users u ON r.idNumber = u.idNumber
         WHERE (r.timeOut IS NULL OR r.timeOut = '')
+        AND r.status NOT IN ('Pending', 'Accepted', 'Denied')
         ORDER BY r.id DESC
     `;
     db.all(sql, [], (err, rows) => {
@@ -236,7 +238,7 @@ app.post("/record-final-logout", (req, res) => {
     );
 });
 
-// --- HISTORY ---
+// --- HISTORY (sit-in records only, NOT reservation requests) ---
 app.get("/history/:idNumber", (req, res) => {
     const sql = `
         SELECT 
@@ -245,7 +247,9 @@ app.get("/history/:idNumber", (req, res) => {
             u.lastName 
         FROM reservations r
         JOIN users u ON r.idNumber = u.idNumber
-        WHERE r.idNumber = ? 
+        WHERE r.idNumber = ?
+        AND (r.status = 'Active' OR r.status IS NULL OR r.timeOut IS NOT NULL OR r.timeOut != '')
+        AND r.status NOT IN ('Pending', 'Accepted', 'Denied')
         ORDER BY r.id DESC
     `;
     db.all(sql, [req.params.idNumber], (err, rows) => {
@@ -352,11 +356,12 @@ app.get("/admin/reports", (req, res) => {
             r.date 
         FROM reservations r
         JOIN users u ON r.idNumber = u.idNumber
+        WHERE r.status NOT IN ('Pending', 'Accepted', 'Denied')
     `;
     let params = [];
 
     if (filterDate) {
-        sql += ` WHERE r.date = ?`;
+        sql += ` AND r.date = ?`;
         params.push(filterDate);
     }
 
@@ -435,15 +440,26 @@ app.post("/admin/update-reservation", (req, res) => {
         db.run(`UPDATE reservations SET status = ? WHERE id = ?`, [status, id], function (err) {
             if (err) return res.status(500).json({ message: err.message });
 
-            // If accepted: deduct session
             if (status === 'Accepted') {
+                // Deduct one session from the student
                 db.run(`UPDATE users SET remainingSession = remainingSession - 1 WHERE idNumber = ?`, [rev.idNumber]);
+
+                // Insert a NEW sit-in record so it shows in sitin.html / viewsitin.html / history.html
+                const timeIn = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const date   = new Date().toLocaleDateString('en-CA');
+                db.run(
+                    `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date, status) VALUES (?, ?, ?, ?, ?, 'Active')`,
+                    [rev.idNumber, rev.purpose, rev.lab, timeIn, date],
+                    (err) => {
+                        if (err) console.error("Sit-in insert error:", err.message);
+                    }
+                );
             }
 
-            // Create notification for the student
+            // Notify the student either way
             const msg = status === 'Accepted'
-                ? `✅ Your reservation for Lab ${rev.lab} (${rev.pcNumber || 'N/A'}) on ${rev.date} at ${rev.timeIn} has been ACCEPTED.`
-                : `❌ Your reservation for Lab ${rev.lab} (${rev.pcNumber || 'N/A'}) on ${rev.date} at ${rev.timeIn} has been DENIED.`;
+                ? `✅ Your reservation for Lab ${rev.lab} (PC: ${rev.pcNumber || 'N/A'}) on ${rev.date} at ${rev.timeIn} has been ACCEPTED. You may now proceed to the lab.`
+                : `❌ Your reservation for Lab ${rev.lab} (PC: ${rev.pcNumber || 'N/A'}) on ${rev.date} at ${rev.timeIn} has been DENIED.`;
 
             db.run(
                 `INSERT INTO notifications (idNumber, reservationId, message, isRead, createdAt) VALUES (?, ?, ?, 0, ?)`,

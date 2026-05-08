@@ -263,6 +263,7 @@
             padding: 12px 15px; 
             border-bottom: 1px solid #eee; 
             font-size: 14px; color: #333; 
+            font-family: 'Sora', sans-serif;
         }
 
         tr:hover { 
@@ -831,7 +832,7 @@
 
             body.innerHTML = data.map(r => `
                 <tr>
-                    <td><b>${r.idNumber}</b></td>
+                    <td><b style="font-family: 'Sora', sans-serif;">${r.idNumber}</b></td>
                     <td>${r.firstName} ${r.lastName}</td>
                     <td>${r.purpose}</td>
                     <td>${r.lab}</td>

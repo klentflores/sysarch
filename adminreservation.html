@@ -54,18 +54,48 @@
             align-items: center;
         }
 
-        .modal-header h2 { font-size: 20px; color: white; margin: 0; }
-        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
-        .modal-body { padding: 25px; }
-
-        .form-row { display: flex; margin-bottom: 15px; align-items: center; }
-        .form-row label { width: 150px; font-weight: bold; color: #333; font-size: 14px; }
-        .form-row input, .form-row select { 
-            flex: 1; padding: 10px; border: 1px solid #ccc; 
-            border-radius: 5px; font-family: 'Plus Jakarta Sans', sans-serif;
+        .modal-header h2 { 
+            font-size: 20px; 
+            color: white; 
+            margin: 0; 
         }
 
-        input[readonly] { background: #eee; cursor: not-allowed; }
+        .close-btn { 
+            background: none; 
+            border: none; 
+            font-size: 20px; 
+            cursor: pointer; 
+        }
+
+        .modal-body { 
+            padding: 25px; 
+        }
+
+        .form-row { 
+            display: flex; 
+            margin-bottom: 15px; 
+            align-items: center; 
+        }
+
+        .form-row label { 
+            width: 150px; 
+            font-weight: bold; 
+            color: #333; 
+            font-size: 14px; 
+        }
+
+        .form-row input, .form-row select { 
+            flex: 1; 
+            padding: 10px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        input[readonly] { 
+            background: #eee; 
+            cursor: not-allowed; 
+        }
 
         .modal-footer {
             padding: 12px;
@@ -75,8 +105,13 @@
             gap: 10px;
         }
         .modal-footer button {
-            padding: 10px 20px; border: none; border-radius: 5px;
-            font-size: 13px; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 5px;
+            font-size: 13px; 
+            cursor: pointer; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            font-weight: 700;
         }
 
         .btn-confirm { background-color: #2c3e70; color: #fff; }
@@ -90,16 +125,22 @@
         }
 
         #infoBody p { 
-            margin: 10px 0; font-size: 14px; 
-            border-bottom: 1px solid #eee; padding-bottom: 5px;
+            margin: 10px 0; 
+            font-size: 14px; 
+            border-bottom: 1px solid #eee; 
+            padding-bottom: 5px;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
-        #infoBody b { color: #0056b3; width: 120px; display: inline-block; }
+        #infoBody b { 
+            color: #0056b3; 
+            width: 120px; 
+            display: inline-block; 
+        }
 
         /* ── Main Layout ── */
         .reservation-grid {
             display: grid;
-            grid-template-columns: 220px 1fr 1fr;
+            grid-template-columns: 350px 1fr 1fr;
             gap: 20px;
             padding: 20px;
             max-width: 1400px;
@@ -125,23 +166,57 @@
             font-size: 15px;
         }
 
-        .panel-body { padding: 15px; overflow-y: auto; flex-grow: 1; }
+        .panel-body { 
+            padding: 10px; 
+            overflow-y: auto; 
+            flex-grow: 1; 
+        }
 
         /* Computer Control */
-        .control-group { margin-bottom: 15px; }
-        .control-group label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 600; }
-        .control-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .control-group { 
+            margin-bottom: 25px; 
+        }
+
+        .control-group label { 
+            display: block; 
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 15px; 
+            font-size: 20px; 
+            font-weight: 700; 
+        }
+
+        .control-group select { 
+            width: 100%; 
+            padding: 8px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+        }
 
         .btn-filter {
-            width: 100%; background: #007bff; color: white; border: none;
-            padding: 10px; border-radius: 5px; cursor: pointer; font-weight: 600;
+            width: 100%; 
+            background: #007bff; 
+            color: white; 
+            border: none;
+            padding: 10px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: 600;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
-        .btn-filter:hover { background: #0056b3; }
+
+        .btn-filter:hover { 
+            background: #0056b3;
+            transform: translateY(-1px); 
+        }
 
         .status-legend {
-            display: flex; gap: 10px; margin-top: 15px; justify-content: center;
+            display: flex; 
+            gap: 10px; 
+            margin-top: 15px; 
+            justify-content: center;
         }
+
         .badge-avail { background: #28a745; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
         .badge-used  { background: #dc3545; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
 
@@ -195,8 +270,11 @@
         .btn-refresh:hover { background: #5a6268; }
 
         .panel-count {
-            font-size: 11px; opacity: 0.8; margin-left: 6px;
-            background: rgba(255,255,255,0.25); padding: 1px 7px; border-radius: 10px;
+            font-size: 13px; 
+            opacity: 0.8; 
+            margin-left: 6px;
+            background: rgba(255,255,255,0.25); 
+            padding: 1px 7px; border-radius: 10px;
         }
 
         .theme-toggle-btn {
@@ -534,13 +612,13 @@
             <div class="panel-header">Computer Control</div>
             <div class="panel-body">
                 <div class="control-group">
-                    <label>Lab</label>
+                    <label>Laboratory</label>
                     <select id="labFilter">
-                        <option value="524">524</option>
-                        <option value="525">525</option>
-                        <option value="526">526</option>
-                        <option value="527">527</option>
-                        <option value="528">528</option>
+                        <option value="Lab 524">Lab 524</option>
+                        <option value="Lab 525">Lab 525</option>
+                        <option value="Lab 526">Lab 526</option>
+                        <option value="Lab 527">Lab 527</option>
+                        <option value="Lab 528">Lab 528</option>
                     </select>
                 </div>
                 <button class="btn-filter" onclick="fetchReservations()">
