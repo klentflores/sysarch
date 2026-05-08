@@ -29,6 +29,7 @@
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             z-index: 500;
             justify-content: center;
             align-items: center;
@@ -36,105 +37,177 @@
             background-color: rgba(0,0,0,0.4);
         }
 
-        .modal-content {
-            background: white;
-            border-radius: 10px;
-            width: 450px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            overflow: hidden;
-            animation: slideDown 0.3s ease-out;
+        .modal-content { 
+            background: #fff; 
+            border-radius: 10px; 
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); 
+            overflow: hidden; 
+            animation: slideDown 0.3s ease-out; 
         }
-
-        .modal-header {
+        .modal-header { 
             background: #2c3e70;
-            color: white;
             padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h2 { 
-            font-size: 20px; 
-            color: white; 
-            margin: 0; 
-        }
-
-        .close-btn { 
-            background: none; 
-            border: none; 
-            font-size: 20px; 
-            cursor: pointer; 
-        }
-
-        .modal-body { 
-            padding: 25px; 
-        }
-
-        .form-row { 
             display: flex; 
-            margin-bottom: 15px; 
+            justify-content: space-between; 
             align-items: center; 
+            color: white; 
+        }
+        
+        .search-wrapper { 
+            display: flex; 
+            align-items: center; 
+            background: #ffffff; 
+            border: 2px solid #e3e6f0; 
+            border-radius: 10px; 
+            transition: all 0.2s; 
+        }
+        .search-wrapper:focus-within { 
+            box-shadow: 0 0 8px rgba(44, 62, 112, 0.2); 
+        }
+        .search-wrapper input { 
+            flex: 1; border: none !important; 
+            padding: 12px; 
+            font-size: 15px; 
+            outline: none !important; 
         }
 
-        .form-row label { 
-            width: 150px; 
-            font-weight: bold; 
-            color: #333; 
+        /* --- Search Result Card (From Image) --- */
+        #searchResultsList { 
+            margin-top: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+        }
+        .search-result-item {
+            display: flex; 
+            align-items: center; 
+            background: #f8f9fc; 
+            border-radius: 12px; 
+            padding: 12px; 
+            cursor: pointer; 
+            transition: all 0.2s;
+        }
+        .search-result-item:hover { 
+            background: #fff; 
+            transform: translateY(-2px); 
+        }
+        
+        .user-avatar {
+            width: 45px; 
+            height: 45px; 
+            background: #4e73df; 
+            color: white; 
+            border-radius: 50%;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-weight: 700; 
+            margin-right: 15px;
+        }
+        .user-info-text .name { 
+            display: block; 
+            font-weight: 700; 
+            color: #2c3e70; 
             font-size: 14px; 
         }
-
-        .form-row input, .form-row select { 
+        .user-info-text .meta { 
+            font-size: 11px; 
+            color: #858796; 
+            display: flex; 
+            gap: 8px; 
+        }
+        .user-status-badges { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-end; 
             flex: 1; 
-            padding: 10px; 
-            border: 1px solid #ccc; 
-            border-radius: 5px; 
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 11px; 
+            font-weight: 800; 
+        }
+        .badge-sessions { 
+            color: #1cc88a; 
         }
 
-        input[readonly] { 
-            background: #eee; 
-            cursor: not-allowed; 
+        /* --- Sit-in Form Styles --- */
+        .student-profile-card { 
+            background: #f8f9fc; 
+            border-left: 5px solid #2c3e70; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin: 20px; 
         }
-
-        .modal-footer {
-            padding: 12px;
-            background: #f8f9fa;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
+        .profile-name { 
+            display: block; 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            color: #2c3e70; 
+            margin-bottom: 10px; 
+            text-transform: uppercase; 
         }
-        .modal-footer button {
-            padding: 10px 20px; 
-            border: none; 
-            border-radius: 5px;
-            font-size: 13px; 
+        .profile-meta { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; gap: 15px; 
+        }
+        .meta-item label { 
+            display: block; 
+            font-size: 10px; 
+            text-transform: uppercase; 
+            color: #858796; 
+            font-weight: 800; 
+        }
+        .meta-item span { 
+            font-weight: 600; 
+            color: #444; 
+        }
+        .modern-select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #d1d3e2; 
+            border-radius: 8px; 
             cursor: pointer; 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            font-weight: 700;
+        }
+        
+        .modal-footer { 
+            padding: 15px 20px; 
+            background: #f8f9fc; 
+            border-top: 1px solid #e3e6f0; 
+            display: flex; 
+            justify-content: flex-end; 
+            gap: 10px; 
         }
 
-        .btn-confirm { background-color: #2c3e70; color: #fff; }
-        .btn-confirm:hover { background: #2d2d4e; transform: translateY(-1px); }
-        .btn-cancel { background-color: #6c757d; color: white; }
-        .btn-cancel:hover { background: #5a6268; transform: translateY(-1px); }
+        .btn-confirm { 
+            background: #2c3e70; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600; 
+        }
+
+        .btn-cancel { 
+            background: #858796;
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+        }
+
+        .btn-confirm:hover {
+            background: #2c3e70;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel:hover {
+            background: #858796;
+            transform: translateY(-1px);
+        }
 
         @keyframes slideDown {
             from { transform: translateY(-50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
-        }
-
-        #infoBody p { 
-            margin: 10px 0; 
-            font-size: 14px; 
-            border-bottom: 1px solid #eee; 
-            padding-bottom: 5px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        #infoBody b { 
-            color: #0056b3; 
-            width: 120px; 
-            display: inline-block; 
         }
 
         /* ── Main Layout ── */
@@ -527,7 +600,7 @@
         <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
         <ul class="nav-links">
             <li><a href="admindashboard.html"><i class="fa fa-home"></i> Home</a></li>
-            <li><a href="javascript:void(0)" onclick="openSearchModal()"><i class="fa fa-search"></i> Search</a></li>
+            <li><a href="javascript:void(0)" onclick="openUnifiedModal()"><i class="fa fa-search"></i> Search</a></li>
             <li><a href="studentlist.html"><i class="fa fa-users"></i> Students</a></li>
             <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
             <li><a href="viewsitin.html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
@@ -583,11 +656,11 @@
                         <div>
                             <label style="font-size: 12px; font-weight: 700; color: #4e73df;">Lab Room</label>
                             <select id="uniLab" class="modern-select">
-                                <option>524</option>
-                                <option>526</option>
-                                <option>528</option>
-                                <option>529</option>
-                                <option>531</option>
+                                <option>Lab 524</option>
+                                <option>Lab 525</option>
+                                <option>Lab 526</option>
+                                <option>Lab 527</option>
+                                <option>Lab 528</option>
                             </select>
                         </div>
                     </div>
@@ -689,96 +762,116 @@
         applyTheme(saved);
     })();
 
-    function openModal(id)  { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    // ── Search ──────────────────────────────────────────────
-    function openSearchModal() {
-        openModal('searchModal');
-        document.getElementById('modalSearchInput').focus();
-    }
-
-    async function executeSearch(event) {
-        if (event) event.preventDefault();
-        const id = document.getElementById('modalSearchInput').value.trim();
-        if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
-
-        try {
-            const res  = await fetch(`http://localhost:3000/student/${id}`);
-            const data = await res.json();
-            if (res.ok) {
-                closeModal('searchModal');
-                document.getElementById('infoBody').innerHTML = `
-                    <p><b>ID Number:</b> ${data.idNumber}</p>
-                    <p><b>Name:</b> ${data.firstName} ${data.lastName}</p>
-                    <p><b>Course:</b> ${data.course || 'N/A'}</p>
-                    <p><b>Email:</b> ${data.email || 'N/A'}</p>
-                    <p><b>Year:</b> ${data.yearLevel || 'N/A'}</p>
-                    <p><b>Address:</b> ${data.address || 'N/A'}</p>
-                    <p><b>Sessions Left:</b> <strong style="color:#28a745">${data.remainingSession ?? 30}</strong></p>
-                `;
-                openModal('studentInfoModal');
-            } else {
-                Swal.fire('Oops!', 'Student not found.', 'warning');
-            }
-        } catch (e) { Swal.fire('Error', 'Server Error', 'error'); }
-    }
-
-    // ── Generic Sit-In (Admin) ───────────────────────────────
-    function openGenericSitInForm() {
-        document.getElementById('genIdNumber').value  = "";
-        document.getElementById('genFullName').value  = "";
-        document.getElementById('genLab').value       = "524";
-        document.getElementById('genRemaining').value = "";
-        openModal('genericSitInModal');
-    }
-
-    async function autoFillStudent() {
-        const id = document.getElementById('genIdNumber').value.trim();
-        if (!id) {
-            document.getElementById('genFullName').value  = "";
-            document.getElementById('genRemaining').value = "";
-            return;
+    function openUnifiedModal() {
+            document.getElementById('unifiedSitInModal').style.display = 'flex';
+            document.getElementById('searchResultsList').innerHTML = '';
+            document.getElementById('studentDetailsBox').style.display = 'none';
+            document.getElementById('uniFooter').style.display = 'none';
+            document.getElementById('uniIdSearch').value = '';
         }
-        try {
-            const res  = await fetch(`http://localhost:3000/get-student/${id}`);
-            if (res.ok) {
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+                let searchTimer;
+
+
+        document.getElementById('uniIdSearch').addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            clearTimeout(searchTimer);
+
+            if (query.length === 0) {
+                document.getElementById('searchResultsList').innerHTML = '';
+                document.getElementById('studentDetailsBox').style.display = 'none';
+                document.getElementById('uniFooter').style.display = 'none';
+                return;
+            }
+
+            searchTimer = setTimeout(() => {
+                searchAndPopulate();
+            }, 300); 
+        });
+
+        async function searchAndPopulate() {
+            const id = document.getElementById('uniIdSearch').value.trim();
+            const list = document.getElementById('searchResultsList');
+            const details = document.getElementById('studentDetailsBox');
+
+            if(!id) return;
+
+            try {
+                const res = await fetch(`http://localhost:3000/student/${id}`);
                 const data = await res.json();
-                document.getElementById('genFullName').value  = `${data.firstName} ${data.lastName}`;
-                document.getElementById('genRemaining').value = data.remainingSession ?? 30;
-            } else {
-                document.getElementById('genFullName').value  = "";
-                document.getElementById('genRemaining').value = "";
-            }
-        } catch (e) { console.error("Live search error:", e); }
-    }
 
-    async function submitGenericSitIn(e) {
-        if (e) e.preventDefault();
-        const payload = {
-            idNumber: document.getElementById('genIdNumber').value.trim(),
-            purpose:  document.getElementById('genPurpose').value,
-            lab:      document.getElementById('genLab').value
-        };
-        if (!payload.idNumber || !payload.lab) {
-            return Swal.fire('Warning', 'ID Number and Lab are required.', 'warning');
-        }
-        try {
-            const res = await fetch('http://localhost:3000/sit-in', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (res.ok) {
-                await Swal.fire({ icon: 'success', title: 'Sit-in recorded!', confirmButtonText: 'OK' });
-                closeModal('genericSitInModal');
-                document.getElementById('genIdNumber').value = "";
-            } else {
-                const txt = await res.text();
-                Swal.fire('Error', txt, 'error');
+                if (res.ok) {
+                    const initials = (data.firstName[0] + data.lastName[0]).toUpperCase();
+                    
+                    list.innerHTML = `
+                        <div class="search-result-item animate-pop" onclick='selectStudent(${JSON.stringify(data)})'>
+                            <div class="user-avatar">${initials}</div>
+                            <div class="user-info-text">
+                                <span class="name">${data.firstName} ${data.lastName}</span>
+                                <div class="meta">
+                                    <span>ID: ${data.idNumber}</span>
+                                    <span>${data.course} ${data.yearLevel}</span>
+                                </div>
+                            </div>
+                            <div class="user-status-badges">
+                                <span class="badge-sessions">${data.remainingSession ?? 30} sessions</span>
+                                <span style="color:#4e73df; font-size: 10px;">Click to select</span>
+                            </div>
+                        </div>
+                    `;
+                    details.style.display = 'none';
+                    document.getElementById('uniFooter').style.display = 'none';
+                } else {
+
+                    list.innerHTML = '<p style="text-align:center; color:#858796; font-size:12px; padding: 10px;">No student found with that ID.</p>';
+                }
+            } catch (e) { 
+                console.error("Search Error:", e); 
             }
-        } catch (err) {
-            Swal.fire('Error', 'Connection to server failed.', 'error');
+        }
+
+        function selectStudent(data) {
+            document.getElementById('searchResultsList').innerHTML = '';
+            document.getElementById('studentDetailsBox').style.display = 'block';
+            document.getElementById('uniFooter').style.display = 'flex';
+
+            document.getElementById('accountInfoDisplay').innerHTML = `
+                <span class="profile-name">${data.firstName} ${data.lastName}</span>
+                <div class="profile-meta">
+                    <div class="meta-item"><label>ID Number</label><span>${data.idNumber}</span></div>
+                    <div class="meta-item"><label>Remaining</label><span>${data.remainingSession ?? 30} / 30</span></div>
+                </div>
+            `;
+        }
+
+
+        async function submitUnifiedSitIn() {
+        const idNumber = document.getElementById('uniIdSearch').value;
+        const purpose = document.getElementById('uniPurpose').value;
+        const lab = document.getElementById('uniLab').value;
+
+        const res = await fetch('http://localhost:3000/sit-in', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idNumber, purpose, lab })
+        });
+
+        if (res.ok) {
+            await Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Sit-in recorded!',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                allowEscapeKey: false 
+            });
+
+            closeModal('unifiedSitInModal');
+
+            loadAnnouncements();
         }
     }
 
