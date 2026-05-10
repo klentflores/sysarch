@@ -907,44 +907,41 @@
     });
 
         async function searchAndPopulate() {
-            const id = document.getElementById('uniIdSearch').value.trim();
-            const list = document.getElementById('searchResultsList');
+            const query = document.getElementById('uniIdSearch').value.trim();
+            const list  = document.getElementById('searchResultsList');
             const details = document.getElementById('studentDetailsBox');
 
-            if(!id) return;
+            if (!query) return;
 
             try {
-                const res = await fetch(`http://localhost:3000/student/${id}`);
+                const res  = await fetch(`http://localhost:3000/search-students?q=${encodeURIComponent(query)}`);
                 const data = await res.json();
 
-                if (res.ok) {
-                    const initials = ((data.firstName?.[0] || '') + (data.lastName?.[0] || '')).toUpperCase();
-                    
-                    list.innerHTML = `
-                        <div class="search-result-item animate-pop" onclick='selectStudent(this)'data-student='${JSON.stringify(data)}'>
-                            <div class="user-avatar">${initials}</div>
-                            <div class="user-info-text">
-                                <span class="name">${data.firstName} ${data.lastName}</span>
-                                <div class="meta">
-                                    <span>ID: ${data.idNumber}</span>
-                                    <span>${data.course} ${data.yearLevel}</span>
+                if (res.ok && data.length > 0) {
+                    list.innerHTML = data.map(student => {
+                        const initials = (student.firstName[0] + student.lastName[0]).toUpperCase();
+                        return `
+                            <div class="search-result-item" onclick='selectStudent(${JSON.stringify(student)})'>
+                                <div class="user-avatar">${initials}</div>
+                                <div class="user-info-text">
+                                    <span class="name">${student.firstName} ${student.lastName}</span>
+                                    <div class="meta">
+                                        <span>ID: ${student.idNumber}</span>
+                                        <span>${student.course} ${student.yearLevel}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="user-status-badges">
-                                <span class="badge-sessions">${data.remainingSession ?? 30} sessions</span>
-                                <span style="color:#4e73df; font-size: 10px;">Click to select</span>
-                            </div>
-                        </div>
-                    `;
+                                <div class="user-status-badges">
+                                    <span class="badge-sessions">${student.remainingSession ?? 30} sessions</span>
+                                    <span style="color:#4e73df; font-size:10px;">Click to select</span>
+                                </div>
+                            </div>`;
+                    }).join('');
                     details.style.display = 'none';
                     document.getElementById('uniFooter').style.display = 'none';
                 } else {
-                    // Optional: Show a subtle "No results" message while typing
-                    list.innerHTML = '<p style="text-align:center; color:#858796; font-size:12px; padding: 10px;">No student found with that ID.</p>';
+                    list.innerHTML = '<p style="text-align:center; color:#858796; font-size:12px; padding:10px;">No student found.</p>';
                 }
-            } catch (e) { 
-                console.error("Search Error:", e); 
-            }
+            } catch (e) { console.error("Search Error:", e); }
         }
 
         // --- Step 2: Select Student and Show Form ---
@@ -953,32 +950,49 @@
             document.getElementById('studentDetailsBox').style.display = 'block';
             document.getElementById('uniFooter').style.display = 'flex';
 
+            document.getElementById('uniIdSearch').value = data.idNumber;
+
+            const remaining = data.remainingSession ?? 30;
             document.getElementById('accountInfoDisplay').innerHTML = `
                 <span class="profile-name">${data.firstName} ${data.lastName}</span>
                 <div class="profile-meta">
                     <div class="meta-item"><label>ID Number</label><span>${data.idNumber}</span></div>
-                    <div class="meta-item"><label>Remaining</label><span>${data.remainingSession ?? 30} / 30</span></div>
+                    <div class="meta-item"><label>Remaining Sessions</label>
+                        <span style="color:${remaining <= 0 ? '#dc3545' : '#1cc88a'}; font-weight:700;">
+                            ${remaining} / 30
+                        </span>
+                    </div>
                 </div>
-            `;
+                ${remaining <= 0 ? '<p style="color:#dc3545; font-size:12px; margin-top:8px;"><i class="fa fa-exclamation-triangle"></i> This student has no remaining sessions.</p>' : ''}`;
+
+            const confirmBtn = document.querySelector('#uniFooter .btn-confirm');
+            confirmBtn.disabled      = remaining <= 0;
+            confirmBtn.style.opacity = remaining <= 0 ? '0.5' : '1';
+            confirmBtn.style.cursor  = remaining <= 0 ? 'not-allowed' : 'pointer';
         }
 
         // --- Step 3: Final Submit ---
         async function submitUnifiedSitIn() {
-            const idNumber = document.getElementById('uniIdSearch').value;
-            const purpose = document.getElementById('uniPurpose').value;
-            const lab = document.getElementById('uniLab').value;
+            const idNumber = document.getElementById('uniIdSearch').value.trim();
+            const purpose  = document.getElementById('uniPurpose').value;
+            const lab      = document.getElementById('uniLab').value;
 
-            const res = await fetch('http://localhost:3000/sit-in', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idNumber, purpose, lab })
-            });
+            if (!idNumber) return Swal.fire('Warning', 'No student selected. Please search and click a student first.', 'warning');
 
-            if (res.ok) {
-                Swal.fire('Success', 'Sit-in recorded!', 'success');
-                closeModal('unifiedSitInModal');
-                location.reload(); 
-            }
+            try {
+                const res = await fetch('http://localhost:3000/sit-in', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idNumber, purpose, lab })
+                });
+                if (res.ok) {
+                    await Swal.fire({ icon: 'success', title: 'Sit-in Recorded!', timer: 1500, showConfirmButton: false });
+                    closeModal('unifiedSitInModal');
+                } else {
+                    const txt = await res.text();
+                    Swal.fire('Error', txt, 'error');
+                }
+            } catch (e) { Swal.fire('Error', 'Connection failed.', 'error'); }
         }
 
     document.getElementById('addStudentForm').addEventListener('submit', async function(e) {

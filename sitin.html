@@ -897,21 +897,34 @@
         document.getElementById('searchResultsList').innerHTML = '';
         document.getElementById('studentDetailsBox').style.display = 'block';
         document.getElementById('uniFooter').style.display = 'flex';
+
+        document.getElementById('uniIdSearch').value = data.idNumber;
+
+        const remaining = data.remainingSession ?? 30;
         document.getElementById('accountInfoDisplay').innerHTML = `
             <span class="profile-name">${data.firstName} ${data.lastName}</span>
             <div class="profile-meta">
                 <div class="meta-item"><label>ID Number</label><span>${data.idNumber}</span></div>
-                <div class="meta-item"><label>Remaining</label><span>${data.remainingSession ?? 30} / 30</span></div>
-            </div>`;
-        // Store selected ID so submitUnifiedSitIn uses correct value
-        document.getElementById('uniIdSearch').value = data.idNumber;
+                <div class="meta-item"><label>Remaining Sessions</label>
+                    <span style="color:${remaining <= 0 ? '#dc3545' : '#1cc88a'}; font-weight:700;">
+                        ${remaining} / 30
+                    </span>
+                </div>
+            </div>
+            ${remaining <= 0 ? '<p style="color:#dc3545; font-size:12px; margin-top:8px;"><i class="fa fa-exclamation-triangle"></i> This student has no remaining sessions.</p>' : ''}`;
+
+        const confirmBtn = document.querySelector('#uniFooter .btn-confirm');
+        confirmBtn.disabled          = remaining <= 0;
+        confirmBtn.style.opacity     = remaining <= 0 ? '0.5' : '1';
+        confirmBtn.style.cursor      = remaining <= 0 ? 'not-allowed' : 'pointer';
     }
 
     async function submitUnifiedSitIn() {
         const idNumber = document.getElementById('uniIdSearch').value.trim();
         const purpose  = document.getElementById('uniPurpose').value;
         const lab      = document.getElementById('uniLab').value;
-        if (!idNumber) return Swal.fire('Warning', 'No student selected.', 'warning');
+
+        if (!idNumber) return Swal.fire('Warning', 'No student selected. Please search and click a student first.', 'warning');
 
         try {
             const res = await fetch(`${BASE_URL}/sit-in`, {
