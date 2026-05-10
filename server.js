@@ -48,6 +48,9 @@ db.serialize(() => {
         status TEXT DEFAULT 'Active'
     )`);
 
+    db.run(`ALTER TABLE reservations ADD COLUMN studentName TEXT`, () => {});
+    db.run(`ALTER TABLE reservations ADD COLUMN pcNumber TEXT`, () => {});
+
     db.run(`CREATE TABLE IF NOT EXISTS announcements (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         author TEXT,
@@ -61,6 +64,21 @@ db.serialize(() => {
         lab TEXT,
         message TEXT,
         date TEXT
+    )`);
+
+    db.run(`CREATE TABLE IF NOT EXISTS notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        idNumber TEXT,
+        reservationId INTEGER,
+        message TEXT,
+        isRead INTEGER DEFAULT 0,   
+        createdAt TEXT
+    )`);
+
+    db.run(`CREATE TABLE IF NOT EXISTS student_points (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        idNumber TEXT UNIQUE,
+        manualPoints INTEGER DEFAULT 0
     )`);
 });
 
@@ -516,6 +534,92 @@ app.post("/notifications/read-all/:idNumber", (req, res) => {
     db.run(`UPDATE notifications SET isRead = 1 WHERE idNumber = ?`, [req.params.idNumber], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "All marked as read" });
+    });
+});
+
+// --- ADMIN LEADERBOARD ---
+app.get("/admin/leaderboard", (req, res) => {
+    const sql = `
+        SELECT 
+            u.idNumber,
+            u.firstName,
+            u.lastName,
+            u.course,
+            u.yearLevel,
+            COUNT(r.id) AS sitins,
+            COALESCE(sp.manualPoints, 0) AS manualPoints,
+            COALESCE(SUM(
+                CASE 
+                    WHEN r.timeOut IS NOT NULL AND r.timeOut != '' 
+                    THEN (
+                        CAST(substr(r.timeOut, 1, 2) AS INTEGER) * 60 +
+                        CAST(substr(r.timeOut, 4, 2) AS INTEGER)
+                    ) - (
+                        CAST(substr(r.timeIn, 1, 2) AS INTEGER) * 60 +
+                        CAST(substr(r.timeIn, 4, 2) AS INTEGER)
+                    )
+                    ELSE 0
+                END
+            ), 0) AS totalMinutes,
+            COALESCE(MAX(
+                CASE 
+                    WHEN r.timeOut IS NOT NULL AND r.timeOut != '' 
+                    THEN (
+                        CAST(substr(r.timeOut, 1, 2) AS INTEGER) * 60 +
+                        CAST(substr(r.timeOut, 4, 2) AS INTEGER)
+                    ) - (
+                        CAST(substr(r.timeIn, 1, 2) AS INTEGER) * 60 +
+                        CAST(substr(r.timeIn, 4, 2) AS INTEGER)
+                    )
+                    ELSE 0
+                END
+            ), 0) AS longestMinutes
+        FROM users u
+        LEFT JOIN reservations r ON u.idNumber = r.idNumber
+        LEFT JOIN student_points sp ON u.idNumber = sp.idNumber
+        WHERE u.idNumber != 'Admin'
+        GROUP BY u.idNumber
+    `;
+
+    db.all(sql, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        const result = rows.map(r => {
+            const completion = r.sitins || 0;
+            const timeBonus  = Math.min(Math.floor((r.totalMinutes || 0) / 20), 5);
+            const longBonus  = (r.totalMinutes || 0) >= 120 ? 2 : 0;
+            const manual     = r.manualPoints || 0;
+            const points     = completion + timeBonus + longBonus + manual;
+            return { ...r, points };
+        });
+
+        result.sort((a, b) => b.points - a.points);
+        res.json(result);
+    });
+});
+ 
+// --- ADMIN: ADD MANUAL POINTS ---
+app.post("/admin/add-points", (req, res) => {
+    const { idNumber, points } = req.body;
+    if (!idNumber || !points || points < 1) {
+        return res.status(400).json({ message: "Invalid input" });
+    }
+    // Upsert: insert or update manualPoints
+    db.run(`
+        INSERT INTO student_points (idNumber, manualPoints)
+        VALUES (?, ?)
+        ON CONFLICT(idNumber) DO UPDATE SET manualPoints = manualPoints + ?
+    `, [idNumber, points, points], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: `Added ${points} points to ${idNumber}` });
+    });
+});
+
+// --- ADMIN: RESET ALL POINTS ---
+app.post("/admin/reset-all-points", (req, res) => {
+    db.run(`UPDATE student_points SET manualPoints = 0`, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "All manual points reset." });
     });
 });
 

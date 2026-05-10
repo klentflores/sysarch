@@ -9,6 +9,190 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 500;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content { 
+            background: #fff; 
+            border-radius: 10px; 
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); 
+            overflow: hidden; 
+            animation: slideDown 0.3s ease-out; 
+        }
+        .modal-header { 
+            background: #2c3e70;
+            padding: 15px 20px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            color: white; 
+        }
+        
+        .search-wrapper { 
+            display: flex; 
+            align-items: center; 
+            background: #ffffff; 
+            border: 2px solid #e3e6f0; 
+            border-radius: 10px; 
+            transition: all 0.2s; 
+        }
+        .search-wrapper:focus-within { 
+            box-shadow: 0 0 8px rgba(44, 62, 112, 0.2); 
+        }
+        .search-wrapper input { 
+            flex: 1; border: none !important; 
+            padding: 12px; 
+            font-size: 15px; 
+            outline: none !important; 
+        }
+
+        #searchResultsList { 
+            margin-top: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+        }
+        .search-result-item {
+            display: flex; 
+            align-items: center; 
+            background: #f8f9fc; 
+            border-radius: 12px; 
+            padding: 12px; 
+            cursor: pointer; 
+            transition: all 0.2s;
+        }
+        .search-result-item:hover { 
+            background: #fff; 
+            transform: translateY(-2px); 
+        }
+        
+        .user-avatar {
+            width: 45px; 
+            height: 45px; 
+            background: #4e73df; 
+            color: white; 
+            border-radius: 50%;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-weight: 700; 
+            margin-right: 15px;
+        }
+        .user-info-text .name { 
+            display: block; 
+            font-weight: 700; 
+            color: #2c3e70; 
+            font-size: 14px; 
+        }
+        .user-info-text .meta { 
+            font-size: 11px; 
+            color: #858796; 
+            display: flex; 
+            gap: 8px; 
+        }
+        .user-status-badges { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-end; 
+            flex: 1; 
+            font-size: 11px; 
+            font-weight: 800; 
+        }
+        .badge-sessions { 
+            color: #1cc88a; 
+        }
+
+        .student-profile-card { 
+            background: #f8f9fc; 
+            border-left: 5px solid #2c3e70; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin: 20px; 
+        }
+        .profile-name { 
+            display: block; 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            color: #2c3e70; 
+            margin-bottom: 10px; 
+            text-transform: uppercase; 
+        }
+        .profile-meta { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; gap: 15px; 
+        }
+        .meta-item label { 
+            display: block; 
+            font-size: 10px; 
+            text-transform: uppercase; 
+            color: #858796; 
+            font-weight: 800; 
+        }
+        .meta-item span { 
+            font-weight: 600; 
+            color: #444; 
+        }
+        .modern-select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #d1d3e2; 
+            border-radius: 8px; 
+            cursor: pointer; 
+        }
+        
+        .modal-footer { 
+            padding: 15px 20px; 
+            background: #f8f9fc; 
+            border-top: 1px solid #e3e6f0; 
+            display: flex; 
+            justify-content: flex-end; 
+            gap: 10px; 
+        }
+
+        .btn-confirm { 
+            background: #2c3e70; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600; 
+        }
+
+        .btn-cancel { 
+            background: #858796; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+        }
+
+        .btn-confirm:hover {
+            background: #2c3e70;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel:hover {
+            background: #858796;
+            transform: translateY(-1px);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
         /* ── PAGE LAYOUT ── */
         .page-wrapper {
             padding: 30px 40px;
@@ -563,6 +747,59 @@
     </ul>
 </nav>
 
+<div id="unifiedSitInModal" class="modal-overlay">
+        <div class="modal-content" style="width: 450px;">
+            <div class="modal-header">
+                <h3><i class="fa fa-search"></i> Find Student</h3>
+                <button onclick="closeModal('unifiedSitInModal')" style="background:none; border:none; color:white; cursor:pointer; font-size:20px;">&times;</button>
+            </div>
+            
+            <div class="modal-body" style="padding: 10px;">
+                <div class="search-wrapper">
+                    <input type="text" id="uniIdSearch" placeholder="Enter Student ID....">
+                    <button class="btn-confirm" onclick="searchAndPopulate()">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+
+                <div id="searchResultsList"></div>
+
+                <div id="studentDetailsBox" style="display: none;">
+                    <div class="student-profile-card">
+                        <div id="accountInfoDisplay"></div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="font-size: 13px; font-weight: 700; color: #4e73df;">Purpose</label>
+                            <select id="uniPurpose" class="modern-select">
+                                <option>C Programming</option>
+                                <option>Java Projects</option>
+                                <option>Web Development</option>
+                                <option>Python/Data Science</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; color: #4e73df;">Lab Room</label>
+                            <select id="uniLab" class="modern-select">
+                                <option>Lab 524</option>
+                                <option>Lab 525</option>
+                                <option>Lab 526</option>
+                                <option>Lab 527</option>
+                                <option>Lab 528</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer" id="uniFooter" style="display: none;">
+                <button class="btn-cancel" onclick="closeModal('unifiedSitInModal')">Cancel</button>
+                <button class="btn-confirm" onclick="submitUnifiedSitIn()">Confirm Sit-In</button>
+            </div>
+        </div>
+    </div>
+
 <!-- ── PAGE ── -->
 <div class="page-wrapper">
     
@@ -589,11 +826,20 @@
         </div>
 
         <!-- Table -->
+        <!-- Table -->
         <div id="tableContainer">
             <div class="lb-status">
                 <i class="fa fa-spinner"></i>
                 Loading leaderboard...
             </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer">
+            <span class="footer-info" id="footerInfo">Loading...</span>
+            <button class="btn-reset" onclick="resetAllPoints()">
+                <i class="fa fa-refresh"></i> Reset All Points
+            </button>
         </div>
         
     </div>
@@ -774,6 +1020,141 @@ async function addPoints(idNumber, name) {
         Swal.fire('Error', 'Could not add points. Is the server running?', 'error');
     }
 }
+
+function openUnifiedModal() {
+            document.getElementById('unifiedSitInModal').style.display = 'flex';
+            document.getElementById('searchResultsList').innerHTML = '';
+            document.getElementById('studentDetailsBox').style.display = 'none';
+            document.getElementById('uniFooter').style.display = 'none';
+            document.getElementById('uniIdSearch').value = '';
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+                let searchTimer;
+
+
+        document.getElementById('uniIdSearch').addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            clearTimeout(searchTimer);
+
+            if (query.length === 0) {
+                document.getElementById('searchResultsList').innerHTML = '';
+                document.getElementById('studentDetailsBox').style.display = 'none';
+                document.getElementById('uniFooter').style.display = 'none';
+                return;
+            }
+
+            searchTimer = setTimeout(() => {
+                searchAndPopulate();
+            }, 300); 
+        });
+
+        async function searchAndPopulate() {
+            const id = document.getElementById('uniIdSearch').value.trim();
+            const list = document.getElementById('searchResultsList');
+            const details = document.getElementById('studentDetailsBox');
+
+            if(!id) return;
+
+            try {
+                const res = await fetch(`http://localhost:3000/student/${id}`);
+                const data = await res.json();
+
+                if (res.ok) {
+                    const initials = (data.firstName[0] + data.lastName[0]).toUpperCase();
+                    
+                    list.innerHTML = `
+                        <div class="search-result-item animate-pop" onclick='selectStudent(${JSON.stringify(data)})'>
+                            <div class="user-avatar">${initials}</div>
+                            <div class="user-info-text">
+                                <span class="name">${data.firstName} ${data.lastName}</span>
+                                <div class="meta">
+                                    <span>ID: ${data.idNumber}</span>
+                                    <span>${data.course} ${data.yearLevel}</span>
+                                </div>
+                            </div>
+                            <div class="user-status-badges">
+                                <span class="badge-sessions">${data.remainingSession ?? 30} sessions</span>
+                                <span style="color:#4e73df; font-size: 10px;">Click to select</span>
+                            </div>
+                        </div>
+                    `;
+                    details.style.display = 'none';
+                    document.getElementById('uniFooter').style.display = 'none';
+                } else {
+
+                    list.innerHTML = '<p style="text-align:center; color:#858796; font-size:12px; padding: 10px;">No student found with that ID.</p>';
+                }
+            } catch (e) { 
+                console.error("Search Error:", e); 
+            }
+        }
+
+        function selectStudent(data) {
+            document.getElementById('searchResultsList').innerHTML = '';
+            document.getElementById('studentDetailsBox').style.display = 'block';
+            document.getElementById('uniFooter').style.display = 'flex';
+
+            document.getElementById('accountInfoDisplay').innerHTML = `
+                <span class="profile-name">${data.firstName} ${data.lastName}</span>
+                <div class="profile-meta">
+                    <div class="meta-item"><label>ID Number</label><span>${data.idNumber}</span></div>
+                    <div class="meta-item"><label>Remaining</label><span>${data.remainingSession ?? 30} / 30</span></div>
+                </div>
+            `;
+        }
+
+
+        async function submitUnifiedSitIn() {
+        const idNumber = document.getElementById('uniIdSearch').value;
+        const purpose = document.getElementById('uniPurpose').value;
+        const lab = document.getElementById('uniLab').value;
+
+        const res = await fetch('http://localhost:3000/sit-in', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idNumber, purpose, lab })
+        });
+
+        if (res.ok) {
+            await Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Sit-in recorded!',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                allowEscapeKey: false 
+            });
+
+            closeModal('unifiedSitInModal');
+
+        }
+    }
+
+    // ── RESET ALL POINTS ──────────────────────────────────────────────────────
+    async function resetAllPoints() {
+        const { isConfirmed } = await Swal.fire({
+            title: 'Reset All Points?',
+            text: 'This will clear all manually added points for every student.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Reset!'
+        });
+        if (!isConfirmed) return;
+
+        try {
+            const res = await fetch(`${BASE}/admin/reset-all-points`, { method: 'POST' });
+            if (!res.ok) throw new Error();
+            await Swal.fire({ icon: 'success', title: 'Points Reset!', timer: 1500, showConfirmButton: false });
+            loadLeaderboard();
+        } catch {
+            Swal.fire('Error', 'Could not reset points.', 'error');
+        }
+    }
 
 async function logout() {
         const { isConfirmed } = await Swal.fire({
