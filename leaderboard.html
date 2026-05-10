@@ -26,6 +26,7 @@
             width: 100%;
             max-width: 1100px;
             align-items: start;
+            margin-top: 20px;
         }
 
         /* ── SHARED CARD ── */
@@ -147,7 +148,7 @@
         }
 
         .rank-number {
-            font-size: 64px;
+            font-size: 65px;
             font-weight: 800;
             color: #4e73df;
             font-family: 'Sora', sans-serif;
@@ -156,11 +157,10 @@
         }
 
         .rank-label {
-            font-size: 13px;
+            font-size: 15px;
             color: #888;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Sora', sans-serif;
             margin-bottom: 30px;
-            text-transform: uppercase;
             letter-spacing: 0.06em;
         }
 
@@ -176,6 +176,7 @@
             align-items: center;
             gap: 5px;
             margin-bottom: 20px;
+            
         }
 
         .rank-stat-value {
@@ -186,11 +187,10 @@
         }
 
         .rank-stat-label {
-            font-size: 12px;
+            font-size: 15px;
             color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: 0.06em;
+            font-family: 'Sora', sans-serif;
         }
 
         /* ── ADDITIONAL STATS ROW ── */
@@ -634,13 +634,16 @@ function renderMyRank(data, myId) {
 
     if (!me) {
         document.getElementById('yourRankNumber').textContent = '—';
-        document.getElementById('yourPoints').textContent   = '0';
-        document.getElementById('yourSitins').textContent   = '0';
+        document.getElementById('yourRankNumber').style.color = '#aaa';
+        document.getElementById('yourPoints').textContent     = '0';
+        document.getElementById('yourSitins').textContent     = '0';
         return;
     }
 
     const rank = idx + 1;
+    const rankColors = { 1: '#ffd700', 2: '#c0c0c0', 3: '#cd7f32' };
     document.getElementById('yourRankNumber').textContent = `#${rank}`;
+    document.getElementById('yourRankNumber').style.color = rankColors[rank] || '#4e73df';
     document.getElementById('yourPoints').textContent     = me.points;
     document.getElementById('yourSitins').textContent     = me.sitins;
 }

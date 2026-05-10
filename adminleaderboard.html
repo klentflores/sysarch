@@ -280,36 +280,35 @@
         .lb-table th {
             padding: 12px 16px;
             text-align: left;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.07em;
             text-transform: uppercase;
             color: #666;
-            font-family: 'Plus Jakarta Sans', sans-serif;
             border-bottom: 2px solid #e3e6f0;
         }
 
         .lb-table td {
             padding: 14px 16px;
             border-bottom: 1px solid #f0f0f0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
             color: #333;
             vertical-align: middle;
         }
 
-        .lb-table tbody tr:hover { background: #f8f9fc; }
+        .lb-table tbody tr:hover { 
+            background: #f8f9fc; 
+        }
 
         /* ── RANK BADGE ── */
         .rank-badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             font-weight: 700;
             font-size: 13px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         .rank-1 { background: #fff3cd; color: #856404; }
@@ -319,15 +318,17 @@
 
         /* ── STUDENT CELL ── */
         .student-name {
-            font-weight: 700;
+            font-weight: 600;
             color: #1a1a2e;
             font-size: 14px;
+            font-family: 'Sora', sans-serif;
         }
 
         .student-id {
-            font-size: 11px;
+            font-size: 12px;
             color: #aaa;
             margin-top: 2px;
+            font-family: 'Sora', sans-serif;
         }
 
         /* ── COURSE CHIP ── */
@@ -337,8 +338,9 @@
             color: #1e40af;
             padding: 3px 10px;
             border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Sora', sans-serif;
         }
 
         /* ── HOURS ── */
@@ -393,7 +395,7 @@
             transition: opacity 0.2s;
             line-height: 1.7;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Sora', sans-serif;
         }
 
         .tooltip-wrap:hover .tooltip-box {
@@ -924,8 +926,8 @@ function renderTable(data) {
 
         const totalHrsDisplay = s.totalMinutes > 0
             ? `<span class="hours-val">${Math.floor(s.totalMinutes/60)}h ${s.totalMinutes%60}m</span>
-               <div class="hours-sub">Longest: ${s.longestMinutes > 0 ? Math.floor(s.longestMinutes/60)+'h '+s.longestMinutes%60+'m' : '—'}</div>`
-            : `<span class="hours-val">0h</span><div class="hours-sub">Longest: —</div>`;
+               <div class="hours-sub" style="font-family: 'Sora', sans-serif;">Longest: ${s.longestMinutes > 0 ? Math.floor(s.longestMinutes/60)+'h '+s.longestMinutes%60+'m' : '—'}</div>`
+            : `<span class="hours-val" style="font-family: 'Sora', sans-serif;">0h</span><div class="hours-sub" style="font-family: 'Sora', sans-serif;">Longest: —</div>`;
 
         const avgDisplay = s.sitins > 0 && s.totalMinutes > 0
             ? `${Math.round(s.totalMinutes / s.sitins)}m`
@@ -948,7 +950,7 @@ function renderTable(data) {
                     <div class="tooltip-wrap">
                         <span class="points-val">${s.points}</span>
                         <span class="points-unit"> PTS</span>
-                        <div class="points-sub">hover for breakdown</div>
+                        <div class="points-sub" style="font-family: 'Sora', sans-serif;">hover for breakdown</div>
                         <div class="tooltip-box">${breakdown}</div>
                     </div>
                 </td>

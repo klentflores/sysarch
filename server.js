@@ -537,6 +537,53 @@ app.post("/notifications/read-all/:idNumber", (req, res) => {
     });
 });
 
+
+// --- STUDENT LEADERBOARD ---
+app.get("/leaderboard", (req, res) => {
+    const sql = `
+        SELECT 
+            u.idNumber,
+            u.firstName,
+            u.lastName,
+            u.course,
+            u.yearLevel,
+            COUNT(r.id) AS sitins,
+            COALESCE(sp.manualPoints, 0) AS manualPoints,
+            COALESCE(SUM(
+                CASE 
+                    WHEN r.timeOut IS NOT NULL AND r.timeOut != '' 
+                    THEN (
+                        CAST(substr(r.timeOut, 1, 2) AS INTEGER) * 60 +
+                        CAST(substr(r.timeOut, 4, 2) AS INTEGER)
+                    ) - (
+                        CAST(substr(r.timeIn, 1, 2) AS INTEGER) * 60 +
+                        CAST(substr(r.timeIn, 4, 2) AS INTEGER)
+                    )
+                    ELSE 0
+                END
+            ), 0) AS totalMinutes
+        FROM users u
+        LEFT JOIN reservations r ON u.idNumber = r.idNumber AND r.status = 'Active'
+        LEFT JOIN student_points sp ON u.idNumber = sp.idNumber
+        WHERE u.idNumber != 'Admin'
+        GROUP BY u.idNumber
+    `;
+    db.all(sql, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        const result = rows.map(r => {
+            const completion = r.sitins || 0;
+            const timeBonus  = Math.min(Math.floor((r.totalMinutes || 0) / 20), 5);
+            const longBonus  = (r.totalMinutes || 0) >= 120 ? 2 : 0;
+            const manual     = r.manualPoints || 0;
+            const points     = completion + timeBonus + longBonus + manual;
+            return { ...r, points };
+        });
+        result.sort((a, b) => b.points - a.points || b.sitins - a.sitins);
+        res.json(result);
+    });
+});
+
+
 // --- ADMIN LEADERBOARD ---
 app.get("/admin/leaderboard", (req, res) => {
     const sql = `
