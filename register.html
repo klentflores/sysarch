@@ -31,6 +31,163 @@
             border-color: rgba(255,193,7,0.4);
             color: #ffc107;
         }
+
+        /* ══════════════════════════════════════════════════════════
+           DARK / LIGHT MODE — register.html
+           Paste this block just before &lt;/style&gt;
+        ══════════════════════════════════════════════════════════ */
+ 
+        /* ── CSS Variables ── */
+        :root {
+            --bg-page:       #f0f2f5;
+            --bg-card:       #ffffff;
+            --bg-image-card: #2c3e70;
+            --bg-input:      #f6f6f6;
+            --text-main:     #1a1a2e;
+            --text-muted:    #888888;
+            --text-label:    #333333;
+            --border-color:  #e3e6f0;
+            --border-inner:  #dee2e6;
+            --input-border:  #d1d3e2;
+            --shadow:        0 10px 40px rgba(0,0,0,0.1);
+            --scrollbar-bg:  #e0e0e0;
+            --scrollbar-thumb: #b0b0b0;
+        }
+        [data-theme="dark"] {
+            --bg-page:       #0f1117;
+            --bg-card:       #1a1d27;
+            --bg-image-card: #111827;
+            --bg-input:      #252839;
+            --text-main:     #e0e6f0;
+            --text-muted:    #8892a4;
+            --text-label:    #c8d0e0;
+            --border-color:  #2a2f47;
+            --border-inner:  #2e3450;
+            --input-border:  #3a3f5c;
+            --shadow:        0 10px 40px rgba(0,0,0,0.45);
+            --scrollbar-bg:  #1e2235;
+            --scrollbar-thumb: #3a3f5c;
+        }
+ 
+        /* ── Body & Navbar ── */
+        body {
+            background: var(--bg-page) !important;
+            color: var(--text-main) !important;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        [data-theme="dark"] .navbar {
+            background: linear-gradient(to right, #0d1117, #111827) !important;
+        }
+ 
+        /* ── Page wrapper ── */
+        .register-wrapper {
+            background: var(--bg-page) !important;
+            transition: background 0.3s ease;
+        }
+        [data-theme="dark"] .register-wrapper {
+            background: linear-gradient(135deg, #0f1117 0%, #111827 100%) !important;
+        }
+ 
+        /* ── Form container ── */
+        .register-container {
+            background: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: var(--shadow) !important;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .form-column {
+            background: var(--bg-card) !important;
+        }
+ 
+        /* ── Form header text ── */
+        [data-theme="dark"] .form-eyebrow  { color: var(--text-muted) !important; }
+        [data-theme="dark"] .form-title    { color: var(--text-main) !important; }
+        [data-theme="dark"] .form-subtitle { color: var(--text-muted) !important; }
+ 
+        /* ── Section labels (inline style p tags) ── */
+        [data-theme="dark"] .form-column p[style] {
+            color: #6a7490 !important;
+        }
+ 
+        /* ── Input groups ── */
+        .reg-input-group {
+            background: var(--bg-input) !important;
+            border-color: var(--input-border) !important;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .reg-input-group input,
+        .reg-input-group .dropdown-input {
+            background: transparent !important;
+            color: var(--text-main) !important;
+        }
+        .reg-input-group input::placeholder {
+            color: var(--text-muted) !important;
+        }
+        [data-theme="dark"] .reg-input-group:focus-within {
+            border-color: #4e73df !important;
+        }
+        [data-theme="dark"] .input-icon {
+            color: var(--text-muted) !important;
+        }
+        [data-theme="dark"] .password-toggle {
+            color: var(--text-muted) !important;
+        }
+        [data-theme="dark"] .password-toggle:hover {
+            color: var(--text-main) !important;
+        }
+ 
+        /* ── Dropdowns ── */
+        .dropdown-input {
+            background: var(--bg-input) !important;
+            color: var(--text-main) !important;
+            border-color: var(--input-border) !important;
+        }
+        .dropdown-input option {
+            background: var(--bg-input) !important;
+            color: var(--text-main) !important;
+        }
+ 
+        /* ── Sign-in row ── */
+        [data-theme="dark"] .sign-in-row {
+            color: var(--text-muted) !important;
+        }
+        [data-theme="dark"] .login-link {
+            color: #7b9cff !important;
+        }
+        [data-theme="dark"] .login-link:hover {
+            color: #a0bcff !important;
+        }
+ 
+        /* ── Right image card ── */
+        .image-card {
+            background: var(--bg-image-card) !important;
+            border-color: var(--border-inner) !important;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        [data-theme="dark"] .image-card {
+            background: #111827 !important;
+            border-color: #1e2235 !important;
+        }
+        [data-theme="dark"] .image-card-title {
+            color: #e0e6f0 !important;
+        }
+        [data-theme="dark"] .image-card-desc {
+            color: #8892a4 !important;
+        }
+ 
+        /* ── Nav links ── */
+        [data-theme="dark"] .nav-links a {
+            color: rgba(255,255,255,0.75) !important;
+        }
+        [data-theme="dark"] .nav-links a:hover,
+        [data-theme="dark"] .nav-links a.active {
+            color: #fff !important;
+        }
+ 
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-bg); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
 </style>
 <body>
  
@@ -42,6 +199,12 @@
             <li><a href="#">🛈 About</a></li>
             <li><a href="index.html"><i class="fa fa-right-to-bracket"></i> Login</a></li>
             <li><a href="register.html" class="active"><i class="fa fa-user-plus"></i> Register</a></li>
+            <li>
+                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel"></span>
+                </button>
+            </li>
         </ul>
     </nav>
  

@@ -464,28 +464,104 @@
             border-color: var(--border-color);
         }
  
-        /* editprofile dark mode */
-        .register-wrapper { background: var(--bg-page); }
-        .profile-avatar-card,
-        .form-card { background: var(--bg-card); border-color: var(--border-color); box-shadow: var(--shadow); transition: background 0.3s, border-color 0.3s; }
-        [data-theme="dark"] .form-card-header { border-color: var(--border-inner); }
-        [data-theme="dark"] .form-card-title,
-        [data-theme="dark"] .profile-name { color: #c8d0e8; }
-        [data-theme="dark"] .form-card-sub,
-        [data-theme="dark"] .section-label { color: var(--text-muted); }
-        [data-theme="dark"] .reg-input-group input,
-        [data-theme="dark"] .dropdown-input {
-            background: var(--bg-input);
-            border-color: var(--border-color);
-            color: var(--text-main);
+        /* ── register-container dark mode (editprofile) ── */
+ 
+        /* Page & wrapper */
+        .register-wrapper { background: var(--bg-page) !important; }
+        [data-theme="dark"] .register-wrapper {
+            background: linear-gradient(135deg, #0f1117 0%, #111827 100%) !important;
         }
-        [data-theme="dark"] .reg-input-group input:focus,
-        [data-theme="dark"] .dropdown-input:focus { border-color: #4e73df; background: #1e2235; }
-        [data-theme="dark"] .reg-input-group input[readonly] { background: #1a1d27; color: var(--text-muted); border-color: var(--border-color); }
-        [data-theme="dark"] .cancel-btn { color: var(--text-muted); border-color: var(--border-color); background: transparent; }
-        [data-theme="dark"] .cancel-btn:hover { background: #22263a; color: var(--text-main); }
-        [data-theme="dark"] .avatar-hint { color: var(--text-muted); }
-        [data-theme="dark"] .profile-badge { background: #2a3a6a; }
+ 
+        /* ── Left sidebar: avatar card ── */
+        .profile-avatar-card {
+            background: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: var(--shadow) !important;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .profile-image {
+            border-color: var(--border-color) !important;
+            background-color: var(--bg-input) !important;
+        }
+        [data-theme="dark"] .profile-name   { color: #c8d0e8 !important; }
+        [data-theme="dark"] .profile-badge  { background: #2a3a6a !important; color: #fff !important; }
+        [data-theme="dark"] .avatar-hint    { color: var(--text-muted) !important; }
+ 
+        /* ── Right: form card ── */
+        .form-card {
+            background: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: var(--shadow) !important;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        [data-theme="dark"] .form-card-header { border-bottom-color: var(--border-inner) !important; }
+        [data-theme="dark"] .form-card-icon   { background: #1e2a50 !important; }
+        [data-theme="dark"] .form-card-title  { color: #c8d0e8 !important; }
+        [data-theme="dark"] .form-card-sub    { color: var(--text-muted) !important; }
+        [data-theme="dark"] .section-label    { color: var(--text-muted) !important; }
+ 
+        /* ── Inputs ── */
+        [data-theme="dark"] .reg-input-group input {
+            background: var(--bg-input) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+        [data-theme="dark"] .reg-input-group input::placeholder { color: var(--text-muted) !important; }
+        [data-theme="dark"] .reg-input-group input:focus {
+            border-color: #4e73df !important;
+            background: #1e2235 !important;
+            box-shadow: 0 0 0 3px rgba(78,115,223,0.15) !important;
+        }
+        [data-theme="dark"] .reg-input-group input[readonly] {
+            background: #1a1d27 !important;
+            color: var(--text-muted) !important;
+            border-color: var(--border-color) !important;
+            cursor: not-allowed;
+        }
+        [data-theme="dark"] .input-icon { color: var(--text-muted) !important; }
+ 
+        /* ── Dropdowns ── */
+        [data-theme="dark"] .dropdown-input {
+            background: var(--bg-input) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+        [data-theme="dark"] .dropdown-input:focus {
+            border-color: #4e73df !important;
+            background: #1e2235 !important;
+            box-shadow: 0 0 0 3px rgba(78,115,223,0.15) !important;
+            color: var(--text-main) !important;
+        }
+        [data-theme="dark"] .dropdown-input option {
+            background: var(--bg-input) !important;
+            color: var(--text-main) !important;
+        }
+        /* dropdown arrow color in dark mode */
+        [data-theme="dark"] .reg-input-group.dropdown-group::after {
+            border-top-color: var(--text-muted) !important;
+        }
+ 
+        /* ── Buttons ── */
+        [data-theme="dark"] .cancel-btn {
+            color: var(--text-muted) !important;
+            border-color: var(--border-color) !important;
+            background: transparent !important;
+        }
+        [data-theme="dark"] .cancel-btn:hover {
+            background: var(--bg-input) !important;
+            color: var(--text-main) !important;
+        }
+ 
+        /* ── Notification dropdown ── */
+        [data-theme="dark"] .notif-dropdown {
+            background: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+        }
+        [data-theme="dark"] .notif-list > div {
+            background: var(--bg-card) !important;
+            border-color: var(--border-inner) !important;
+            color: var(--text-main) !important;
+        }
     </style>
 </head>
 <body>

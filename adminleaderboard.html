@@ -595,15 +595,7 @@
                 Loading leaderboard...
             </div>
         </div>
-
-        <!-- Footer -->
-        <div class="card-footer">
-            <span class="footer-info" id="footerInfo">—</span>
-            <button class="btn-reset" onclick="confirmResetPoints()">
-                <i class="fa fa-refresh"></i> Reset All Points
-            </button>
-        </div>
-
+        
     </div>
 </div>
 
@@ -780,29 +772,6 @@ async function addPoints(idNumber, name) {
         loadLeaderboard();
     } catch {
         Swal.fire('Error', 'Could not add points. Is the server running?', 'error');
-    }
-}
-
-// ── RESET ALL POINTS ─────────────────────────────────────────────────────
-async function confirmResetPoints() {
-    const { isConfirmed } = await Swal.fire({
-        title: 'Reset All Points?',
-        text: 'This will set all manual bonus points back to 0.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#e74c3c',
-        confirmButtonText: 'Yes, Reset!'
-    });
-
-    if (!isConfirmed) return;
-
-    try {
-        const res = await fetch(`${BASE}/admin/reset-points`, { method: 'POST' });
-        if (!res.ok) throw new Error();
-        await Swal.fire({ icon: 'success', title: 'Points Reset!', timer: 1500, showConfirmButton: false });
-        loadLeaderboard();
-    } catch {
-        Swal.fire('Error', 'Could not reset points.', 'error');
     }
 }
 

@@ -93,12 +93,84 @@
             border-color: rgba(255,193,7,0.4);
             color: #ffc107;
         }
+
+        /* ══════════════════════════════════════════════════════════
+           DARK / LIGHT MODE — home.html
+           Paste this block just before &lt;/style&gt;
+        ══════════════════════════════════════════════════════════ */
+ 
+        /* ── CSS Variables ── */
+        :root {
+            --bg-page:       #f0f2f5;
+            --bg-card:       #ffffff;
+            --text-main:     #1a1a2e;
+            --text-muted:    #666666;
+            --border-color:  #e3e6f0;
+            --scrollbar-bg:  #e0e0e0;
+            --scrollbar-thumb: #b0b0b0;
+        }
+        [data-theme="dark"] {
+            --bg-page:       #0f1117;
+            --bg-card:       #1a1d27;
+            --text-main:     #e0e6f0;
+            --text-muted:    #8892a4;
+            --border-color:  #2a2f47;
+            --scrollbar-bg:  #1e2235;
+            --scrollbar-thumb: #3a3f5c;
+        }
+ 
+        /* ── Body & Navbar ── */
+        body {
+            background: var(--bg-page) !important;
+            color: var(--text-main) !important;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        [data-theme="dark"] .navbar {
+            background: linear-gradient(to right, #0d1117, #111827) !important;
+        }
+ 
+        /* ── Home wrapper background ── */
+        .home-wrapper {
+            background: var(--bg-page) !important;
+        }
+        [data-theme="dark"] .home-wrapper {
+            background: linear-gradient(135deg, #0f1117 0%, #0f1117 100%) !important;
+        }
+ 
+        /* ── Text ── */
+        [data-theme="dark"] .welcome-text {
+            color: #e0e6f0 !important;
+        }
+        [data-theme="dark"] .sub-text {
+            color: #8892a4 !important;
+        }
+ 
+        /* ── Get Started button (keep it dark/branded, just soften in dark mode) ── */
+        [data-theme="dark"] .btn-start {
+            background: #1e2a50 !important;
+            color: #7b9cff !important;
+            border: 1px solid #2e3a6a !important;
+        }
+        [data-theme="dark"] .btn-start:hover {
+            background: #263460 !important;
+        }
+ 
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-bg); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
         <div class="logo-text"><i class="fa fa-desktop"></i> College of Computer Studies Sit-in Monitoring System</div>
+        <li>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                <i class="fa-solid fa-moon" id="themeIcon"></i>
+                <span id="themeLabel"></span>
+            </button>
+        </li>
     </nav>
     <div class="home-wrapper">
         <div class="home-content">
@@ -110,7 +182,6 @@
             <a href="index.html" class="btn-start">Get Started <i class="fa fa-arrow-right"></i></a>
         </div>
     </div>
-    
 </body>
 <script>
 /* ══════════════════════════════════════
