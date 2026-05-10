@@ -71,6 +71,28 @@
         .btn-start:hover::after { 
             transform: translateX(100%); 
         }
+
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            color: white;
+            padding: 3px;
+            border-radius: 20px;
+            transition: background 0.25s ease, transform 0.15s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(255,193,7,0.15);
+            border-color: rgba(255,193,7,0.4);
+            color: #ffc107;
+        }
     </style>
 </head>
 <body>
@@ -90,4 +112,38 @@
     </div>
     
 </body>
+<script>
+/* ══════════════════════════════════════
+   DARK / LIGHT MODE
+══════════════════════════════════════ */
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const icon  = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (theme === 'dark') {
+        icon.className  = 'fa-solid fa-sun';
+    } else {
+        icon.className  = 'fa-solid fa-moon';
+    }
+}
+ 
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next    = current === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('ccs_theme', next);
+    applyTheme(next);
+ 
+    // Animate the icon on toggle
+    const icon = document.getElementById('themeIcon');
+    icon.style.transform = 'rotate(360deg)';
+    icon.style.transition = 'transform 0.4s ease';
+    setTimeout(() => { icon.style.transform = ''; icon.style.transition = ''; }, 400);
+}
+ 
+// Load saved theme on page start
+(function() {
+    const saved = localStorage.getItem('ccs_theme') || 'light';
+    applyTheme(saved);
+})();
+</script>
 </html>

@@ -111,6 +111,23 @@ app.get(["/student/:idNumber", "/get-student/:idNumber"], (req, res) => {
     });
 });
 
+// --- STUDENT SEARCH: partial match by idNumber, firstName, or lastName ---
+app.get("/search-students", (req, res) => {
+    const query = req.query.q ? `%${req.query.q}%` : '%';
+    const sql = `
+        SELECT idNumber, firstName, lastName, course, yearLevel, remainingSession
+        FROM users
+        WHERE idNumber != 'Admin'
+          AND (idNumber LIKE ? OR firstName LIKE ? OR lastName LIKE ?)
+        ORDER BY lastName ASC
+        LIMIT 10
+    `;
+    db.all(sql, [query, query, query], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
 // --- SIT-IN: Get ALL sit-in records (for viewsitin.html) ---
 app.get("/get-all-sitin", (req, res) => {
     const sql = `
@@ -157,8 +174,8 @@ app.post("/sit-in", (req, res) => {
         if (!user) return res.status(404).send("Student ID not found!");
         if (user.remainingSession <= 0) return res.status(400).send("No remaining sessions!");
 
-        const sql = `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date) VALUES (?, ?, ?, ?, ?)`;
-        db.run(sql, [idNumber, purpose, lab, timeIn, date], function (err) {
+        const sql = `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date, status) VALUES (?, ?, ?, ?, ?, ?)`;
+        db.run(sql, [idNumber, purpose, lab, timeIn, date, 'Active'], function (err) {
             if (err) return res.status(500).send(err.message);
 
             db.run(`UPDATE users SET remainingSession = remainingSession - 1 WHERE idNumber = ?`, [idNumber], (err) => {
