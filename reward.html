@@ -212,18 +212,17 @@
         .rw-table th {
             padding: 13px 15px;
             text-align: left;
-            font-size: 12px;
+            font-size: 14px;
             color: white;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 600;
+            font-family: serif, 'Plus Jakarta Sans';
+            font-weight: 700;
         }
 
         .rw-table td {
             padding: 13px 15px;
             border-bottom: 1px solid #eee;
-            font-size: 13px;
+            font-size: 14px;
             color: #333;
-            font-family: 'Plus Jakarta Sans', sans-serif;
             vertical-align: middle;
         }
 
@@ -246,8 +245,14 @@
 
         /* ── COURSE CHIP ── */
         .course-chip {
-            display: inline-block; background: #dbeafe; color: #1e40af;
-            padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+            display: inline-block; 
+            background: #dbeafe; 
+            color: #1e40af;
+            padding: 3px 10px; 
+            border-radius: 20px; 
+            font-size: 14px; 
+            font-weight: 600;
+            font-family: 'Sora', sans-serif;
         }
 
         /* ── HOURS ── */
@@ -731,21 +736,20 @@ function renderTable(data) {
         return `<tr>
             <td>${pip}</td>
             <td>
-                <div class="student-name">${s.firstName} ${s.lastName}</div>
-                <div class="student-id">${s.idNumber}</div>
+                <div class="student-name" style="font-family: 'Sora', sans-serif;">${s.firstName} ${s.lastName}</div>
+                <div class="student-id" style="font-family: 'Sora', sans-serif;">${s.idNumber}</div>
             </td>
             <td><span class="course-chip">${s.course||'—'}</span></td>
-            <td><b>${s.sitins}</b></td>
+            <td><b style="font-family: 'Sora', sans-serif;">${s.sitins}</b></td>
             <td>
-                <div class="hours-val">${fmtMins(totalMins)}</div>
-                <div class="hours-sub">Longest: ${fmtMins(longestMins)}</div>
+                <div class="hours-val" style="font-family: 'Sora', sans-serif;">${fmtMins(totalMins)}</div>
+                <div class="hours-sub" style="font-family: 'Sora', sans-serif;">Longest: ${fmtMins(longestMins)}</div>
             </td>
             <td>${avgMins > 0 ? avgMins+'m' : '—'}</td>
             <td>
                 <div class="tooltip-wrap">
-                    <span class="pts-val">${s.points}</span> <span class="pts-unit">PTS</span>
-                    <div class="pts-sub">hover for breakdown</div>
-                    <div class="tooltip-box">${breakdown}</div>
+                    <span class="pts-val" style="font-family: 'Sora', sans-serif;">${s.points}</span> <span class="pts-unit">PTS</span>
+                    <div class="tooltip-box" style="font-family: 'Sora', sans-serif;">${breakdown}</div>
                 </div>
             </td>
             <td>
