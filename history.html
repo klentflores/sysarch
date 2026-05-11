@@ -304,6 +304,124 @@
             border-color: var(--border-color);
             color: var(--text-main);
         }
+        
+        /* ── STAR RATING MODAL ── */
+        #feedbackModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        #feedbackModal.open { display: flex; }
+        .fb-modal-box {
+            background: #fff;
+            border-radius: 14px;
+            width: 420px;
+            max-width: 95vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+            overflow: hidden;
+            animation: fbSlide 0.28s ease-out;
+        }
+        [data-theme="dark"] .fb-modal-box { background: #1a1d27; color: #e0e0e0; }
+        @keyframes fbSlide {
+            from { transform: translateY(-40px); opacity: 0; }
+            to   { transform: translateY(0);     opacity: 1; }
+        }
+        .fb-modal-header {
+            background: #2c3e70;
+            color: #fff;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .fb-modal-header button {
+            background: none; border: none; color: #fff;
+            font-size: 22px; cursor: pointer; line-height: 1;
+        }
+        .fb-modal-body { padding: 22px 24px; }
+        .fb-label {
+            font-size: 14px; 
+            font-weight: 700;
+            color: #555; 
+            margin-bottom: 10px; 
+            display: block;
+        }
+        [data-theme="dark"] .fb-label { color: #b0b8cc; }
+        .star-picker {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 18px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .star-picker input[type="radio"] { display: none; }
+        .star-picker label {
+            font-size: 32px;
+            color: #d0d0d0;
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+        .star-picker label:hover,
+        .star-picker label:hover ~ label { color: #f5a623 !important; }
+        .star-picker input[type="radio"]:checked ~ label { color: #f5a623; }
+        #fbMessage {
+            width: 100%; box-sizing: border-box;
+            padding: 10px 12px;
+            border: 1px solid #ddd; border-radius: 8px;
+            font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif;
+            resize: vertical; min-height: 90px;
+            outline: none; transition: border-color 0.2s;
+        }
+        #fbMessage:focus { border-color: #2c3e70; }
+        [data-theme="dark"] #fbMessage {
+            background: #22263a; color: #e0e0e0;
+            border-color: #3a3f58;
+        }
+        .fb-modal-footer {
+            padding: 14px 24px;
+            background: #f8f9fc;
+            border-top: 1px solid #eee;
+            display: flex; justify-content: flex-end; gap: 10px;
+        }
+        [data-theme="dark"] .fb-modal-footer {
+            background: #161928; border-color: #2e3347;
+        }
+        .fb-btn-cancel {
+            background: #6c757d; 
+            color: #fff; 
+            border: none;
+            padding: 9px 18px; 
+            border-radius: 6px;
+            cursor: pointer; 
+            font-weight: 600;
+        }
+        .fb-btn-submit {
+            background: #2c3e70; 
+            color: #fff; 
+            border: none;
+            padding: 9px 18px; 
+            border-radius: 6px;
+            cursor: pointer; 
+            font-weight: 600;
+        }
+        .fb-btn-submit:hover { 
+            background: #1a2a55;
+            transform: translateY(-1px); 
+        }
+        .fb-btn-cancel:hover { 
+            background: #5a6268;
+            transform: translateY(-1px); 
+        }
     </style>
 </head>
 <body>
@@ -378,6 +496,36 @@
             <div class="table-footer">
                 <p id="entryInfo">Showing 0 to 0 of 0 entries</p>
                 <div class="pagination" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STAR RATING FEEDBACK MODAL -->
+    <div id="feedbackModal">
+        <div class="fb-modal-box">
+            <div class="fb-modal-header">
+                <span><i class="fa fa-star"></i> Submit Feedback</span>
+                <button onclick="closeFeedbackModal()">&times;</button>
+            </div>
+            <div class="fb-modal-body">
+                <center><span class="fb-label">Tell us about your experience or report an issue:</span></center>
+                <div class="star-picker" id="starPicker">
+                    <input type="radio" name="rating" id="star5" value="5">
+                    <label for="star5" title="5 stars">&#9733;</label>
+                    <input type="radio" name="rating" id="star4" value="4">
+                    <label for="star4" title="4 stars">&#9733;</label>
+                    <input type="radio" name="rating" id="star3" value="3">
+                    <label for="star3" title="3 stars">&#9733;</label>
+                    <input type="radio" name="rating" id="star2" value="2">
+                    <label for="star2" title="2 stars">&#9733;</label>
+                    <input type="radio" name="rating" id="star1" value="1">
+                    <label for="star1" title="1 star">&#9733;</label>
+                </div>
+                <textarea id="fbMessage" placeholder="Type your message here..."></textarea>
+            </div>
+            <div class="fb-modal-footer">
+                <button class="fb-btn-cancel" onclick="closeFeedbackModal()">Cancel</button>
+                <button class="fb-btn-submit" onclick="submitFeedbackModal()">Submit Feedback</button>
             </div>
         </div>
     </div>
@@ -685,52 +833,62 @@ setInterval(checkForNewResNotifs, 15000);
         renderPagination();
     }
 
-    async function openFeedbackPopup(idNumber, lab) {
-        const { value: text } = await Swal.fire({
-            title: `Submit Feedback for ${lab}`,
-            input: "textarea",
-            inputLabel: "Tell us about your experience or report an issue:",
-            inputPlaceholder: "Type your message here...",
-            inputAttributes: {
-                "aria-label": "Type your message here"
-            },
-            showCancelButton: true,
-            confirmButtonColor: '#2c3e70',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Submit Feedback',
-            preConfirm: (value) => {
-                if (!value) {
-                    Swal.showValidationMessage('Please enter a message first');
-                }
-            }
-        });
+    let _fbIdNumber = '';
+    let _fbLab = '';
 
-        if (text) {
-            try {
-                const response = await fetch("http://localhost:3000/api/feedback", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        idNumber: idNumber,
-                        lab: lab,
-                        message: text
-                    })
-                });
+    function openFeedbackPopup(idNumber, lab) {
+        _fbIdNumber = idNumber;
+        _fbLab = lab;
+        document.querySelectorAll('#starPicker input[type="radio"]').forEach(r => r.checked = false);
+        document.getElementById('fbMessage').value = '';
+        document.querySelector('.fb-modal-header span').innerHTML =
+            `<i class="fa fa-star"></i> Submit Feedback for ${lab}`;
+        document.getElementById('feedbackModal').classList.add('open');
+    }
 
-                if (response.ok) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thank You!',
-                        text: 'Your feedback has been sent to the admin.',
-                        confirmButtonColor: '#28a745'
-                    });
-                } else {
-                    throw new Error("Failed to send");
-                }
-            } catch (err) {
-                console.error("Feedback error:", err);
-                Swal.fire('Error', 'Could not send feedback. Is the server running?', 'error');
+    function closeFeedbackModal() {
+        document.getElementById('feedbackModal').classList.remove('open');
+    }
+
+    document.getElementById('feedbackModal').addEventListener('click', function(e) {
+        if (e.target === this) closeFeedbackModal();
+    });
+
+    async function submitFeedbackModal() {
+        const ratingEl = document.querySelector('#starPicker input[type="radio"]:checked');
+        const message  = document.getElementById('fbMessage').value.trim();
+
+        if (!ratingEl) {
+            Swal.fire({ icon: 'warning', title: 'Rating Required', text: 'Please select a star rating before submitting.', confirmButtonColor: '#2c3e70' });
+            return;
+        }
+        if (!message) {
+            Swal.fire({ icon: 'warning', title: 'Message Required', text: 'Please write a message before submitting.', confirmButtonColor: '#2c3e70' });
+            return;
+        }
+
+        closeFeedbackModal();
+
+        try {
+            const response = await fetch("http://localhost:3000/api/feedback", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    idNumber: _fbIdNumber,
+                    lab:      _fbLab,
+                    rating:   parseInt(ratingEl.value),
+                    message:  message
+                })
+            });
+
+            if (response.ok) {
+                Swal.fire({ icon: 'success', title: 'Thank You!', text: 'Your feedback has been sent to the admin.', confirmButtonColor: '#28a745' });
+            } else {
+                throw new Error("Failed to send");
             }
+        } catch (err) {
+            console.error("Feedback error:", err);
+            Swal.fire('Error', 'Could not send feedback. Is the server running?', 'error');
         }
     }
 

@@ -544,6 +544,11 @@
         [data-theme="dark"] .controls { background: var(--bg-card) !important; border-color: var(--border-inner) !important; }
         [data-theme="dark"] .filter-group label { color: var(--text-label) !important; }
         [data-theme="dark"] .filter-group select { background: var(--bg-input) !important; color: var(--text-main) !important; border-color: var(--input-border) !important; }
+
+        .star-display { display: inline-flex; gap: 2px; }
+        .star-display .fa-star { font-size: 15px; }
+        .star-filled  { color: #f5a623; }
+        .star-empty   { color: #d0d0d0; }
     </style>
 </head>
 <body>
@@ -642,6 +647,7 @@
                         <th>Student ID Number <i class="fa fa-sort"></i></th>
                         <th>Laboratory <i class="fa fa-sort"></i></th>
                         <th>Date <i class="fa fa-sort"></i></th>
+                        <th>Rating</th>
                         <th>Message</th>
                     </tr>
                 </thead>
@@ -806,14 +812,23 @@
         // Fetch feedback from the server
     async function loadFeedback() {
         try {
-            // Updated to match the /api/feedback route in your server.js
-            const response = await fetch("http://localhost:3000/api/feedback"); 
+            const response = await fetch("http://localhost:3000/api/feedback");
             const feedback = await response.json();
 
             const tbody = document.getElementById("feedbackBody");
             if (feedback.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No feedback reports yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No feedback reports yet.</td></tr>`;
                 return;
+            }
+
+            function renderStars(rating) {
+                const num = parseInt(rating) || 0;
+                let html = '<span class="star-display">';
+                for (let i = 1; i <= 5; i++) {
+                    html += `<i class="fa fa-star ${i <= num ? 'star-filled' : 'star-empty'}"></i>`;
+                }
+                html += '</span>';
+                return html;
             }
 
             tbody.innerHTML = feedback.map(f => `
@@ -821,6 +836,7 @@
                     <td><b>${f.idNumber}</b></td>
                     <td>${f.lab}</td>
                     <td>${f.date}</td>
+                    <td>${renderStars(f.rating)}</td>
                     <td>${f.message}</td>
                 </tr>
             `).join("");

@@ -62,9 +62,12 @@ db.serialize(() => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         idNumber TEXT,
         lab TEXT,
+        rating INTEGER DEFAULT 0,
         message TEXT,
         date TEXT
     )`);
+
+     db.run(`ALTER TABLE feedback ADD COLUMN rating INTEGER DEFAULT 0`, () => {});
 
     db.run(`CREATE TABLE IF NOT EXISTS notifications (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -410,15 +413,15 @@ app.get("/admin/reports", (req, res) => {
 
 // --- SUBMIT FEEDBACK ---s
 app.post("/api/feedback", (req, res) => {
-    const { idNumber, lab, message } = req.body;
+    const { idNumber, lab, rating, message } = req.body;
     const date = new Date().toLocaleDateString();
 
     if (!idNumber || !message) {
         return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const sql = `INSERT INTO feedback (idNumber, lab, message, date) VALUES (?, ?, ?, ?)`;
-    db.run(sql, [idNumber, lab, message, date], function(err) {
+    const sql = `INSERT INTO feedback (idNumber, lab, rating, message, date) VALUES (?, ?, ?, ?, ?)`;
+    db.run(sql, [idNumber, lab, rating || 0, message, date], function(err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Feedback submitted successfully!", id: this.lastID });
     });
