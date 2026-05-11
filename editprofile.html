@@ -562,6 +562,49 @@
             border-color: var(--border-inner) !important;
             color: var(--text-main) !important;
         }
+
+        /* ── Profile sidebar container ── */
+        [data-theme="dark"] .profile-sidebar {
+            background: transparent !important;
+        }
+
+        /* ── Avatar card - force dark override ── */
+        [data-theme="dark"] .profile-avatar-card {
+            background: #1a1d27 !important;
+            border: 1px solid #2e3347 !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+        }
+
+        /* ── Profile image circle ── */
+        [data-theme="dark"] .profile-image {
+            border-color: #2e3347 !important;
+            background-color: #22263a !important;
+        }
+
+        /* ── No-photo placeholder icon ── */
+        [data-theme="dark"] #noPhotoPlaceholder {
+            background: #22263a !important;
+            color: #b0b8cc !important;
+        }
+
+        /* ── Form card force dark ── */
+        [data-theme="dark"] .form-card {
+            background: #1a1d27 !important;
+            border: 1px solid #2e3347 !important;
+        }
+
+        /* ── Page background force dark ── */
+        [data-theme="dark"] body {
+            background: #0f1117 !important;
+        }
+
+        [data-theme="dark"] .register-wrapper {
+            background: linear-gradient(135deg, #0f1117 0%, #111827 100%) !important;
+        }
+
+        [data-theme="dark"] .register-container {
+            background: transparent !important;
+        }
     </style>
 </head>
 <body>

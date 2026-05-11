@@ -547,8 +547,69 @@
         [data-theme="dark"] .controls { background: var(--bg-card) !important; border-color: var(--border-inner) !important; }
         [data-theme="dark"] .filter-group label { color: var(--text-label) !important; }
         [data-theme="dark"] .filter-group select { background: var(--bg-input) !important; color: var(--text-main) !important; border-color: var(--input-border) !important; }
+        /* ── Modal body (overrides inline style="background: white") ── */
+        [data-theme="dark"] .modal-body {
+            background: #1a1d27 !important;
+            color: #e0e6f0 !important;
+        }
 
-        
+        /* ── Modal footer (overrides inline style="background: #f9f9f9") ── */
+        [data-theme="dark"] .modal-footer {
+            background: #161928 !important;
+            border-top-color: #2a2f47 !important;
+        }
+
+        /* ── Cancel button in modal footer ── */
+        [data-theme="dark"] .modal-footer button[type="button"] {
+            background: #252839 !important;
+            color: #e0e6f0 !important;
+            border-color: #3a3f5c !important;
+        }
+
+        /* ── Section labels (Personal Information, Academic Details, etc.) ── */
+        [data-theme="dark"] .modal-body p {
+            color: #7b9cff !important;
+        }
+
+        [data-theme="dark"] .modal-body p[style*="888"] {
+            color: #8892a4 !important;
+        }
+
+        /* ── Table card & table rows ── */
+        [data-theme="dark"] .table-card {
+            background: #1a1d27 !important;
+            border-color: #2a2f47 !important;
+        }
+
+        [data-theme="dark"] table {
+            background: #1a1d27 !important;
+        }
+
+        [data-theme="dark"] tbody tr {
+            background: #1a1d27 !important;
+        }
+
+        [data-theme="dark"] tbody tr:hover {
+            background: #222640 !important;
+        }
+
+        [data-theme="dark"] td {
+            border-bottom-color: #2a2f47 !important;
+            color: #e0e6f0 !important;
+        }
+
+        /* ── Badge session ── */
+        [data-theme="dark"] .badge-session {
+            background: #1e2a50 !important;
+            color: #7b9cff !important;
+        }
+
+        /* ── Search box ── */
+        [data-theme="dark"] .search-box {
+            background: #252839 !important;
+            color: #e0e6f0 !important;
+            border-color: #3a3f5c !important;
+        }
     </style>
 <body>
 
