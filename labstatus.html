@@ -515,6 +515,119 @@ async function pollAnnouncements() {
 pollAnnouncements();
 setInterval(pollAnnouncements, 30000);
 
+let _resNotifs = [];
+
+async function pollResNotifs() {
+    const idNumber = localStorage.getItem('loggedInId');
+    if (!idNumber) return;
+    try {
+        const res = await fetch(`http://localhost:3000/notifications/${idNumber}`);
+        _resNotifs = await res.json();
+        renderCombinedNotifs();
+    } catch(e) {}
+}
+
+function renderCombinedNotifs() {
+    const readIds    = getReadIds();
+    const unreadAnn  = _announcements.filter(a => !readIds.includes(a.id)).length;
+    const unreadRes  = _resNotifs.filter(n => n.isRead === 0).length;
+    const totalUnread = unreadAnn + unreadRes;
+
+    const badge = document.getElementById('notifBadge');
+    badge.textContent = totalUnread;
+    badge.style.display = totalUnread > 0 ? 'flex' : 'none';
+
+    let html = '';
+
+    _resNotifs.forEach(n => {
+        const isAccepted = n.message.startsWith('✅');
+        html += `
+            <div onclick="markResNotifRead(${n.id})" style="padding:12px 14px;border-bottom:1px solid #eee;cursor:pointer;
+                background:${n.isRead ? 'white' : (isAccepted ? '#eaf7ee' : '#fdf0f0')};">
+                <div style="font-size:14px;color:#888;">Reservation Update | ${n.createdAt || ''}</div>
+                <div style="font-size:14px;color:${n.isRead ? '#888' : '#222'};margin-top:3px;font-family:'Sora',sans-serif;">${n.message}</div>
+            </div>`;
+    });
+
+    _announcements.forEach(a => {
+        html += `
+            <div onclick="markOneRead(${a.id})" style="padding:12px 14px;border-bottom:1px solid #eee;cursor:pointer;
+                background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
+                <div style="font-size:14px;color:#888;">${a.author} | ${a.date}</div>
+                <div style="font-size:14px;color:#222;margin-top:3px;font-family:'Sora',sans-serif;">${a.content}</div>
+            </div>`;
+    });
+
+    document.getElementById('notifList').innerHTML = html ||
+        '<p style="text-align:center;color:#aaa;padding:20px;font-size:13px;">No notifications yet.</p>';
+}
+
+async function markResNotifRead(id) {
+    try {
+        await fetch(`http://localhost:3000/notifications/read/${id}`, { method: 'POST' });
+        const n = _resNotifs.find(x => x.id === id);
+        if (n) n.isRead = 1;
+        renderCombinedNotifs();
+    } catch(e) {}
+}
+
+// Override markAllRead to also clear reservation notifs
+const _origMarkAllRead = markAllRead;
+window.markAllRead = function() {
+    _origMarkAllRead();
+    const idNumber = localStorage.getItem('loggedInId');
+    if (idNumber) {
+        fetch(`http://localhost:3000/notifications/read-all/${idNumber}`, { method: 'POST' })
+            .then(() => { _resNotifs.forEach(n => n.isRead = 1); renderCombinedNotifs(); })
+            .catch(() => {});
+    }
+};
+
+// Override renderNotifs so announcements also trigger a combined re-render
+const _origRenderNotifs = renderNotifs;
+window.renderNotifs = function() {
+    _origRenderNotifs();
+    renderCombinedNotifs();
+};
+
+// SweetAlert popup when a new accept/deny arrives
+let _lastResNotifCount = 0;
+async function checkForNewResNotifs() {
+    const idNumber = localStorage.getItem('loggedInId');
+    if (!idNumber) return;
+    try {
+        const res    = await fetch(`http://localhost:3000/notifications/${idNumber}`);
+        const notifs = await res.json();
+        const unread = notifs.filter(n => n.isRead === 0);
+        if (unread.length > _lastResNotifCount && _lastResNotifCount !== -1) {
+            const latest     = unread[0];
+            const isAccepted = latest.message.startsWith('✅');
+            Swal.fire({
+                icon: isAccepted ? 'success' : 'error',
+                title: isAccepted ? 'Reservation Accepted!' : 'Reservation Denied',
+                text: latest.message.replace(/^[✅❌]\s*/, ''),
+                confirmButtonColor: isAccepted ? '#28a745' : '#dc3545',
+                confirmButtonText: 'OK'
+            });
+        }
+        _lastResNotifCount = unread.length;
+        _resNotifs = notifs;
+        renderCombinedNotifs();
+    } catch(e) {}
+}
+
+pollResNotifs();
+setTimeout(async () => {
+    const idNumber = localStorage.getItem('loggedInId');
+    if (!idNumber) return;
+    try {
+        const res    = await fetch(`http://localhost:3000/notifications/${idNumber}`);
+        const notifs = await res.json();
+        _lastResNotifCount = notifs.filter(n => n.isRead === 0).length;
+    } catch(e) { _lastResNotifCount = 0; }
+}, 500);
+setInterval(checkForNewResNotifs, 15000);
+
 /* ══ RENDER SOFTWARE ══ */
 function renderSoftware() {
     let registered = [];

@@ -157,7 +157,7 @@
             background: #2c3e70;
             color: white;
             padding: 10px 14px;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: bold;
         }
 
@@ -166,8 +166,8 @@
             background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            font-size: 11px;
-            padding: 2px 7px;
+            font-size: 12px;
+            padding: 3px 9px;
             border-radius: 4px;
             cursor: pointer;
         }
@@ -488,8 +488,8 @@
             html += `
                 <div onclick="markResNotifRead(${n.id})" style="padding:12px 14px;border-bottom:1px solid #eee;cursor:pointer;
                     background:${n.isRead ? 'white' : (isAccepted ? '#eaf7ee' : '#fdf0f0')};">
-                    <div style="font-size:11px;color:#888;">Reservation Update | ${n.createdAt || ''}</div>
-                    <div style="font-size:13px;color:${n.isRead ? '#888' : '#222'};margin-top:3px;">${n.message}</div>
+                    <div style="font-size:14px;color:#888;">Reservation Update | ${n.createdAt || ''}</div>
+                    <div style="font-size:14px;color:${n.isRead ? '#888' : '#222'};margin-top:3px; font-family: 'Sora', sans-serif;">${n.message}</div>
                 </div>`;
         });
 
@@ -497,8 +497,8 @@
             html += `
                 <div onclick="markOneRead(${a.id})" style="padding:12px 14px;border-bottom:1px solid #eee;cursor:pointer;
                     background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
-                    <div style="font-size:11px;color:#888;">${a.author} | ${a.date}</div>
-                    <div style="font-size:13px;color:#222;margin-top:3px;">${a.content}</div>
+                    <div style="font-size:14px;color:#888;">${a.author} | ${a.date}</div>
+                    <div style="font-size:14px;color:#222;margin-top:3px; font-family: 'Sora', sans-serif;">${a.content}</div>
                 </div>`;
         });
 
